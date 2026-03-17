@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- Text Appeal Translator — François COUTURE, Voila Translations -->
+  <!-- Text Appeal Translator - François COUTURE, Voila Translations -->
   <head>
     <!--
        ______                            __
@@ -19,7 +19,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>Text Appeal — EN→FR-CA Translator</title>
+    <title>Text Appeal - EN→FR-CA Translator</title>
     <meta name="description" content="Professional English to Canadian French translator with TM, glossary, and 25 Text Appeal style principles by François COUTURE." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,5 +29,984 @@
   </head>
   <body>
     <div id="root"></div>
-  </body>
+  
+
+<script>
+// ═══ Bilingual Support ═══
+window.__taLang = localStorage.getItem("ta_lang") || "en";
+window.__taCreativity = parseFloat(localStorage.getItem("ta_creativity") || "0.3");
+
+window.__i18n = {
+  en: {
+    createFreeAccount: "Create Free Account",
+    logIn: "Log In",
+    logout: "Logout",
+    upgradeTo: "Upgrade to Pro",
+    cadMo: "CAD/mo",
+    freeRequests: "free requests/month",
+    noCreditCard: "No credit card required",
+    proUnlimited: "Pro Plan - Unlimited",
+    freeRequestsOf: "free requests",
+    monthlyLimitReached: "Monthly Limit Reached",
+    youveUsedAll: "You've used all",
+    freeRequestsThisMonth: "free requests this month.",
+    upgradeToPro: "Upgrade to Pro",
+    unlimitedTranslations: "Unlimited translations & rewrites",
+    priorityProcessing: "Priority processing",
+    cancelAnytime: "Cancel anytime",
+    upgradeNow: "Upgrade Now",
+    orWait: "Or wait until next month for your free requests to reset.",
+    createAccount: "Create Account",
+    welcomeBack: "Welcome back to Text Appeal.",
+    freeRequestsPerMonth: "free requests per month. Upgrade anytime.",
+    name: "Name",
+    yourName: "Your name (optional)",
+    email: "Email",
+    password: "Password",
+    minChars: "Min. 6 characters",
+    pleaseWait: "Please wait...",
+    alreadyHaveAccount: "Already have an account?",
+    logInLink: "Log in",
+    noAccount: "No account?",
+    createOneFree: "Create one for free",
+    wantUnlimited: "Want unlimited requests?",
+    subscribeAfter: "after signing up.",
+    subscribeToPro: "Subscribe to Pro for",
+    // Creativity slider
+    creativity: "Creativity",
+    direct: "Direct",
+    fluid: "Fluid",
+    creative: "Creative",
+    // Admin (not translated)
+    membersUsage: "Members & Usage",
+    stripeBilling: "Stripe & Billing",
+    mysqlDatabase: "MySQL Database"
+  },
+  fr: {
+    createFreeAccount: "Créer un compte gratuit",
+    logIn: "Connexion",
+    logout: "Déconnexion",
+    upgradeTo: "Passer à Pro",
+    cadMo: "CAD/mois",
+    freeRequests: "requêtes gratuites/mois",
+    noCreditCard: "Aucune carte de crédit requise",
+    proUnlimited: "Forfait Pro - Illimité",
+    freeRequestsOf: "requêtes gratuites",
+    monthlyLimitReached: "Limite mensuelle atteinte",
+    youveUsedAll: "Vous avez utilisé vos",
+    freeRequestsThisMonth: "requêtes gratuites ce mois-ci.",
+    upgradeToPro: "Passer à Pro",
+    unlimitedTranslations: "Traductions et réécritures illimitées",
+    priorityProcessing: "Traitement prioritaire",
+    cancelAnytime: "Annulation en tout temps",
+    upgradeNow: "Passer à Pro maintenant",
+    orWait: "Ou attendez le mois prochain pour que vos requêtes gratuites se réinitialisent.",
+    createAccount: "Créer un compte",
+    welcomeBack: "Bienvenue sur Text Appeal.",
+    freeRequestsPerMonth: "requêtes gratuites par mois. Passez à Pro en tout temps.",
+    name: "Nom",
+    yourName: "Votre nom (facultatif)",
+    email: "Courriel",
+    password: "Mot de passe",
+    minChars: "Min. 6 caractères",
+    pleaseWait: "Veuillez patienter...",
+    alreadyHaveAccount: "Vous avez déjà un compte?",
+    logInLink: "Se connecter",
+    noAccount: "Pas de compte?",
+    createOneFree: "En créer un gratuitement",
+    wantUnlimited: "Envie de requêtes illimitées?",
+    subscribeAfter: "après votre inscription.",
+    subscribeToPro: "Abonnez-vous à Pro pour",
+    creativity: "Créativité",
+    direct: "Direct",
+    fluid: "Fluide",
+    creative: "Créatif",
+    membersUsage: "Membres et utilisation",
+    stripeBilling: "Stripe et facturation",
+    mysqlDatabase: "Base de données MySQL"
+  }
+};
+
+function __t(key) {
+  return (window.__i18n[window.__taLang] || window.__i18n.en)[key] || (window.__i18n.en)[key] || key;
+}
+
+function __setLang(lang) {
+  window.__taLang = lang;
+  localStorage.setItem("ta_lang", lang);
+  // Re-render freemium UI
+  if (window.__taFreemium) {
+    window.__taFreemium.updateUI();
+    window.__taFreemium.renderLangToggle();
+    window.__taFreemium.renderCreativitySlider();
+  }
+  // Force React re-render by dispatching a custom event
+  window.dispatchEvent(new Event("ta-lang-changed"));
+  // Update any React-rendered text via DOM manipulation
+  __updateReactText();
+}
+
+function __updateReactText() {
+  // Update placeholder texts in textareas/contenteditable
+  const L = window.__taLang;
+  document.querySelectorAll('[data-testid="button-translate"]').forEach(function(btn) {
+    const textNode = Array.from(btn.childNodes).find(n => n.nodeType === 3 || (n.nodeType === 1 && !n.querySelector("svg")));
+    if (textNode) {
+      const el = textNode.nodeType === 3 ? textNode : textNode;
+      // Find the text span/node inside button
+      const spans = btn.querySelectorAll("span");
+      // Just update all text children that aren't SVGs
+    }
+    // Simpler: find last text content
+    const walker = document.createTreeWalker(btn, NodeFilter.SHOW_TEXT);
+    let node;
+    while (node = walker.nextNode()) {
+      if (node.textContent.includes("Translate") || node.textContent.includes("Traduire")) {
+        node.textContent = L === "fr" ? " Traduire / Retraduire" : " Translate / Retranslate";
+      }
+    }
+  });
+
+  // Update section headers
+  const headerMap = {
+    "Paste English Here": "Collez le texte anglais ici",
+    "Collez le texte anglais ici": "Collez le texte anglais ici",
+    "First French Version": "Première version française",
+    "Première version française": "Première version française",
+    "Text Appeal Version": "Version Text Appeal",
+    "Version Text Appeal": "Version Text Appeal",
+    "Translation Memory": "Mémoire de traduction",
+    "Mémoire de traduction": "Mémoire de traduction",
+    "Glossary": "Glossaire",
+    "Glossaire": "Glossaire",
+  };
+  const headerMapEN = {
+    "Collez le texte anglais ici": "Paste English Here",
+    "Paste English Here": "Paste English Here",
+    "Première version française": "First French Version",
+    "First French Version": "First French Version",
+    "Version Text Appeal": "Text Appeal Version",
+    "Text Appeal Version": "Text Appeal Version",
+    "Mémoire de traduction": "Translation Memory",
+    "Translation Memory": "Translation Memory",
+    "Glossaire": "Glossary",
+    "Glossary": "Glossary",
+  };
+
+  document.querySelectorAll("h3, h4, [class*='font-semibold'], [class*='font-medium'], [class*='text-sm']").forEach(function(el) {
+    const txt = el.textContent.trim();
+    if (L === "fr" && headerMap[txt]) el.textContent = headerMap[txt];
+    else if (L === "en" && headerMapEN[txt]) el.textContent = headerMapEN[txt];
+  });
+
+  // Update placeholder in the input area
+  document.querySelectorAll('[contenteditable="true"]').forEach(function(el) {
+    if (el.dataset.placeholder) {
+      if (L === "fr") {
+        if (el.dataset.placeholder.includes("Paste")) el.dataset.placeholder = "Collez le texte anglais ici";
+      } else {
+        if (el.dataset.placeholder.includes("Collez")) el.dataset.placeholder = "Paste English Here";
+      }
+    }
+    // Also check for placeholder attribute
+    const ph = el.getAttribute("placeholder");
+    if (ph) {
+      if (L === "fr" && ph.includes("Paste")) el.setAttribute("placeholder", "Collez le texte anglais ici");
+      else if (L === "en" && ph.includes("Collez")) el.setAttribute("placeholder", "Paste English Here");
+    }
+  });
+
+  // Update "Translation will appear here" and "Refined version will appear here"
+  document.querySelectorAll('[class*="text-muted"]').forEach(function(el) {
+    const txt = el.textContent.trim();
+    if (L === "fr") {
+      if (txt === "Translation will appear here") el.textContent = "La traduction apparaîtra ici";
+      if (txt === "Refined version will appear here") el.textContent = "La version améliorée apparaîtra ici";
+    } else {
+      if (txt === "La traduction apparaîtra ici") el.textContent = "Translation will appear here";
+      if (txt === "La version améliorée apparaîtra ici") el.textContent = "Refined version will appear here";
+    }
+  });
+}
+</script>
+
+<!-- Splash Screen -->
+<script>
+(function(){
+  if (sessionStorage.getItem("ta_splash_seen")) return;
+  if (window.location.hash && window.location.hash.includes("/admin")) return;
+
+  const lang = window.__taLang || localStorage.getItem("ta_lang") || "en";
+
+  const content = {
+    en: {
+      title: "Welcome to TextAppeal Pro!",
+      p1: "This AI tool operates online. Please avoid entering sensitive information.",
+      p2: "No translation engine achieves perfection on every attempt. You may need to run your text through more than once to reach a satisfying result.",
+      p3: 'TextAppeal Pro complements, but never replaces, a flesh-and-blood Certified Translator. For longer or confidential documents, contact Certified Translator and Copywriter Fran\u00e7ois Couture at <a href="mailto:fcouture@voilatranslations.com" style="color:#3b82f6;text-decoration:underline">fcouture@voilatranslations.com</a>. A qualified professional will process your document offline with full oversight. A guarantee of quality and discretion.',
+      btn: "I understand"
+    },
+    fr: {
+      title: "Bienvenue dans TextAppeal Pro\u00a0!",
+      p1: "Cet outil d\u2019IA fonctionne en ligne. \u00c9vitez d\u2019y saisir des renseignements sensibles.",
+      p2: "Aucun moteur de traduction n\u2019atteint la perfection du premier coup. Vous devrez peut-\u00eatre soumettre votre texte plus d\u2019une fois pour obtenir un r\u00e9sultat satisfaisant.",
+      p3: 'TextAppeal Pro compl\u00e8te le travail d\u2019un traducteur agr\u00e9\u00e9 en chair et en os, sans jamais le remplacer. Confiez vos documents longs ou confidentiels au traducteur agr\u00e9\u00e9 et r\u00e9dacteur agr\u00e9\u00e9 Fran\u00e7ois Couture, \u00e0 l\u2019adresse <a href="mailto:fcouture@voilatranslations.com" style="color:#3b82f6;text-decoration:underline">fcouture@voilatranslations.com</a>. Un professionnel qualifi\u00e9 traitera votre document hors ligne, en toute rigueur. Une garantie de qualit\u00e9 et de discr\u00e9tion.',
+      btn: "Je comprends"
+    }
+  };
+
+  const t = content[lang] || content.en;
+
+  const overlay = document.createElement("div");
+  overlay.id = "ta-splash";
+  overlay.innerHTML =
+    '<div class="ta-splash-card">' +
+    '<img src="data:image/jpeg;base64,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" class="ta-splash-photo" alt="François Couture">' +
+    '<h1 class="ta-splash-title">' + t.title + '</h1>' +
+    '<p class="ta-splash-text">' + t.p1 + '</p>' +
+    '<p class="ta-splash-text">' + t.p2 + '</p>' +
+    '<p class="ta-splash-text">' + t.p3 + '</p>' +
+    '<button class="ta-splash-btn" id="ta-splash-dismiss">' + t.btn + '</button>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("ta-splash-dismiss").addEventListener("click", function() {
+    overlay.style.opacity = "0";
+    setTimeout(function() { overlay.remove(); }, 300);
+    sessionStorage.setItem("ta_splash_seen", "1");
+  });
+})();
+</script>
+
+<!-- Freemium System UI -->
+<script>
+(function(){
+"use strict";
+
+// ═══ State ═══
+let currentUser = null;
+let freemiumConfig = { freeRequestsPerMonth: 30, monthlyPriceCad: 20 };
+
+// ═══ Token Management ═══
+function getToken() { return localStorage.getItem("ta_user_token"); }
+function setToken(t) { if(t) localStorage.setItem("ta_user_token", t); else localStorage.removeItem("ta_user_token"); }
+
+// ═══ Fetch wrapper to inject user token + capture admin token ═══
+const origFetch = window.fetch;
+let capturedAdminToken = null;
+window.fetch = function(url, opts) {
+  opts = opts || {};
+  const token = getToken();
+  if (token && typeof url === "string" && url.startsWith("/api/")) {
+    opts.headers = opts.headers || {};
+    if (opts.headers instanceof Headers) {
+      if (!opts.headers.has("x-user-token")) opts.headers.set("x-user-token", token);
+    } else {
+      if (!opts.headers["x-user-token"]) opts.headers["x-user-token"] = token;
+    }
+  }
+  // Gate: require login for translate/rewrite
+  if (window.__taRequireLogin && typeof url === "string" && (url.includes("/api/translate") || url.includes("/api/rewrite"))) {
+    window.__taFreemium.showAuthModal();
+    return Promise.resolve(new Response(JSON.stringify({error: "Login required"}), {status: 401, headers: {"Content-Type": "application/json"}}));
+  }
+
+  // Capture admin token from outgoing requests
+  if (opts.headers && typeof url === "string" && url.startsWith("/api/admin")) {
+    const at = opts.headers instanceof Headers ? opts.headers.get("x-admin-token") : opts.headers["x-admin-token"];
+    if (at) capturedAdminToken = at;
+  }
+  return origFetch.call(this, url, opts).then(function(resp) {
+    // Capture admin token from login response
+    if (typeof url === "string" && url.includes("/api/admin/login") && resp.ok) {
+      resp.clone().json().then(function(data) {
+        if (data.token) capturedAdminToken = data.token;
+      });
+    }
+    // Intercept 402 (limit reached) responses
+    if (resp.status === 402) {
+      resp.clone().json().then(function(data) {
+        if (data.error === "limit_reached") {
+          showUpgradeModal(data);
+        }
+      });
+    }
+    return resp;
+  });
+};
+
+function getAdminToken() {
+  return capturedAdminToken;
+}
+
+// ═══ Load freemium config ═══
+async function loadConfig() {
+  try {
+    const r = await origFetch("/api/freemium-config");
+    if (r.ok) freemiumConfig = await r.json();
+  } catch(e) {}
+}
+
+// ═══ Check session ═══
+async function checkSession() {
+  const token = getToken();
+  if (!token) { currentUser = null; updateUI(); return; }
+  try {
+    const r = await origFetch("/api/user/me", { headers: { "x-user-token": token } });
+    if (r.ok) {
+      currentUser = await r.json();
+    } else {
+      setToken(null);
+      currentUser = null;
+    }
+  } catch(e) {
+    currentUser = null;
+  }
+  updateUI();
+}
+
+// ═══ Auth Actions ═══
+async function doRegister(email, password, name) {
+  const r = await origFetch("/api/user/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, displayName: name })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || "Registration failed");
+  setToken(data.token);
+  currentUser = data.user;
+  updateUI();
+  return data;
+}
+
+async function doLogin(email, password) {
+  const r = await origFetch("/api/user/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || "Login failed");
+  setToken(data.token);
+  currentUser = data.user;
+  updateUI();
+  return data;
+}
+
+async function doLogout() {
+  const token = getToken();
+  if (token) {
+    try { await origFetch("/api/user/logout", { method: "POST", headers: { "x-user-token": token } }); } catch(e) {}
+  }
+  setToken(null);
+  currentUser = null;
+  updateUI();
+}
+
+async function doSubscribe() {
+  const token = getToken();
+  if (!token) { showAuthModal("login"); return; }
+  try {
+    const r = await origFetch("/api/user/subscribe", { method: "POST", headers: { "x-user-token": token, "Content-Type": "application/json" } });
+    const data = await r.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert(data.error || "Subscription unavailable at this time");
+    }
+  } catch(e) {
+    alert("Subscription service error: " + e.message);
+  }
+}
+
+// ═══ Create / Remove UI Elements ═══
+function updateUI() {
+  renderUserBar();
+  renderUsageCounter();
+  injectAccountButton();
+  renderLangToggle();
+  renderCreativitySlider();
+  setTimeout(__updateReactText, 600);
+  // Gate: require login before allowing translate
+  window.__taRequireLogin = !currentUser;
+}
+
+function renderUserBar() {
+  let bar = document.getElementById("ta-user-bar");
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "ta-user-bar";
+    document.body.appendChild(bar);
+  }
+
+  if (currentUser) {
+    const plan = currentUser.plan === "pro" ? "Pro" : currentUser.plan === "admin_free" ? "Free (Admin)" : "Free";
+    const planBadge = currentUser.plan === "pro" || currentUser.plan === "admin_free"
+      ? '<span class="ta-badge ta-badge-pro">' + plan + '</span>'
+      : '<span class="ta-badge ta-badge-free">' + plan + '</span>';
+    bar.innerHTML = '<div class="ta-user-bar-inner">' +
+      '<span class="ta-user-email">' + escHtml(currentUser.email) + '</span>' +
+      planBadge +
+      (currentUser.plan === "free" && currentUser.subscriptionStatus !== "active"
+        ? '<button class="ta-btn ta-btn-upgrade" onclick="window.__taFreemium.doSubscribe()">' + __t("upgradeTo") + ' - $' + freemiumConfig.monthlyPriceCad + ' ' + __t("cadMo") + '</button>'
+        : '') +
+      '<button class="ta-btn ta-btn-logout" onclick="window.__taFreemium.doLogout()">' + __t("logout") + '</button>' +
+      '</div>';
+    bar.style.display = "flex";
+  } else {
+    bar.innerHTML = '<div class="ta-user-bar-inner">' +
+      '<button class="ta-btn ta-btn-login" onclick="window.__taFreemium.showAuthModal(\'login\')">' + __t("logIn") + '</button>' +
+      '<button class="ta-btn ta-btn-register" onclick="window.__taFreemium.showAuthModal(\'register\')">' + __t("createFreeAccount") + '</button>' +
+      '</div>';
+    bar.style.display = "flex";
+  }
+}
+
+function renderUsageCounter() {
+  let counter = document.getElementById("ta-usage-counter");
+  if (!currentUser) {
+    if (counter) counter.remove();
+    return;
+  }
+  if (!counter) {
+    counter = document.createElement("div");
+    counter.id = "ta-usage-counter";
+    document.body.appendChild(counter);
+  }
+  const used = currentUser.requestsThisMonth || 0;
+  const limit = currentUser.freeLimit || freemiumConfig.freeRequestsPerMonth || 30;
+  const isPro = currentUser.plan === "pro" || currentUser.plan === "admin_free" || currentUser.subscriptionStatus === "active";
+  const pct = isPro ? 0 : Math.min(100, Math.round((used / limit) * 100));
+  const barColor = pct > 80 ? "#ef4444" : pct > 50 ? "#f59e0b" : "#10b981";
+
+  counter.innerHTML = '<div class="ta-usage-inner">' +
+    '<span class="ta-usage-label">' + (isPro ? __t("proUnlimited") : used + " / " + limit + " " + __t("freeRequestsOf")) + '</span>' +
+    (isPro ? '' : '<div class="ta-usage-bar"><div class="ta-usage-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>') +
+    '</div>';
+}
+
+function injectAccountButton() {
+  // Check if there's already a button injected into the main app area
+  // We'll add it near the top of the page content area
+  setTimeout(function() {
+    const existing = document.getElementById("ta-hero-cta");
+    if (existing) existing.remove();
+
+    // Only show on the main page (not admin)
+    if (window.location.hash.includes("/admin")) return;
+    if (currentUser) return; // Already logged in, no need for CTA
+
+    // Find the main app container (the h-[100dvh] flex-col div)
+    const root = document.getElementById("root");
+    if (!root) return;
+    // The app container is the div with h-[100dvh]
+    const appContainer = root.querySelector('[class*="100dvh"]') || root.querySelector('[class*="flex-col"]');
+    if (!appContainer) return;
+
+    const cta = document.createElement("div");
+    cta.id = "ta-hero-cta";
+    cta.innerHTML = '<div class="ta-hero-cta-inner">' +
+      '<button class="ta-btn ta-btn-hero" onclick="window.__taFreemium.showAuthModal(\'register\')">' +
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+      ' ' + __t('createFreeAccount') + '</button>' +
+      '<span class="ta-hero-subtitle">' + freemiumConfig.freeRequestsPerMonth + ' ' + __t('freeRequests') + ' - ' + __t('noCreditCard') + '</span>' +
+      '</div>';
+    // Insert inside the 100dvh container, before the header
+    appContainer.insertBefore(cta, appContainer.firstChild);
+  }, 500);
+}
+
+// ═══ Auth Modal ═══
+function showAuthModal(mode) {
+  let modal = document.getElementById("ta-auth-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "ta-auth-modal";
+  modal.className = "ta-modal-overlay";
+  const isRegister = mode === "register";
+
+  modal.innerHTML = '<div class="ta-modal">' +
+    '<button class="ta-modal-close" onclick="this.closest(\'.ta-modal-overlay\').remove()">&times;</button>' +
+    '<h2 class="ta-modal-title">' + (isRegister ? __t('createFreeAccount') : __t('logIn')) + '</h2>' +
+    '<p class="ta-modal-subtitle">' + (isRegister ? freemiumConfig.freeRequestsPerMonth + " " + __t("freeRequestsPerMonth") : __t("welcomeBack")) + '</p>' +
+    '<form id="ta-auth-form" onsubmit="return false;">' +
+    (isRegister ? '<div class="ta-form-group"><label>' + __t('name') + '</label><input type="text" id="ta-auth-name" placeholder="' + __t('yourName') + '" autocomplete="name"></div>' : '') +
+    '<div class="ta-form-group"><label>' + __t('email') + '</label><input type="email" id="ta-auth-email" placeholder="you@example.com" required autocomplete="email"></div>' +
+    '<div class="ta-form-group"><label>' + __t('password') + '</label><input type="password" id="ta-auth-pass" placeholder="' + __t('minChars') + '" required minlength="6" autocomplete="' + (isRegister ? "new-password" : "current-password") + '"></div>' +
+    '<div id="ta-auth-error" class="ta-auth-error" style="display:none"></div>' +
+    '<button type="submit" class="ta-btn ta-btn-primary ta-btn-full" id="ta-auth-submit">' + (isRegister ? __t('createAccount') : __t('logIn')) + '</button>' +
+    '</form>' +
+    '<div class="ta-modal-switch">' +
+    (isRegister
+      ? __t('alreadyHaveAccount') + ' <a href="#" onclick="window.__taFreemium.showAuthModal(\'login\');return false;">' + __t('logInLink') + '</a>'
+      : __t('noAccount') + ' <a href="#" onclick="window.__taFreemium.showAuthModal(\'register\');return false;">' + __t('createOneFree') + '</a>') +
+    '</div>' +
+    (isRegister ? '<div class="ta-modal-upgrade-hint">' + __t('wantUnlimited') + ' <a href="#" onclick="window.__taFreemium.showAuthModal(\'register\');return false;">' + __t('subscribeToPro') + ' $' + freemiumConfig.monthlyPriceCad + ' ' + __t('cadMo') + '</a> ' + __t('subscribeAfter') + '</div>' : '') +
+    '</div>';
+
+  document.body.appendChild(modal);
+  modal.querySelector("#ta-auth-email").focus();
+
+  // Handle submit
+  modal.querySelector("#ta-auth-form").addEventListener("submit", async function(ev) {
+    ev.preventDefault();
+    const email = modal.querySelector("#ta-auth-email").value.trim();
+    const pass = modal.querySelector("#ta-auth-pass").value;
+    const name = isRegister ? (modal.querySelector("#ta-auth-name")?.value?.trim() || "") : "";
+    const errEl = modal.querySelector("#ta-auth-error");
+    const btn = modal.querySelector("#ta-auth-submit");
+    errEl.style.display = "none";
+    btn.disabled = true;
+    btn.textContent = __t("pleaseWait");
+
+    try {
+      if (isRegister) {
+        await doRegister(email, pass, name);
+      } else {
+        await doLogin(email, pass);
+      }
+      modal.remove();
+    } catch(e) {
+      errEl.textContent = e.message;
+      errEl.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = isRegister ? "Create Account" : "Log In";
+    }
+  });
+
+  // Close on overlay click
+  modal.addEventListener("click", function(ev) {
+    if (ev.target === modal) modal.remove();
+  });
+}
+
+// ═══ Upgrade Modal (shown when 402 returned) ═══
+function showUpgradeModal(data) {
+  let modal = document.getElementById("ta-upgrade-modal");
+  if (modal) modal.remove();
+
+  modal = document.createElement("div");
+  modal.id = "ta-upgrade-modal";
+  modal.className = "ta-modal-overlay";
+  modal.innerHTML = '<div class="ta-modal">' +
+    '<button class="ta-modal-close" onclick="this.closest(\'.ta-modal-overlay\').remove()">&times;</button>' +
+    '<div class="ta-upgrade-icon">&#x1F512;</div>' +
+    '<h2 class="ta-modal-title">' + __t('monthlyLimitReached') + '</h2>' +
+    '<p class="ta-modal-subtitle">' + __t('youveUsedAll') + ' ' + (data.limit || 30) + ' ' + __t('freeRequestsThisMonth') + '</p>' +
+    '<div class="ta-upgrade-card">' +
+    '<h3>' + __t('upgradeToPro') + '</h3>' +
+    '<div class="ta-upgrade-price">$' + freemiumConfig.monthlyPriceCad + ' <span>CAD/month</span></div>' +
+    '<ul class="ta-upgrade-features">' +
+    '<li>&#x2713; ' + __t('unlimitedTranslations') + '</li>' +
+    '<li>&#x2713; ' + __t('priorityProcessing') + '</li>' +
+    '<li>&#x2713; ' + __t('cancelAnytime') + '</li>' +
+    '</ul>' +
+    '<button class="ta-btn ta-btn-primary ta-btn-full" onclick="window.__taFreemium.doSubscribe();this.closest(\'.ta-modal-overlay\').remove()">Upgrade Now</button>' +
+    '</div>' +
+    '<p class="ta-upgrade-wait">' + __t('orWait') + '</p>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  modal.addEventListener("click", function(ev) { if (ev.target === modal) modal.remove(); });
+}
+
+// ═══ Admin: Members Tab ═══
+function injectAdminSections() {
+  // Watch for admin panel to load (after login)
+  let injected = false;
+  const observer = new MutationObserver(function() {
+    if (injected) return;
+    const hash = window.location.hash;
+    if (!hash.includes("/admin")) { injected = false; return; }
+
+    // Look for the admin content ("Change Admin Credentials" section)
+    const allText = document.body.innerText;
+    if (!allText.includes("Change Admin Credentials") && !allText.includes("LLM Configuration")) return;
+    if (document.getElementById("ta-admin-sections")) return;
+    injected = true;
+
+    setTimeout(function() {
+      // Find the main admin container - the outermost card container
+      const cards = document.querySelectorAll('.shadcn-card, [class*="rounded-xl"][class*="border"]');
+      let lastCard = null;
+      for (const c of cards) {
+        if (c.textContent.includes('Change Admin Credentials') || c.textContent.includes('Update Credentials')) {
+          lastCard = c;
+        }
+      }
+
+      const container = lastCard ? lastCard.parentElement : document.querySelector('[class*="space-y"]');
+      if (!container) return;
+
+      const sections = document.createElement('div');
+      sections.id = 'ta-admin-sections';
+      sections.innerHTML = '<div class="ta-admin-section-wrapper">' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">Members &amp; Usage</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Manage user accounts, plans, and track usage</p>' +
+        '<div id="ta-members-content"><button class="ta-btn ta-btn-primary" onclick="window.__taFreemium.showMembersPanel()">Load Members</button></div>' +
+        '</div>' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">Stripe &amp; Billing</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Configure Stripe payment, subscription price, and free tier limits</p>' +
+        '<div id="ta-stripe-content"><button class="ta-btn ta-btn-primary" onclick="window.__taFreemium.showStripePanel()">Configure Stripe</button></div>' +
+        '</div>' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">MySQL Database</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Configure database connection for user accounts and usage tracking</p>' +
+        '<div id="ta-db-content"><button class="ta-btn ta-btn-primary" onclick="window.__taFreemium.showDatabasePanel()">Configure Database</button></div>' +
+        '</div>' +
+        '</div>';
+
+      container.appendChild(sections);
+    }, 1000);
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
+async function showMembersPanel() {
+  const adminToken = getAdminToken();
+  if (!adminToken) { alert("Admin login required"); return; }
+
+  let panel = document.getElementById("ta-members-content");
+  if (!panel) return;
+  panel.innerHTML = '<p>Loading members...</p>';
+
+  try {
+    const [membersRes, statsRes] = await Promise.all([
+      origFetch("/api/admin/members", { headers: { "x-admin-token": adminToken } }),
+      origFetch("/api/admin/usage-stats", { headers: { "x-admin-token": adminToken } })
+    ]);
+
+    let members = [], stats = {};
+    if (membersRes.ok) members = (await membersRes.json()).members || [];
+    if (statsRes.ok) stats = await statsRes.json();
+
+    panel.innerHTML = '<h3>Member Management</h3>' +
+      '<div class="ta-stats-grid">' +
+      '<div class="ta-stat-card"><div class="ta-stat-num">' + (stats.totalUsers || 0) + '</div><div class="ta-stat-label">Total Users</div></div>' +
+      '<div class="ta-stat-card"><div class="ta-stat-num">' + (stats.proUsers || 0) + '</div><div class="ta-stat-label">Pro/Free(Admin)</div></div>' +
+      '<div class="ta-stat-card"><div class="ta-stat-num">' + (stats.todayRequests || 0) + '</div><div class="ta-stat-label">Requests Today</div></div>' +
+      '<div class="ta-stat-card"><div class="ta-stat-num">' + (stats.monthRequests || 0) + '</div><div class="ta-stat-label">Requests This Month</div></div>' +
+      '</div>' +
+      '<table class="ta-members-table"><thead><tr>' +
+      '<th>Email</th><th>Name</th><th>Plan</th><th>Requests</th><th>Status</th><th>Actions</th>' +
+      '</tr></thead><tbody>' +
+      members.map(function(m) {
+        return '<tr>' +
+          '<td>' + escHtml(m.email) + '</td>' +
+          '<td>' + escHtml(m.display_name || '-') + '</td>' +
+          '<td><select onchange="window.__taFreemium.updateMemberPlan(' + m.id + ',this.value)" class="ta-select">' +
+          '<option value="free"' + (m.plan==="free"?" selected":"") + '>Free</option>' +
+          '<option value="pro"' + (m.plan==="pro"?" selected":"") + '>Pro</option>' +
+          '<option value="admin_free"' + (m.plan==="admin_free"?" selected":"") + '>Free (Admin Grant)</option>' +
+          '</select></td>' +
+          '<td>' + (m.requests_this_month || 0) + '</td>' +
+          '<td>' + (m.is_active ? '<span style="color:#10b981">Active</span>' : '<span style="color:#ef4444">Disabled</span>') + '</td>' +
+          '<td>' +
+          '<button class="ta-btn-sm" onclick="window.__taFreemium.toggleMember(' + m.id + ',' + (m.is_active?'false':'true') + ')">' + (m.is_active ? 'Disable' : 'Enable') + '</button> ' +
+          '<button class="ta-btn-sm ta-btn-danger" onclick="if(confirm(\'Delete this member?\'))window.__taFreemium.deleteMember(' + m.id + ')">Delete</button>' +
+          '</td></tr>';
+      }).join("") +
+      '</tbody></table>';
+
+    if (members.length === 0) {
+      panel.querySelector("tbody").innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#888">No members yet. Users will appear here after they register.</td></tr>';
+    }
+  } catch(e) {
+    panel.innerHTML = '<h3>Member Management</h3><p style="color:#ef4444">Error loading members: ' + escHtml(e.message) + '</p><p>Make sure the database is configured and tables are initialized.</p>';
+  }
+}
+
+async function showStripePanel() {
+  const adminToken = getAdminToken();
+  if (!adminToken) return;
+
+  let panel = document.getElementById("ta-stripe-content");
+  if (!panel) return;
+  panel.innerHTML = '<p>Loading Stripe config...</p>';
+
+  try {
+    const r = await origFetch("/api/admin/stripe-config", { headers: { "x-admin-token": adminToken } });
+    const cfg = r.ok ? await r.json() : {};
+
+    panel.innerHTML = '<h3>Stripe & Billing Configuration</h3>' +
+      '<form id="ta-stripe-form" onsubmit="return false;" class="ta-admin-form">' +
+      '<div class="ta-form-row"><label>Stripe Publishable Key</label><input type="text" id="ta-stripe-pk" value="' + escAttr(cfg.publishableKey || '') + '" placeholder="pk_live_..."></div>' +
+      '<div class="ta-form-row"><label>Stripe Secret Key</label><input type="password" id="ta-stripe-sk" value="' + escAttr(cfg.secretKeyMasked || '') + '" placeholder="sk_live_..."></div>' +
+      '<div class="ta-form-row"><label>Price ID (subscription)</label><input type="text" id="ta-stripe-price" value="' + escAttr(cfg.priceId || '') + '" placeholder="price_..."></div>' +
+      '<div class="ta-form-row"><label>Webhook Secret</label><input type="password" id="ta-stripe-wh" value="' + escAttr(cfg.webhookSecret || '') + '" placeholder="whsec_..."></div>' +
+      '<div class="ta-form-row"><label>Monthly Price (CAD)</label><input type="number" id="ta-stripe-amt" value="' + (cfg.monthlyPriceCad || 20) + '" step="0.01" min="0"></div>' +
+      '<div class="ta-form-row"><label>Free Requests / Month</label><input type="number" id="ta-stripe-free" value="' + (cfg.freeRequestsPerMonth || 30) + '" min="0"></div>' +
+      '<div id="ta-stripe-msg" class="ta-form-msg"></div>' +
+      '<button type="submit" class="ta-btn ta-btn-primary">Save Stripe Configuration</button>' +
+      '</form>' +
+      '<div class="ta-admin-hint"><strong>Setup Guide:</strong><ol>' +
+      '<li>Create a Stripe account at <a href="https://stripe.com" target="_blank">stripe.com</a></li>' +
+      '<li>Create a Product with a recurring price of $20 CAD/month</li>' +
+      '<li>Copy the Price ID (starts with price_) and paste above</li>' +
+      '<li>Copy your API keys from the Stripe Dashboard → Developers → API keys</li>' +
+      '<li>Set up a webhook endpoint at <code>yourdomain.com/api/stripe/webhook</code> for events: checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, invoice.payment_failed</li>' +
+      '</ol></div>';
+
+    panel.querySelector("#ta-stripe-form").addEventListener("submit", async function() {
+      const msg = panel.querySelector("#ta-stripe-msg");
+      msg.textContent = "Saving...";
+      msg.style.color = "#888";
+      try {
+        const r = await origFetch("/api/admin/stripe-config", {
+          method: "POST",
+          headers: { "x-admin-token": adminToken, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            publishableKey: panel.querySelector("#ta-stripe-pk").value,
+            secretKey: panel.querySelector("#ta-stripe-sk").value,
+            priceId: panel.querySelector("#ta-stripe-price").value,
+            webhookSecret: panel.querySelector("#ta-stripe-wh").value,
+            monthlyPriceCad: parseFloat(panel.querySelector("#ta-stripe-amt").value) || 20,
+            freeRequestsPerMonth: parseInt(panel.querySelector("#ta-stripe-free").value) || 30
+          })
+        });
+        const data = await r.json();
+        msg.textContent = data.ok ? "Saved successfully!" : (data.error || "Error");
+        msg.style.color = data.ok ? "#10b981" : "#ef4444";
+      } catch(e) {
+        msg.textContent = "Error: " + e.message;
+        msg.style.color = "#ef4444";
+      }
+    });
+  } catch(e) {
+    panel.innerHTML = '<h3>Stripe Configuration</h3><p style="color:#ef4444">Error: ' + escHtml(e.message) + '</p>';
+  }
+}
+
+async function showDatabasePanel() {
+  const adminToken = getAdminToken();
+  if (!adminToken) return;
+
+  let panel = document.getElementById("ta-db-content");
+  if (!panel) return;
+  panel.innerHTML = '<p>Loading database config...</p>';
+
+  try {
+    const r = await origFetch("/api/admin/db-config", { headers: { "x-admin-token": adminToken } });
+    const cfg = r.ok ? await r.json() : {};
+
+    panel.innerHTML = '<h3>MySQL Database Configuration</h3>' +
+      '<form id="ta-db-form" onsubmit="return false;" class="ta-admin-form">' +
+      '<div class="ta-form-row"><label>Host</label><input type="text" id="ta-db-host" value="' + escAttr(cfg.host || 'localhost') + '"></div>' +
+      '<div class="ta-form-row"><label>Port</label><input type="number" id="ta-db-port" value="' + (cfg.port || 3306) + '"></div>' +
+      '<div class="ta-form-row"><label>Username</label><input type="text" id="ta-db-user" value="' + escAttr(cfg.user || '') + '"></div>' +
+      '<div class="ta-form-row"><label>Password</label><input type="password" id="ta-db-pass" value="' + escAttr(cfg.password || '') + '"></div>' +
+      '<div class="ta-form-row"><label>Database Name</label><input type="text" id="ta-db-name" value="' + escAttr(cfg.database || 'text_appeal') + '"></div>' +
+      '<div id="ta-db-msg" class="ta-form-msg"></div>' +
+      '<button type="submit" class="ta-btn ta-btn-primary">Save & Connect</button>' +
+      ' <button type="button" class="ta-btn ta-btn-secondary" onclick="window.__taFreemium.initDb()">Initialize Tables</button>' +
+      '</form>' +
+      '<div class="ta-admin-hint"><strong>Hostinger MySQL Setup:</strong><ol>' +
+      '<li>Go to Hostinger hPanel → Databases → MySQL Databases</li>' +
+      '<li>Create a new database and user</li>' +
+      '<li>Note the host (usually localhost), username, password, and database name</li>' +
+      '<li>Enter the details above and click "Save & Connect"</li>' +
+      '<li>Click "Initialize Tables" to create the required tables</li>' +
+      '</ol></div>';
+
+    panel.querySelector("#ta-db-form").addEventListener("submit", async function() {
+      const msg = panel.querySelector("#ta-db-msg");
+      msg.textContent = "Connecting...";
+      msg.style.color = "#888";
+      try {
+        const r = await origFetch("/api/admin/db-config", {
+          method: "POST",
+          headers: { "x-admin-token": adminToken, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            host: panel.querySelector("#ta-db-host").value,
+            port: parseInt(panel.querySelector("#ta-db-port").value) || 3306,
+            user: panel.querySelector("#ta-db-user").value,
+            password: panel.querySelector("#ta-db-pass").value,
+            database: panel.querySelector("#ta-db-name").value
+          })
+        });
+        const data = await r.json();
+        msg.textContent = data.ok ? "Connected successfully!" : (data.error || "Connection failed");
+        msg.style.color = data.ok ? "#10b981" : "#ef4444";
+      } catch(e) {
+        msg.textContent = "Error: " + e.message;
+        msg.style.color = "#ef4444";
+      }
+    });
+  } catch(e) {
+    panel.innerHTML = '<h3>Database Configuration</h3><p style="color:#ef4444">Error: ' + escHtml(e.message) + '</p>';
+  }
+}
+
+async function initDb() {
+  const adminToken = getAdminToken();
+  const msg = document.getElementById("ta-db-msg");
+  if (msg) { msg.textContent = "Creating tables..."; msg.style.color = "#888"; }
+  try {
+    const r = await origFetch("/api/admin/db-init", {
+      method: "POST",
+      headers: { "x-admin-token": adminToken, "Content-Type": "application/json" }
+    });
+    const data = await r.json();
+    if (msg) {
+      const status = data.ok ? "Tables created successfully!" : (data.error || "Error");
+      const debugInfo = data.debug ? "\n\nDIAGNOSTIC LOG:\n" + data.debug.join("\n") : "";
+      msg.textContent = status + debugInfo;
+      msg.style.color = data.ok ? "#10b981" : "#ef4444";
+      msg.style.whiteSpace = "pre-wrap";
+      msg.style.fontSize = "12px";
+      msg.style.maxHeight = "300px";
+      msg.style.overflowY = "auto";
+    }
+  } catch(e) {
+    if (msg) { msg.textContent = "Error: " + e.message; msg.style.color = "#ef4444"; }
+  }
+}
+
+function hideAdminPanels() {
+  // No longer needed - panels are inline sections
+}
+
+// ═══ Admin member actions ═══
+async function updateMemberPlan(id, plan) {
+  const adminToken = getAdminToken();
+  await origFetch("/api/admin/members/" + id + "/plan", {
+    method: "PUT",
+    headers: { "x-admin-token": adminToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ plan: plan })
+  });
+}
+
+async function toggleMember(id, isActive) {
+  const adminToken = getAdminToken();
+  await origFetch("/api/admin/members/" + id + "/status", {
+    method: "PUT",
+    headers: { "x-admin-token": adminToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ isActive: isActive })
+  });
+  // Refresh
+  showMembersPanel();
+}
+
+async function deleteMember(id) {
+  const adminToken = getAdminToken();
+  await origFetch("/api/admin/members/" + id, {
+    method: "DELETE",
+    headers: { "x-admin-token": adminToken }
+  });
+  showMembersPanel();
+}
+
+// ═══ Utility ═══
+function escHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function escAttr(s) { return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+// ═══ Language Toggle ═══
+function renderLangToggle() {
+  let toggle = document.getElementById("ta-lang-toggle");
+  if (!toggle) {
+    toggle = document.createElement("div");
+    toggle.id = "ta-lang-toggle";
+    document.body.appendChild(toggle);
+  }
+  const lang = window.__taLang || "en";
+  toggle.innerHTML = '<button class="ta-lang-btn' + (lang==="en"?" ta-lang-active":"") + '" onclick="__setLang(\'en\')">EN</button>' +
+    '<span class="ta-lang-sep">|</span>' +
+    '<button class="ta-lang-btn' + (lang==="fr"?" ta-lang-active":"") + '" onclick="__setLang(\'fr\')">FR</button>';
+}
+
+// ═══ Creativity Slider ═══
+function renderCreativitySlider() {
+  // Only show on main page (not admin)
+  if (window.location.hash.includes("/admin")) {
+    const existing = document.getElementById("ta-creativity-slider");
+    if (existing) existing.remove();
+    return;
+  }
+
+  let slider = document.getElementById("ta-creativity-slider");
+  if (!slider) {
+    slider = document.createElement("div");
+    slider.id = "ta-creativity-slider";
+    document.body.appendChild(slider);
+  }
+
+  const val = window.__taCreativity ?? 0.3;
+  const labelKey = val < 0.25 ? "direct" : val > 0.75 ? "creative" : "fluid";
+  const labelColor = val < 0.25 ? "#3b82f6" : val > 0.75 ? "#f59e0b" : "#10b981";
+
+  slider.innerHTML = '<div class="ta-creativity-inner">' +
+    '<label class="ta-creativity-label">' + __t("creativity") + ': <span style="color:' + labelColor + ';font-weight:600">' + __t(labelKey) + '</span></label>' +
+    '<div class="ta-creativity-track">' +
+    '<input type="range" min="0" max="1" step="0.05" value="' + val + '" class="ta-creativity-range" oninput="window.__taFreemium.setCreativity(parseFloat(this.value))">' +
+    '<div class="ta-creativity-labels">' +
+    '<span>' + __t("direct") + '</span>' +
+    '<span>' + __t("fluid") + '</span>' +
+    '<span>' + __t("creative") + '</span>' +
+    '</div></div></div>';
+}
+
+function setCreativity(val) {
+  window.__taCreativity = val;
+  localStorage.setItem("ta_creativity", val.toString());
+  renderCreativitySlider();
+}
+
+// ═══ Export for onclick handlers ═══
+window.__taFreemium = {
+  showAuthModal, doLogout, doSubscribe, showMembersPanel, showStripePanel, showDatabasePanel,
+  updateMemberPlan, toggleMember, deleteMember, initDb,
+  updateUI, renderLangToggle, renderCreativitySlider, setCreativity
+};
+
+// ═══ Initialize ═══
+async function init() {
+  await loadConfig();
+  await checkSession();
+  renderLangToggle();
+  renderCreativitySlider();
+  injectAdminSections();
+
+  // Re-check on hash change (SPA navigation)
+  window.addEventListener("hashchange", function() {
+    updateUI();
+  });
+
+  // Update React text periodically and on DOM changes
+  const _textObserver = new MutationObserver(function() {
+    clearTimeout(window.__taTextTimeout);
+    window.__taTextTimeout = setTimeout(__updateReactText, 300);
+  });
+  _textObserver.observe(document.getElementById("root") || document.body, { childList: true, subtree: true });
+
+  // Periodically refresh usage counter
+  setInterval(async function() {
+    if (currentUser && getToken()) {
+      try {
+        const r = await origFetch("/api/user/me", { headers: { "x-user-token": getToken() } });
+        if (r.ok) { currentUser = await r.json(); renderUsageCounter(); }
+      } catch(e) {}
+    }
+  }, 60000);
+}
+
+// Wait for DOM
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
+
+})();
+</script>
+
+</body>
 </html>
