@@ -1260,61 +1260,100 @@ if (document.readyState === "loading") {
 </script>
 
 <script>
-// ═══ Fix: Move TM/Glossary + Principles into a separate row below the columns ═══
+// ═══ Move button + TM/Glossary + Principles into 3-pane bottom row ═══
 (function() {
-  var ROW_ID = 'ta-bottom-panels';
+  var ROW_ID  = 'ta-bottom-panels';
+  var LEFT_ID = 'ta-bottom-left';
+  var CARD    = 'display:flex;flex-direction:column;overflow:hidden;border-radius:8px;border:1px solid hsl(var(--border));background:hsl(var(--card));padding:10px 14px;';
+  var PHOTO   = document.querySelector('.ta-splash-photo');
+  var photoSrc = PHOTO ? PHOTO.src : '';
+
+  function buildLeftPane() {
+    var pane = document.createElement('div');
+    pane.id = LEFT_ID;
+    pane.style.cssText = CARD + 'justify-content:center;align-items:flex-start;gap:12px;';
+    // Translate button placeholder (will be filled when we move the real button)
+    var btnSlot = document.createElement('div');
+    btnSlot.id = 'ta-btn-slot';
+    pane.appendChild(btnSlot);
+    // Contact message
+    var msg = document.createElement('div');
+    msg.style.cssText = 'display:flex;align-items:center;gap:10px;margin-top:4px;';
+    if (photoSrc) {
+      var img = document.createElement('img');
+      img.src = photoSrc;
+      img.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+      msg.appendChild(img);
+    }
+    var txt = document.createElement('div');
+    txt.style.cssText = 'font-size:11px;color:hsl(var(--muted-foreground));line-height:1.4;';
+    txt.innerHTML = window.__taLang === 'fr'
+      ? 'Pour une attention professionnelle, \xe9crivez \xe0 <a href="mailto:fcouture@traductionsvoila.com" style="color:hsl(var(--primary));text-decoration:underline;">fcouture@traductionsvoila.com</a>'
+      : 'For full professional attention, contact Certified Translator <a href="mailto:fcouture@voilatranslations.com" style="color:hsl(var(--primary));text-decoration:underline;">fcouture@voilatranslations.com</a>';
+    msg.appendChild(txt);
+    pane.appendChild(msg);
+    return pane;
+  }
 
   function relocatePanels() {
-    var tmHdr   = document.querySelector('[data-testid="button-toggle-details"]');
-    var prHdr   = document.querySelector('[data-testid="button-toggle-principles"]');
-    // Nothing to move yet
-    if (!tmHdr && !prHdr) return;
+    var grid = document.querySelector('.grid.lg\\:grid-cols-3') || document.querySelector('[class*="lg:grid-cols-3"]');
+    if (!grid) return;
 
-    var tmPanel  = tmHdr ? tmHdr.parentElement : null;   // border-t wrapper
-    var prPanel  = prHdr ? prHdr.parentElement : null;
+    // Make parent a flex-column so grid + bottom row stack
+    var parent = grid.parentElement;
+    if (parent && parent.style.display !== 'flex') {
+      parent.style.cssText += ';display:flex!important;flex-direction:column!important;';
+      grid.style.cssText += ';flex:1 1 0%;min-height:0;';
+    }
 
     // Find or create the bottom row
     var row = document.getElementById(ROW_ID);
     if (!row) {
-      // Find the grid that holds the 3 columns
-      var grid = document.querySelector('.grid.lg\\:grid-cols-3') || document.querySelector('[class*="lg:grid-cols-3"]');
-      if (!grid) return;
       row = document.createElement('div');
       row.id = ROW_ID;
-      row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;height:200px;min-height:200px;max-height:200px;margin-top:8px;';
-      // Insert after the grid, inside the same parent
-      grid.parentElement.insertBefore(row, grid.nextSibling);
-      // Shrink the main grid so everything fits on screen
-      grid.style.cssText += ';flex:1 1 0%;min-height:0;';
-      // The parent needs to be flex-column so grid + row stack
-      grid.parentElement.style.cssText += ';display:flex!important;flex-direction:column!important;';
+      row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;height:200px;min-height:200px;max-height:200px;margin-top:6px;flex-shrink:0;';
+      parent.insertBefore(row, grid.nextSibling);
+      // Create the left pane (button + contact)
+      row.appendChild(buildLeftPane());
     }
 
-    // Move TM/Glossary panel if not already in the row
-    if (tmPanel && tmPanel.parentElement !== row) {
-      tmPanel.style.cssText = 'display:flex;flex-direction:column;overflow:hidden;border-radius:8px;border:1px solid hsl(var(--border));background:hsl(var(--card));';
-      var tmContent = tmPanel.querySelector('.ta-tm-glossary-content');
-      if (tmContent) tmContent.style.cssText = 'flex:1 1 0%;min-height:0;overflow-y:auto;';
-      row.appendChild(tmPanel);
+    // Move the Translate/Retranslate button into the left pane
+    var btnBar = document.querySelector('[data-testid="button-translate"]');
+    var btnSlot = document.getElementById('ta-btn-slot');
+    if (btnBar && btnSlot && !btnSlot.contains(btnBar)) {
+      // Move just the button element itself
+      btnSlot.innerHTML = '';
+      btnSlot.appendChild(btnBar);
     }
 
-    // Move Principles panel if not already in the row
-    if (prPanel && prPanel.parentElement !== row) {
-      prPanel.style.cssText = 'display:flex;flex-direction:column;overflow:hidden;border-radius:8px;border:1px solid hsl(var(--border));background:hsl(var(--card));';
-      var prContent = prPanel.querySelector('.px-3.pb-3');
-      if (prContent) prContent.style.cssText = 'flex:1 1 0%;min-height:0;overflow-y:auto;';
-      row.appendChild(prPanel);
+    // Move TM/Glossary panel
+    var tmHdr = document.querySelector('[data-testid="button-toggle-details"]');
+    if (tmHdr) {
+      var tmPanel = tmHdr.parentElement;
+      if (tmPanel && tmPanel.parentElement !== row) {
+        tmPanel.style.cssText = CARD + 'overflow-y:auto;';
+        var tmContent = tmPanel.querySelector('.ta-tm-glossary-content');
+        if (tmContent) tmContent.style.cssText = 'flex:1 1 0%;min-height:0;overflow-y:auto;max-height:none;';
+        // Insert as second child (after left pane)
+        if (row.children.length >= 2) {
+          row.insertBefore(tmPanel, row.children[1]);
+        } else {
+          row.appendChild(tmPanel);
+        }
+      }
     }
 
-    // If only one panel exists, let it span full width
-    if (row.children.length === 1) {
-      row.style.gridTemplateColumns = '1fr';
-    } else {
-      row.style.gridTemplateColumns = '1fr 1fr';
+    // Move Principles panel
+    var prHdr = document.querySelector('[data-testid="button-toggle-principles"]');
+    if (prHdr) {
+      var prPanel = prHdr.parentElement;
+      if (prPanel && prPanel.parentElement !== row) {
+        prPanel.style.cssText = CARD + 'overflow-y:auto;';
+        var prContent = prPanel.querySelector('.px-3.pb-3');
+        if (prContent) prContent.style.cssText = 'flex:1 1 0%;min-height:0;overflow-y:auto;max-height:none;';
+        row.appendChild(prPanel);
+      }
     }
-
-    // Hide the row if no panels
-    row.style.display = row.children.length > 0 ? 'grid' : 'none';
   }
 
   var raf = false;
