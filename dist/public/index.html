@@ -1259,69 +1259,42 @@ if (document.readyState === "loading") {
 })();
 </script>
 
+<!-- ═══ CSS-only fix: TM/Glossary + Principles at 30% height ═══ -->
+<style>
+  /*
+   * Target ONLY the TM/Glossary and Principles bottom panels.
+   * These have exactly class="border-t border-border" (no flex-wrap).
+   * The input column's button bar has flex-wrap, so :not(.flex-wrap) excludes it.
+   */
+  .bg-card > .border-t.border-border:not(.flex-wrap) {
+    flex: 3 1 0% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  /* Result areas: 70% when paired with bottom panel */
+  .bg-card > .flex-1.overflow-auto {
+    flex: 7 1 0% !important;
+    min-height: 0 !important;
+  }
+  /* TM/Glossary scrollable content */
+  .ta-tm-glossary-content {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+  /* Principles scrollable content */
+  .bg-card > .border-t.border-border:not(.flex-wrap) > .px-3.pb-3 {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+</style>
+
 <script>
-// ═══ Fix: TM/Glossary + Principles -- expanded by default, bottom 1/3 height, no clipping ═══
-(function() {
-  function fixPanelLayout() {
-    // -- TM/Glossary panel (middle column) --
-    const tmBtn = document.querySelector('[data-testid="button-toggle-details"]');
-    if (tmBtn) {
-      const tmSection = tmBtn.closest('.border-t.border-border');
-      if (tmSection && !tmSection.hasAttribute('data-ta-fixed')) {
-        tmSection.setAttribute('data-ta-fixed', '1');
-
-        // Force expand: if no content div sibling, the panel is collapsed -> click
-        const contentDiv = tmSection.querySelector('.ta-tm-glossary-content, .px-3.pb-2');
-        if (!contentDiv) tmBtn.click();
-
-        // Layout: column = flex column, result area = flex 2, TM section = flex 1
-        const col = tmSection.parentElement;
-        col.style.cssText += ';display:flex!important;flex-direction:column!important;';
-        const resultArea = col.querySelector('.flex-1.overflow-auto');
-        if (resultArea) resultArea.style.cssText += ';flex:7 1 0%!important;min-height:0!important;';
-        tmSection.style.cssText += ';flex:3 1 0%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;';
-      }
-      // Always keep content div filling available space (even after re-renders)
-      const cd = tmSection && tmSection.querySelector('.ta-tm-glossary-content, .px-3.pb-2');
-      if (cd) cd.style.cssText += ';flex:1 1 0%!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;';
-    }
-
-    // -- Principles panel (right column) --
-    const princBtn = document.querySelector('[data-testid="button-toggle-principles"]');
-    if (princBtn) {
-      const princSection = princBtn.closest('.border-t.border-border');
-      if (princSection && !princSection.hasAttribute('data-ta-fixed')) {
-        princSection.setAttribute('data-ta-fixed', '1');
-
-        const contentDiv = princSection.querySelector('.px-3.pb-3');
-        if (!contentDiv) princBtn.click();
-
-        const col = princSection.parentElement;
-        col.style.cssText += ';display:flex!important;flex-direction:column!important;';
-        const resultArea = col.querySelector('.flex-1.overflow-auto');
-        if (resultArea) resultArea.style.cssText += ';flex:7 1 0%!important;min-height:0!important;';
-        princSection.style.cssText += ';flex:3 1 0%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;';
-      }
-      const cd = princSection && princSection.querySelector('.px-3.pb-3');
-      if (cd) cd.style.cssText += ';flex:1 1 0%!important;min-height:0!important;overflow-y:auto!important;';
-    }
-  }
-
-  // Run on every DOM change (debounced via rAF)
-  let pending = false;
-  const observer = new MutationObserver(function() {
-    if (pending) return;
-    pending = true;
-    requestAnimationFrame(function() { pending = false; fixPanelLayout(); });
-  });
-  function start() {
-    const root = document.getElementById('root');
-    if (root) observer.observe(root, { childList: true, subtree: true });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-  else start();
-})();
-
 // ═══ Fix: Clean up Word paste line breaks ═══
 (function() {
   function setupPasteCleanup() {
