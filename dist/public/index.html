@@ -1469,47 +1469,84 @@ if (document.readyState === "loading") {
       contentDivs[c].style.minHeight = '0';
     }
 
-    // Move the Translate/Retranslate button into the left pane
+    // ── MIRROR (not move!) the Translate button into the left pane ──
+    // CRITICAL: We must NEVER move React-owned DOM nodes out of React's
+    // tree.  Doing so desynchronises the virtual DOM and causes a blank-
+    // screen crash the next time React re-renders (e.g. on Retranslate).
+    // Instead we: (a) hide the original in-grid elements with CSS, and
+    // (b) maintain cloned / proxy elements in the bottom row.
     var btnBar = document.querySelector('[data-testid="button-translate"]');
     var btnSlot = document.getElementById('ta-btn-slot');
-    if (btnBar && btnSlot && !btnSlot.contains(btnBar)) {
-      // Move just the button element itself
-      btnSlot.innerHTML = '';
-      btnSlot.appendChild(btnBar);
+    if (btnBar && btnSlot) {
+      // Hide the original button's wrapper inside the grid
+      var origBtnWrapper = btnBar.closest('.border-t');
+      if (origBtnWrapper) origBtnWrapper.style.display = 'none';
+
+      // Create or update a PROXY button inside our bottom-left pane
+      var proxyId = 'ta-proxy-translate-btn';
+      var proxy = document.getElementById(proxyId);
+      if (!proxy) {
+        proxy = document.createElement('button');
+        proxy.id = proxyId;
+        proxy.style.cssText = 'display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid hsl(var(--border));background:hsl(var(--primary));color:hsl(var(--primary-foreground));cursor:pointer;font-weight:500;white-space:nowrap;';
+        proxy.addEventListener('click', function() {
+          // Forward click to the real React button
+          var real = document.querySelector('[data-testid="button-translate"]');
+          if (real) real.click();
+        });
+        btnSlot.innerHTML = '';
+        btnSlot.appendChild(proxy);
+      }
+      // Mirror the label and disabled state from the real button
+      proxy.disabled = btnBar.disabled;
+      proxy.style.opacity = btnBar.disabled ? '0.5' : '1';
+      proxy.innerHTML = btnBar.innerHTML;
     }
 
-    // Move TM/Glossary panel into bottom row
+    // ── MIRROR TM/Glossary panel into bottom row ──
     var tmHdr = document.querySelector('[data-testid="button-toggle-details"]');
     if (tmHdr) {
-      var tmPanel = tmHdr.parentElement;
-      if (tmPanel && tmPanel.parentElement !== row) {
-        tmPanel.style.cssText = CARD + 'overflow-y:auto;';
-        var tmContent = tmPanel.querySelector('.ta-tm-glossary-content');
-        if (tmContent) tmContent.style.cssText = 'flex:1 1 0%;min-height:0;overflow-y:auto;max-height:none;';
-        // Insert as second child (after left pane)
-        if (row.children.length >= 2) {
-          row.insertBefore(tmPanel, row.children[1]);
-        } else {
-          row.appendChild(tmPanel);
+      var tmPanel = tmHdr.closest('.border-t');
+      if (tmPanel) {
+        // Hide original inside grid
+        tmPanel.style.display = 'none';
+        // Mirror into bottom row
+        var tmMirrorId = 'ta-mirror-tm';
+        var tmMirror = document.getElementById(tmMirrorId);
+        if (!tmMirror) {
+          tmMirror = document.createElement('div');
+          tmMirror.id = tmMirrorId;
+          tmMirror.style.cssText = CARD + 'overflow-y:auto;';
+          if (row.children.length >= 2) {
+            row.insertBefore(tmMirror, row.children[1]);
+          } else {
+            row.appendChild(tmMirror);
+          }
         }
+        // Copy content from the React-owned panel
+        tmMirror.innerHTML = tmPanel.innerHTML;
       }
     }
 
-    // Move Principles panel into bottom row
+    // ── MIRROR Principles panel into bottom row ──
     var prHdr = document.querySelector('[data-testid="button-toggle-principles"]');
     if (prHdr) {
-      var prPanel = prHdr.parentElement;
-      if (prPanel && prPanel.parentElement !== row) {
-        prPanel.style.cssText = CARD + 'overflow-y:auto;';
-        var prContent = prPanel.querySelector('.px-3.pb-3');
-        if (prContent) prContent.style.cssText = 'flex:1 1 0%;min-height:0;overflow-y:auto;max-height:none;';
-        row.appendChild(prPanel);
+      var prPanel = prHdr.closest('.border-t');
+      if (prPanel) {
+        prPanel.style.display = 'none';
+        var prMirrorId = 'ta-mirror-pr';
+        var prMirror = document.getElementById(prMirrorId);
+        if (!prMirror) {
+          prMirror = document.createElement('div');
+          prMirror.id = prMirrorId;
+          prMirror.style.cssText = CARD + 'overflow-y:auto;';
+          row.appendChild(prMirror);
+        }
+        prMirror.innerHTML = prPanel.innerHTML;
       }
     }
 
-    // AFTER moving, hide any REMAINING TM/Glossary/Principles panels still
-    // inside the grid columns. React re-creates them on re-render, and the
-    // duplicates steal space from result panes (the clipping bug).
+    // Hide any remaining in-grid duplicates (React re-creates on re-render)
     var inGridTM = grid.querySelectorAll('[data-testid="button-toggle-details"]');
     for (var t = 0; t < inGridTM.length; t++) {
       var wrapper = inGridTM[t].closest('.border-t');
@@ -1520,11 +1557,10 @@ if (document.readyState === "loading") {
       var wrapperP = inGridPR[p].closest('.border-t');
       if (wrapperP) wrapperP.style.display = 'none';
     }
-    // Also hide the button bar wrapper left behind in column 1
     var inGridBtn = grid.querySelectorAll('[data-testid="button-translate"]');
     for (var b = 0; b < inGridBtn.length; b++) {
-      var btnWrapper = inGridBtn[b].closest('.border-t');
-      if (btnWrapper) btnWrapper.style.display = 'none';
+      var btnWr = inGridBtn[b].closest('.border-t');
+      if (btnWr) btnWr.style.display = 'none';
     }
   }
 
