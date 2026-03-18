@@ -1208,78 +1208,135 @@ async function doCancelSubscription() {
 }
 
 // ═══ Cumulative Results + Scrollable + Footer Message ═══
+// CRITICAL FIX: Never write to React-owned DOM nodes. The old approach
+// overwrote innerHTML of [data-testid="text-first-version"] etc., which
+// desynchronised React's virtual DOM and caused a blank-screen crash on
+// subsequent renders (retranslate). The new strategy stores results in a
+// plain JS array and renders them into the scrollable parent container
+// using a non-React wrapper div, while keeping the React element hidden
+// so React can reconcile freely without visual side-effects.
 (function setupCumulativeResults() {
-  // Observe the result panels and prepend new results instead of replacing
-  let lastTranslation = "";
-  let lastRewrite = "";
+  var historyTrans = [];   // array of HTML strings (newest first)
+  var historyRewrite = [];
+  var lastTransHTML = "";
+  var lastRewriteHTML = "";
+  var HISTORY_TRANS_ID  = "ta-history-translation";
+  var HISTORY_REWRITE_ID = "ta-history-rewrite";
 
   function getFooterMessage() {
-    const L = window.__taLang || "en";
+    var L = window.__taLang || "en";
     if (L === "fr") {
       return '<div class="ta-result-footer" style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(128,128,128,0.3);font-size:12px;color:#888;line-height:1.5">' +
         "N'h\u00e9sitez pas \u00e0 cliquer sur Traduire / Retraduire pour obtenir plus de propositions. L'IA n'est pas infaillible. Pour un travail plus rigoureux, contactez " +
         '<a href="mailto:fcouture@traductionsvoila.com" style="color:#3b82f6;text-decoration:underline">fcouture@traductionsvoila.com</a>.' +
         '</div>';
+    }
+    return '<div class="ta-result-footer" style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(128,128,128,0.3);font-size:12px;color:#888;line-height:1.5">' +
+      'Feel free to click on Translate / Retranslate for more propositions. AI is not infallible. For a more thorough job, contact ' +
+      '<a href="mailto:fcouture@voilatranslations.com" style="color:#3b82f6;text-decoration:underline">fcouture@voilatranslations.com</a>.' +
+      '</div>';
+  }
+
+  // Build the full cumulative HTML from the history array
+  function renderHistory(arr) {
+    var parts = [];
+    for (var i = 0; i < arr.length; i++) {
+      if (i > 0) parts.push('<hr style="border:none;border-top:1px dashed rgba(128,128,128,0.3);margin:12px 0">');
+      parts.push('<div class="ta-result-entry">' + arr[i] + getFooterMessage() + '</div>');
+    }
+    return parts.join('');
+  }
+
+  // Find or create the history wrapper inside the scrollable parent.
+  // The wrapper is a direct child of the .overflow-auto.custom-scroll div,
+  // which is NOT a React-managed node (React manages the children inside it).
+  function ensureHistoryContainer(scrollParent, id) {
+    var c = document.getElementById(id);
+    if (c && c.parentNode === scrollParent) return c;
+    // Remove stale container if reparented
+    if (c) c.remove();
+    c = document.createElement('div');
+    c.id = id;
+    c.className = 'rich-text-output';
+    // Prepend so it appears at the top of the scrollable area
+    if (scrollParent.firstChild) {
+      scrollParent.insertBefore(c, scrollParent.firstChild);
     } else {
-      return '<div class="ta-result-footer" style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(128,128,128,0.3);font-size:12px;color:#888;line-height:1.5">' +
-        'Feel free to click on Translate / Retranslate for more propositions. AI is not infallible. For a more thorough job, contact ' +
-        '<a href="mailto:fcouture@voilatranslations.com" style="color:#3b82f6;text-decoration:underline">fcouture@voilatranslations.com</a>.' +
-        '</div>';
+      scrollParent.appendChild(c);
     }
+    return c;
   }
 
-  function makeScrollable(el) {
-    if (!el) return;
-    el.style.maxHeight = "300px";
-    el.style.overflowY = "auto";
-    el.style.scrollBehavior = "smooth";
+  function handlePanel(testId, historyArr, lastHTML, historyId) {
+    var reactEl = document.querySelector('[data-testid="' + testId + '"]');
+    if (!reactEl) return lastHTML;
+    var currentHTML = reactEl.innerHTML;
+    // Skip empty, unchanged, or spinner states
+    if (!currentHTML || currentHTML === lastHTML) return lastHTML;
+    if (currentHTML.indexOf('animate-spin') !== -1) return lastHTML;
+
+    // New content arrived from React
+    historyArr.unshift(currentHTML); // newest first
+
+    // The scrollable parent is the .overflow-auto.custom-scroll div.
+    // React owns this div but only manages a single child inside it.
+    // We append our history container as an additional child; React's
+    // reconciler won't touch DOM nodes it didn't create.
+    var scrollParent = reactEl.closest('.overflow-auto');
+    if (!scrollParent) scrollParent = reactEl.parentElement;
+
+    var container = ensureHistoryContainer(scrollParent, historyId);
+    container.innerHTML = renderHistory(historyArr);
+    container.style.display = '';
+
+    // Hide the React-owned result element so the user only sees our
+    // cumulative history.  Do NOT hide spinners or placeholders.
+    reactEl.style.display = 'none';
+
+    scrollParent.style.overflowY = 'auto';
+    scrollParent.style.scrollBehavior = 'smooth';
+
+    return currentHTML;
   }
 
-  // Monitor the two output divs
-  const observer = new MutationObserver(function() {
-    // First French Version panel
-    const transEl = document.querySelector('[data-testid="text-first-version"]');
-    if (transEl) {
-      const currentHTML = transEl.innerHTML;
-      if (currentHTML && currentHTML !== lastTranslation && !currentHTML.includes('ta-result-footer')) {
-        // This is a new result
-        const prevContent = transEl.getAttribute('data-ta-history') || '';
-        const separator = prevContent ? '<hr style="border:none;border-top:1px dashed rgba(128,128,128,0.3);margin:12px 0">' : '';
-        const newEntry = '<div class="ta-result-entry">' + currentHTML + getFooterMessage() + '</div>';
-        transEl.innerHTML = newEntry + separator + prevContent;
-        transEl.setAttribute('data-ta-history', newEntry + separator + prevContent);
-        lastTranslation = currentHTML;
-        makeScrollable(transEl.parentElement);
-      }
-    }
+  // Debounced observer
+  var pending = false;
+  var observer = new MutationObserver(function() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function() {
+      pending = false;
 
-    // More fluid Version panel (formerly Text Appeal Version)
-    const rewriteEl = document.querySelector('[data-testid="text-appeal-version"]');
-    if (rewriteEl) {
-      const currentHTML = rewriteEl.innerHTML;
-      if (currentHTML && currentHTML !== lastRewrite && !currentHTML.includes('ta-result-footer')) {
-        const prevContent = rewriteEl.getAttribute('data-ta-history') || '';
-        const separator = prevContent ? '<hr style="border:none;border-top:1px dashed rgba(128,128,128,0.3);margin:12px 0">' : '';
-        const newEntry = '<div class="ta-result-entry">' + currentHTML + getFooterMessage() + '</div>';
-        rewriteEl.innerHTML = newEntry + separator + prevContent;
-        rewriteEl.setAttribute('data-ta-history', newEntry + separator + prevContent);
-        lastRewrite = currentHTML;
-        makeScrollable(rewriteEl.parentElement);
-      }
-    }
+      lastTransHTML = handlePanel(
+        'text-first-version', historyTrans, lastTransHTML, HISTORY_TRANS_ID
+      );
+      lastRewriteHTML = handlePanel(
+        'text-appeal-version', historyRewrite, lastRewriteHTML, HISTORY_REWRITE_ID
+      );
+
+      // When React shows a spinner (loading state), the data-testid
+      // element is unmounted and replaced with a spinner div.
+      // Our history container must stay visible alongside the spinner.
+      // Ensure the container's display is not accidentally hidden.
+      [HISTORY_TRANS_ID, HISTORY_REWRITE_ID].forEach(function(hid) {
+        var c = document.getElementById(hid);
+        if (c && c.innerHTML) {
+          c.style.display = '';
+        }
+      });
+    });
   });
 
-  // Start observing once DOM is ready
   function startObserving() {
-    const root = document.getElementById("root");
+    var root = document.getElementById('root');
     if (root) {
       observer.observe(root, { childList: true, subtree: true, characterData: true });
     } else {
       setTimeout(startObserving, 500);
     }
   }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", startObserving);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startObserving);
   } else {
     startObserving();
   }
