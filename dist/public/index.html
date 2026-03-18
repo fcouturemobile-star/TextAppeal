@@ -27,6 +27,14 @@
     <script type="module" crossorigin src="./assets/index-CHn3W7iT.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-BmT-Nf-e.css">
     <style>
+      /* Safari flexbox fix: explicit min-height:0 on every flex child in the scroll chain.
+         Safari's implied min-height:auto prevents flex children from shrinking
+         below content size, causing overflow:auto to never activate. */
+      .flex-1.overflow-auto,
+      .flex-1.overflow-auto.custom-scroll,
+      [class*="grid-cols-3"] > .flex.flex-col {
+        min-height: 0 !important;
+      }
       /* Force visible scrollbars in all scrollable content panes */
       .overflow-auto.custom-scroll {
         overflow-y: auto !important;
@@ -1372,6 +1380,13 @@ if (document.readyState === "loading") {
 
     // Explicitly size the grid in pixels
     sizeGrid(grid, row);
+
+    // Safari fix: force min-height:0 on all flex-1 content divs inside columns
+    // Safari's min-height:auto default prevents flex children from shrinking
+    var contentDivs = grid.querySelectorAll('.flex-1.overflow-auto');
+    for (var c = 0; c < contentDivs.length; c++) {
+      contentDivs[c].style.minHeight = '0';
+    }
 
     // Move the Translate/Retranslate button into the left pane
     var btnBar = document.querySelector('[data-testid="button-translate"]');
