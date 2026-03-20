@@ -467,16 +467,13 @@ window.fetch = function(url, opts) {
         if (data.token) capturedAdminToken = data.token;
       });
     }
-    // Intercept translate response to capture web terminology suggestions
+    // Intercept translate response to capture web terminology suggestions + TM toggle
     if (typeof url === "string" && url.includes("/api/translate") && resp.ok) {
       resp.clone().json().then(function(data) {
-        if (data.webTermSuggestions && data.webTermSuggestions.length > 0) {
-          window.__taWebTerms = data.webTermSuggestions;
-          setTimeout(renderWebTermSuggestions, 500);
-        } else {
-          window.__taWebTerms = [];
-          setTimeout(renderWebTermSuggestions, 500);
-        }
+        window.__taLocalTMEnabled = data.localTMEnabled !== false;
+        window.__taWebTerms = (data.webTermSuggestions && data.webTermSuggestions.length > 0) ? data.webTermSuggestions : [];
+        setTimeout(renderWebTermSuggestions, 500);
+        setTimeout(updateTMPaneVisibility, 600);
       }).catch(function() {});
     }
     // Intercept 402 (limit reached) responses
@@ -827,9 +824,53 @@ function injectAdminSections() {
         '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Configure outgoing email for password resets and notifications</p>' +
         '<div id="ta-smtp-content"><button class="ta-btn ta-btn-primary" onclick="window.__taFreemium.showSmtpPanel()">Configure Email</button></div>' +
         '</div>' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/><polyline points="14 2 14 8 20 8"/><line x1="2" y1="15" x2="11" y2="15"/><path d="M5 12l-3 3 3 3"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">Local TM &amp; Glossary</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Enable or disable the local Translation Memory and Glossary search during translation</p>' +
+        '<div id="ta-local-tm-content" style="display:flex;align-items:center;gap:12px">' +
+        '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">' +
+        '<input type="checkbox" id="ta-local-tm-toggle" style="width:18px;height:18px;cursor:pointer" checked>' +
+        ' Enable local TM &amp; Glossary search</label>' +
+        '<span id="ta-local-tm-status" style="font-size:12px;color:var(--muted-foreground,#64748b)"></span>' +
+        '</div>' +
+        '</div>' +
         '</div>';
 
       container.appendChild(sections);
+
+      // Wire up local TM toggle
+      (async function() {
+        try {
+          var at = getAdminToken();
+          var r = await origFetch('/api/admin/local-tm-config', { headers: { 'x-admin-token': at } });
+          if (r.ok) {
+            var d = await r.json();
+            document.getElementById('ta-local-tm-toggle').checked = d.enableLocalTM;
+            window.__taLocalTMEnabled = d.enableLocalTM;
+          }
+        } catch(e) {}
+        document.getElementById('ta-local-tm-toggle').addEventListener('change', async function() {
+          var val = this.checked;
+          var status = document.getElementById('ta-local-tm-status');
+          status.textContent = 'Saving...';
+          try {
+            var at = getAdminToken();
+            var r = await origFetch('/api/admin/local-tm-config', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-admin-token': at },
+              body: JSON.stringify({ enableLocalTM: val })
+            });
+            if (r.ok) {
+              window.__taLocalTMEnabled = val;
+              status.textContent = val ? 'Enabled' : 'Disabled';
+              status.style.color = val ? '#22c55e' : '#ef4444';
+              updateTMPaneVisibility();
+              setTimeout(function() { status.textContent = ''; }, 2000);
+            }
+          } catch(e) { status.textContent = 'Error'; }
+        });
+      })();
     }, 1000);
   });
 
@@ -1611,12 +1652,23 @@ if (document.readyState === "loading") {
         }
         var tmMirror = document.getElementById('ta-mirror-tm');
         var tmWebPane = document.getElementById('ta-mirror-webterms');
+        var _tmEnabled = window.__taLocalTMEnabled !== false;
         // Copy glossary/TM content from the React-owned panel
-        if (tmMirror) tmMirror.innerHTML = tmPanel.innerHTML;
+        if (tmMirror) {
+          if (_tmEnabled) {
+            tmMirror.style.display = '';
+            tmMirror.innerHTML = tmPanel.innerHTML;
+          } else {
+            tmMirror.style.display = 'none';
+            tmMirror.innerHTML = '';
+          }
+        }
         // Render web terminology in its own sub-pane
         if (tmWebPane) {
           if (window.__taWebTerms && window.__taWebTerms.length > 0) {
             tmWebPane.style.display = '';
+            // When TM is off, web terms pane fills the full space
+            tmWebPane.style.flex = _tmEnabled ? '1' : '1';
             renderWebTermSuggestions_inPanel(tmWebPane);
           } else {
             tmWebPane.style.display = 'none';
@@ -1799,7 +1851,6 @@ function renderWebTermSuggestions_inPanel(panel) {
 }
 
 function renderWebTermSuggestions() {
-  // Render into the dedicated web terms sub-pane
   var webPane = document.getElementById('ta-mirror-webterms');
   if (webPane) {
     if (window.__taWebTerms && window.__taWebTerms.length > 0) {
@@ -1809,12 +1860,17 @@ function renderWebTermSuggestions() {
       webPane.style.display = 'none';
       webPane.innerHTML = '';
     }
-    return;
   }
-  // Fallback: render into the TM mirror panel
-  var tmPanel = document.getElementById('ta-mirror-tm');
-  if (!tmPanel) return;
-  renderWebTermSuggestions_inPanel(tmPanel);
+  updateTMPaneVisibility();
+}
+
+function updateTMPaneVisibility() {
+  var tmPane = document.getElementById('ta-mirror-tm');
+  var webPane = document.getElementById('ta-mirror-webterms');
+  var _tmEnabled = window.__taLocalTMEnabled !== false;
+  if (tmPane) {
+    tmPane.style.display = _tmEnabled ? '' : 'none';
+  }
 }
 </script>
 
