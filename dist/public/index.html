@@ -119,9 +119,11 @@
       }
       /* Web terminology suggestions */
       .ta-web-terms {
-        margin-top: 12px;
-        padding-top: 10px;
-        border-top: 1px solid hsl(var(--border) / 0.5);
+        margin-top: 16px;
+        padding: 12px 0 4px 0;
+        border-top: 2px solid hsl(var(--border));
+        clear: both;
+        position: relative;
       }
       .ta-web-terms-title {
         font-size: 12px;
@@ -1503,7 +1505,7 @@ if (document.readyState === "loading") {
     return pane;
   }
 
-  var BOTTOM_H = 200; // px for bottom row
+  var BOTTOM_H = 300; // px for bottom row (increased for web term suggestions)
   var BOTTOM_GAP = 8;  // margin-top
 
   function sizeGrid(grid, row) {
@@ -1604,10 +1606,7 @@ if (document.readyState === "loading") {
         tmMirror.innerHTML = tmPanel.innerHTML;
         // Append web terminology suggestions if available
         if (window.__taWebTerms && window.__taWebTerms.length > 0) {
-          var existingWebTerms = tmMirror.querySelector('.ta-web-terms');
-          if (!existingWebTerms) {
-            renderWebTermSuggestions_inPanel(tmMirror);
-          }
+          renderWebTermSuggestions_inPanel(tmMirror);
         }
       }
     }
