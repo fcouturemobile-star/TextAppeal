@@ -278,15 +278,22 @@ OTHER RULES:
     var orEndpoint = "https://openrouter.ai/api/v1/chat/completions";
     var orKey = cfg.apiKey;
     var orModel = cfg.model;
-    // If the provider is anthropic direct, we need an OpenRouter key from config
-    // Check if there's an openrouterKey in config, otherwise skip
-    if (cfg.providerType === "anthropic") {
-      if (!cfg.openrouterKey) {
-        console.log("Web term search skipped: no OpenRouter key configured (using Anthropic direct)");
-        return [];
-      }
+    // Determine the right key and model for OpenRouter web search
+    if (cfg.providerType === "openrouter") {
+      // Already using OpenRouter - use same key, ensure model has provider prefix
+      orKey = cfg.apiKey;
+      orModel = cfg.model.includes("/") ? cfg.model : "anthropic/" + cfg.model;
+    } else if (cfg.providerType === "openai-compatible" && cfg.endpoint && cfg.endpoint.includes("openrouter")) {
+      // OpenAI-compatible pointing at OpenRouter
+      orKey = cfg.apiKey;
+      orModel = cfg.model.includes("/") ? cfg.model : "anthropic/" + cfg.model;
+    } else if (cfg.openrouterKey) {
+      // Anthropic direct or other, but has a separate OpenRouter key
       orKey = cfg.openrouterKey;
       orModel = "anthropic/claude-sonnet-4-6-20260205";
+    } else {
+      console.log("Web term search skipped: no OpenRouter key available. Set provider to OpenRouter or add an openrouterKey in admin.");
+      return [];
     }
     // Build list of terms already in glossary to exclude
     var knownTerms = new Set(glossaryMatches.map(g => g.source.toLowerCase()));
