@@ -1625,56 +1625,56 @@ if (document.readyState === "loading") {
       proxy.innerHTML = btnBar.innerHTML;
     }
 
-    // ── MIRROR TM/Glossary panel into bottom row ──
+    // ── Create center column wrapper (always, regardless of TM state) ──
+    var tmWrapperId = 'ta-mirror-tm-wrapper';
+    var tmWrapper = document.getElementById(tmWrapperId);
+    if (!tmWrapper) {
+      tmWrapper = document.createElement('div');
+      tmWrapper.id = tmWrapperId;
+      tmWrapper.style.cssText = 'display:flex;flex-direction:column;overflow:hidden;border-radius:8px;border:1px solid hsl(var(--border));background:hsl(var(--card));padding:0;';
+      // Top sub-pane: Glossary + TM
+      var tmTop = document.createElement('div');
+      tmTop.id = 'ta-mirror-tm';
+      tmTop.style.cssText = 'flex:1;min-height:0;overflow-y:auto;padding:10px 14px;';
+      tmWrapper.appendChild(tmTop);
+      // Bottom sub-pane: Web Terminology
+      var tmBot = document.createElement('div');
+      tmBot.id = 'ta-mirror-webterms';
+      tmBot.style.cssText = 'flex:1;min-height:0;overflow-y:auto;padding:10px 14px;border-top:2px solid hsl(var(--border));';
+      tmWrapper.appendChild(tmBot);
+      if (row.children.length >= 2) {
+        row.insertBefore(tmWrapper, row.children[1]);
+      } else {
+        row.appendChild(tmWrapper);
+      }
+    }
+
+    // ── MIRROR TM/Glossary content into top sub-pane ──
+    var tmMirror = document.getElementById('ta-mirror-tm');
+    var tmWebPane = document.getElementById('ta-mirror-webterms');
+    var _tmEnabled = window.__taLocalTMEnabled !== false;
+
     var tmHdr = document.querySelector('[data-testid="button-toggle-details"]');
     if (tmHdr) {
       var tmPanel = tmHdr.closest('.border-t');
       if (tmPanel) {
-        // Hide original inside grid
         tmPanel.style.display = 'none';
-        // Mirror into bottom row — split into two sub-panes
-        var tmWrapperId = 'ta-mirror-tm-wrapper';
-        var tmWrapper = document.getElementById(tmWrapperId);
-        if (!tmWrapper) {
-          tmWrapper = document.createElement('div');
-          tmWrapper.id = tmWrapperId;
-          tmWrapper.style.cssText = 'display:flex;flex-direction:column;gap:6px;overflow:hidden;border-radius:8px;border:1px solid hsl(var(--border));background:hsl(var(--card));padding:0;';
-          // Top sub-pane: Glossary + TM
-          var tmTop = document.createElement('div');
-          tmTop.id = 'ta-mirror-tm';
-          tmTop.style.cssText = 'flex:1;min-height:0;overflow-y:auto;padding:10px 14px;';
-          tmWrapper.appendChild(tmTop);
-          // Bottom sub-pane: Web Terminology
-          var tmBot = document.createElement('div');
-          tmBot.id = 'ta-mirror-webterms';
-          tmBot.style.cssText = 'flex:1;min-height:0;overflow-y:auto;padding:10px 14px;border-top:2px solid hsl(var(--border));display:none;';
-          tmWrapper.appendChild(tmBot);
-          if (row.children.length >= 2) {
-            row.insertBefore(tmWrapper, row.children[1]);
-          } else {
-            row.appendChild(tmWrapper);
-          }
-        }
-        var tmMirror = document.getElementById('ta-mirror-tm');
-        var tmWebPane = document.getElementById('ta-mirror-webterms');
-        var _tmEnabled = window.__taLocalTMEnabled !== false;
-        // Copy glossary/TM content from the React-owned panel
-        if (tmMirror) {
-          if (_tmEnabled) {
-            tmMirror.style.display = '';
-            tmMirror.innerHTML = tmPanel.innerHTML;
-          } else {
-            tmMirror.style.display = 'none';
-            tmMirror.innerHTML = '';
-          }
-        }
-        // Render web terminology in its own sub-pane
-        // Note: do NOT hide the web pane here -- let renderWebTermSuggestions control it
-        if (tmWebPane && window.__taWebTerms && window.__taWebTerms.length > 0) {
-          tmWebPane.style.display = '';
-          renderWebTermSuggestions_inPanel(tmWebPane);
+        if (tmMirror && _tmEnabled) {
+          tmMirror.style.display = '';
+          tmMirror.innerHTML = tmPanel.innerHTML;
         }
       }
+    }
+    // Hide TM pane when disabled
+    if (tmMirror && !_tmEnabled) {
+      tmMirror.style.display = 'none';
+      tmMirror.innerHTML = '';
+    }
+
+    // ── Render web terminology in bottom sub-pane ──
+    if (tmWebPane && window.__taWebTerms && window.__taWebTerms.length > 0) {
+      tmWebPane.style.display = '';
+      renderWebTermSuggestions_inPanel(tmWebPane);
     }
 
     // ── MIRROR Principles panel into bottom row ──
