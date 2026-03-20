@@ -119,11 +119,8 @@
       }
       /* Web terminology suggestions */
       .ta-web-terms {
-        margin-top: 16px;
-        padding: 12px 0 4px 0;
-        border-top: 2px solid hsl(var(--border));
-        clear: both;
-        position: relative;
+        margin-top: 0;
+        padding: 0 0 4px 0;
       }
       .ta-web-terms-title {
         font-size: 12px;
@@ -1589,24 +1586,42 @@ if (document.readyState === "loading") {
       if (tmPanel) {
         // Hide original inside grid
         tmPanel.style.display = 'none';
-        // Mirror into bottom row
-        var tmMirrorId = 'ta-mirror-tm';
-        var tmMirror = document.getElementById(tmMirrorId);
-        if (!tmMirror) {
-          tmMirror = document.createElement('div');
-          tmMirror.id = tmMirrorId;
-          tmMirror.style.cssText = CARD + 'overflow-y:auto;';
+        // Mirror into bottom row — split into two sub-panes
+        var tmWrapperId = 'ta-mirror-tm-wrapper';
+        var tmWrapper = document.getElementById(tmWrapperId);
+        if (!tmWrapper) {
+          tmWrapper = document.createElement('div');
+          tmWrapper.id = tmWrapperId;
+          tmWrapper.style.cssText = 'display:flex;flex-direction:column;gap:6px;overflow:hidden;border-radius:8px;border:1px solid hsl(var(--border));background:hsl(var(--card));padding:0;';
+          // Top sub-pane: Glossary + TM
+          var tmTop = document.createElement('div');
+          tmTop.id = 'ta-mirror-tm';
+          tmTop.style.cssText = 'flex:1;min-height:0;overflow-y:auto;padding:10px 14px;';
+          tmWrapper.appendChild(tmTop);
+          // Bottom sub-pane: Web Terminology
+          var tmBot = document.createElement('div');
+          tmBot.id = 'ta-mirror-webterms';
+          tmBot.style.cssText = 'flex:1;min-height:0;overflow-y:auto;padding:10px 14px;border-top:2px solid hsl(var(--border));display:none;';
+          tmWrapper.appendChild(tmBot);
           if (row.children.length >= 2) {
-            row.insertBefore(tmMirror, row.children[1]);
+            row.insertBefore(tmWrapper, row.children[1]);
           } else {
-            row.appendChild(tmMirror);
+            row.appendChild(tmWrapper);
           }
         }
-        // Copy content from the React-owned panel
-        tmMirror.innerHTML = tmPanel.innerHTML;
-        // Append web terminology suggestions if available
-        if (window.__taWebTerms && window.__taWebTerms.length > 0) {
-          renderWebTermSuggestions_inPanel(tmMirror);
+        var tmMirror = document.getElementById('ta-mirror-tm');
+        var tmWebPane = document.getElementById('ta-mirror-webterms');
+        // Copy glossary/TM content from the React-owned panel
+        if (tmMirror) tmMirror.innerHTML = tmPanel.innerHTML;
+        // Render web terminology in its own sub-pane
+        if (tmWebPane) {
+          if (window.__taWebTerms && window.__taWebTerms.length > 0) {
+            tmWebPane.style.display = '';
+            renderWebTermSuggestions_inPanel(tmWebPane);
+          } else {
+            tmWebPane.style.display = 'none';
+            tmWebPane.innerHTML = '';
+          }
         }
       }
     }
@@ -1784,7 +1799,19 @@ function renderWebTermSuggestions_inPanel(panel) {
 }
 
 function renderWebTermSuggestions() {
-  // Find the TM mirror panel
+  // Render into the dedicated web terms sub-pane
+  var webPane = document.getElementById('ta-mirror-webterms');
+  if (webPane) {
+    if (window.__taWebTerms && window.__taWebTerms.length > 0) {
+      webPane.style.display = '';
+      renderWebTermSuggestions_inPanel(webPane);
+    } else {
+      webPane.style.display = 'none';
+      webPane.innerHTML = '';
+    }
+    return;
+  }
+  // Fallback: render into the TM mirror panel
   var tmPanel = document.getElementById('ta-mirror-tm');
   if (!tmPanel) return;
   renderWebTermSuggestions_inPanel(tmPanel);
