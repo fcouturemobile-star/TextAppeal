@@ -2214,11 +2214,11 @@ if (document.readyState === "loading") {
     var tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     sanitizeChildren(tempDiv);
-    // 10. Merge Word's false paragraph breaks
-    // Word creates separate <p> for each visual line. Merge consecutive <p> elements
-    // that are part of the same logical paragraph.
-    mergeWordParagraphs(tempDiv);
-    return tempDiv.innerHTML;
+    var result = tempDiv.innerHTML;
+    // 10. Merge Word's false paragraph breaks via string processing
+    // Word creates separate <p> for each visual line.
+    result = mergeWordParagraphs(result);
+    return result;
   }
 
   function sanitizeChildren(parent) {
@@ -2265,51 +2265,78 @@ if (document.readyState === "loading") {
     parent.replaceChild(newEl, node);
   }
 
-  function mergeWordParagraphs(container) {
-    // Word creates a separate <p> for each visual line.
-    // Strategy: merge consecutive <p> siblings unless there's evidence of
-    // a real paragraph break (empty <p> between them, or current ends with
-    // terminal punctuation AND next starts with uppercase/quote).
-    var changed = true;
-    while (changed) {
-      changed = false;
-      var children = Array.from(container.children);
-      for (var i = 0; i < children.length - 1; i++) {
-        var current = children[i];
-        var next = children[i + 1];
-        // Only merge <p> with <p> (or <div> with <div>)
-        if (current.tagName !== 'P' && current.tagName !== 'DIV') continue;
-        if (next.tagName !== 'P' && next.tagName !== 'DIV') continue;
-        var curText = current.textContent.trim();
-        var nextText = next.textContent.trim();
-        // If current is empty, it's a paragraph separator -- skip it
-        if (!curText) continue;
-        // If next is empty, it's a paragraph separator -- skip it
-        if (!nextText) continue;
-        // Check if this looks like a real paragraph break:
-        // Current ends with terminal punctuation AND next starts with
-        // uppercase letter, quote, bullet, number, or dash
-        var lastChar = curText.charAt(curText.length - 1);
-        var endsTerminal = /[.!?\u00BB\u201D"\)\u2019]/.test(lastChar);
-        var firstChar = nextText.charAt(0);
-        var startsNew = /^[A-Z\u00C0-\u00DC\u00AB\u201C"\(\d\u2022\u2013\u2014-]/.test(nextText);
-        // Real paragraph break: terminal punctuation + new sentence start
-        if (endsTerminal && startsNew) continue;
-        // Otherwise, merge: these are visual line wraps from Word
-        current.appendChild(document.createTextNode(' '));
-        while (next.firstChild) current.appendChild(next.firstChild);
-        next.remove();
-        changed = true;
-        break; // restart the loop since DOM changed
+  function mergeWordParagraphs(html) {
+    // Work with string-based approach for reliability.
+    // Split HTML into segments by <p> and </p> tags.
+    // Extract text blocks, then decide which to merge.
+
+    // Step 1: Extract all paragraph contents
+    var blocks = [];
+    var re = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    var m;
+    var lastIndex = 0;
+    var nonPContent = '';
+    while ((m = re.exec(html)) !== null) {
+      // Capture any non-<p> content before this <p>
+      if (m.index > lastIndex) {
+        var between = html.substring(lastIndex, m.index).trim();
+        if (between) nonPContent += between;
+      }
+      blocks.push({ html: m[1], fullMatch: m[0] });
+      lastIndex = re.lastIndex;
+    }
+    // If no <p> blocks found, return as-is
+    if (blocks.length === 0) return html;
+
+    // Step 2: Merge consecutive blocks that are visual line wraps
+    var merged = [];
+    var current = blocks[0].html;
+    for (var i = 1; i < blocks.length; i++) {
+      var nextHtml = blocks[i].html;
+      // Get plain text for analysis
+      var tmpCur = document.createElement('div'); tmpCur.innerHTML = current;
+      var tmpNext = document.createElement('div'); tmpNext.innerHTML = nextHtml;
+      var curText = tmpCur.textContent.trim();
+      var nextText = tmpNext.textContent.trim();
+
+      // Empty block = real paragraph break
+      if (!curText) { merged.push(current); current = nextHtml; continue; }
+      if (!nextText) { merged.push(current); current = nextHtml; continue; }
+
+      // Check for real paragraph break:
+      // Current ends with terminal punctuation AND next starts with uppercase/quote/number
+      var lastChar = curText.charAt(curText.length - 1);
+      var endsTerminal = /[.!?\u00BB\u201D\u201C"\)\u2019;:]/.test(lastChar);
+      var startsNew = /^[A-Z\u00C0-\u00DC\u00AB\u201C\u00AB"\(\d\u2022\u2013\u2014\-\*]/.test(nextText);
+
+      if (endsTerminal && startsNew) {
+        // Real paragraph break
+        merged.push(current);
+        current = nextHtml;
+      } else {
+        // Merge: visual line wrap from Word
+        current = current + ' ' + nextHtml;
       }
     }
-    // Clean up empty <p> elements (but keep one between real paragraphs)
-    var emptyPs = Array.from(container.querySelectorAll('p'));
-    for (var j = 0; j < emptyPs.length; j++) {
-      if (!emptyPs[j].textContent.trim() && !emptyPs[j].querySelector('img,br,hr')) {
-        emptyPs[j].remove();
+    merged.push(current);
+
+    // Step 3: Rebuild HTML, skipping empty paragraphs
+    var out = nonPContent;
+    for (var j = 0; j < merged.length; j++) {
+      var content = merged[j];
+      var tmp = document.createElement('div'); tmp.innerHTML = content;
+      if (tmp.textContent.trim()) {
+        out += '<p>' + content + '</p>';
       }
     }
+
+    // Append any trailing non-<p> content
+    if (lastIndex < html.length) {
+      var trailing = html.substring(lastIndex).trim();
+      if (trailing) out += trailing;
+    }
+
+    return out;
   }
 
   function setupPasteCleanup() {
