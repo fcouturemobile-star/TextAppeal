@@ -1387,6 +1387,7 @@ function __setDirection(dir) {
   window.__taDirection = dir;
   localStorage.setItem("ta_direction", dir);
   renderDirectionToggle();
+  renderStyleToggle();
   // Update column headers
   __updateReactText();
 }
@@ -1475,8 +1476,14 @@ function renderStyleToggle() {
       var key = btn.getAttribute('data-style');
       if (key) {
         btn.className = 'ta-style-btn' + (s === key ? ' ta-style-active' : '');
-        // Update label for language
-        var labelMap = {textAppeal:'Text Appeal', clearSimpleInclusive: lang==='fr'?'Clair et inclusif':'Clear & Inclusive', classicalFrench: lang==='fr'?'Fran\u00e7ais classique':'Classical French'};
+        // Update label based on target language (direction), not UI language
+        var _dir = window.__taDirection || 'en-fr';
+        var _targetFR = (_dir === 'en-fr');
+        var labelMap = {
+          textAppeal: 'Text Appeal',
+          clearSimpleInclusive: lang==='fr' ? 'Clair et inclusif' : 'Clear & Inclusive',
+          classicalFrench: _targetFR ? (lang==='fr'?'Fran\u00e7ais classique':'Classical French') : (lang==='fr'?'Anglais classique':'Classical English')
+        };
         if (labelMap[key]) btn.textContent = labelMap[key];
       }
     });
@@ -1508,10 +1515,12 @@ function renderStyleToggle() {
   var btnContainer = document.createElement('div');
   btnContainer.className = 'ta-style-buttons';
 
+  var _dir = window.__taDirection || 'en-fr';
+  var _targetFR = (_dir === 'en-fr');
   var labels = {
     textAppeal: 'Text Appeal',
     clearSimpleInclusive: lang === 'fr' ? 'Clair et inclusif' : 'Clear & Inclusive',
-    classicalFrench: lang === 'fr' ? 'Fran\u00e7ais classique' : 'Classical French'
+    classicalFrench: _targetFR ? (lang==='fr'?'Fran\u00e7ais classique':'Classical French') : (lang==='fr'?'Anglais classique':'Classical English')
   };
   var keys = ['textAppeal', 'clearSimpleInclusive', 'classicalFrench'];
   keys.forEach(function(key) {
