@@ -122,6 +122,41 @@
         margin-top: 0;
         padding: 0 0 4px 0;
       }
+      /* Style toggle */
+      #ta-style-toggle {
+        position: fixed;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        gap: 0;
+        background: hsl(var(--muted) / 0.5);
+        border-radius: 6px;
+        padding: 2px;
+        border: 1px solid hsl(var(--border));
+        backdrop-filter: blur(8px);
+      }
+      .ta-style-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+        border: none;
+        background: transparent;
+        color: hsl(var(--muted-foreground));
+        cursor: pointer;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+      .ta-style-btn:hover {
+        color: hsl(var(--foreground));
+      }
+      .ta-style-btn.ta-style-active {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      }
       .ta-web-terms-title {
         font-size: 12px;
         font-weight: 600;
@@ -274,6 +309,8 @@ function __setLang(lang) {
   }
   // Force React re-render by dispatching a custom event
   window.dispatchEvent(new Event("ta-lang-changed"));
+  // Update style toggle labels for new language
+  renderStyleToggle();
   // Update any React-rendered text via DOM manipulation
   __updateReactText();
 }
@@ -449,6 +486,13 @@ window.fetch = function(url, opts) {
       if (!opts.headers["x-user-token"]) opts.headers["x-user-token"] = token;
     }
   }
+  // Inject style parameter into rewrite requests
+  if (typeof url === "string" && url.includes("/api/rewrite") && opts.body) {
+    try {
+      var _rb = JSON.parse(opts.body);
+      if (!_rb.style) { _rb.style = window.__taStyle || "textAppeal"; opts.body = JSON.stringify(_rb); }
+    } catch(e) {}
+  }
   // Gate: require login for translate/rewrite
   if (window.__taRequireLogin && typeof url === "string" && (url.includes("/api/translate") || url.includes("/api/rewrite"))) {
     window.__taFreemium.showAuthModal();
@@ -584,6 +628,7 @@ function updateUI() {
   renderUsageCounter();
   injectAccountButton();
   renderLangToggle();
+  renderStyleToggle();
   renderCreativitySlider();
   setTimeout(__updateReactText, 600);
   // Gate: require login before allowing translate
@@ -1228,6 +1273,51 @@ function renderLangToggle() {
     '<button class="ta-lang-btn' + (lang==="fr"?" ta-lang-active":"") + '" onclick="__setLang(\'fr\')">FR</button>';
 }
 
+// ═══ Style Toggle ═══
+window.__taStyle = localStorage.getItem("ta_style") || "textAppeal";
+
+function __setStyle(style) {
+  window.__taStyle = style;
+  localStorage.setItem("ta_style", style);
+  renderStyleToggle();
+  // Update principles panel label
+  updatePrinciplesBadge();
+}
+
+function renderStyleToggle() {
+  var toggle = document.getElementById("ta-style-toggle");
+  if (!toggle) {
+    toggle = document.createElement("div");
+    toggle.id = "ta-style-toggle";
+    document.body.appendChild(toggle);
+  }
+  var s = window.__taStyle || "textAppeal";
+  var lang = window.__taLang || "en";
+  var labels = {
+    textAppeal: "Text Appeal",
+    clearSimpleInclusive: lang === "fr" ? "Clair et inclusif" : "Clear & Inclusive",
+    classicalFrench: lang === "fr" ? "Fran\u00e7ais classique" : "Classical French"
+  };
+  var html = '';
+  for (var key in labels) {
+    html += '<button class="ta-style-btn' + (s === key ? ' ta-style-active' : '') + '" onclick="__setStyle(\'' + key + '\')">' + labels[key] + '</button>';
+  }
+  toggle.innerHTML = html;
+}
+
+function updatePrinciplesBadge() {
+  var counts = { textAppeal: 26, clearSimpleInclusive: 20, classicalFrench: 25 };
+  var s = window.__taStyle || "textAppeal";
+  var badge = document.querySelector('[data-testid="button-toggle-principles"] span, [class*="badge"]');
+  // Update the "26 principes" badge in the Principles panel
+  document.querySelectorAll('span, button').forEach(function(el) {
+    if (el.textContent.match(/^\d+ principes?$/) || el.textContent.match(/^\d+ principles?$/)) {
+      var lang = window.__taLang || 'en';
+      el.textContent = (counts[s] || 26) + (lang === 'fr' ? ' principes' : ' principles');
+    }
+  });
+}
+
 // ═══ Creativity Slider (admin-only, hidden from user) ═══
 function renderCreativitySlider() {
   // Remove user-side slider entirely - creativity is admin-controlled only
@@ -1468,7 +1558,7 @@ async function doCancelSubscription() {
 window.__taFreemium = {
   showAuthModal, doLogout, doSubscribe, showMembersPanel, showStripePanel, showDatabasePanel, showSmtpPanel,
   updateMemberPlan, toggleMember, deleteMember, initDb,
-  updateUI, renderLangToggle, renderCreativitySlider, setCreativity,
+  updateUI, renderLangToggle, renderStyleToggle, renderCreativitySlider, setCreativity,
   showLostPasswordModal, doCancelSubscription
 };
 
