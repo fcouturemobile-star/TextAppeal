@@ -575,6 +575,11 @@ window.fetch = function(url, opts) {
       if (!opts.headers["x-user-token"]) opts.headers["x-user-token"] = token;
     }
   }
+  // Inject direction and style into principles fetch
+  if (typeof url === "string" && url.includes("/api/principles") && !url.includes("direction=")) {
+    var _sep = url.includes('?') ? '&' : '?';
+    url = url + _sep + 'direction=' + (window.__taDirection || 'en-fr') + '&style=' + (window.__taStyle || 'textAppeal');
+  }
   // Inject direction into translate requests and capture translation result
   if (typeof url === "string" && url.includes("/api/translate") && opts.body) {
     try {
@@ -1383,11 +1388,22 @@ function renderLangToggle() {
 // ═══ Direction Toggle ═══
 window.__taDirection = localStorage.getItem("ta_direction") || "en-fr";
 
+function __refreshPrinciples() {
+  // Re-fetch principles from server with current direction and style
+  var url = '/api/principles?direction=' + (window.__taDirection || 'en-fr') + '&style=' + (window.__taStyle || 'textAppeal');
+  origFetch(url).then(function(r) { return r.json(); }).then(function(data) {
+    // Dispatch a custom event so the React app picks up new data
+    window.__taPrinciplesData = data;
+    window.dispatchEvent(new CustomEvent('ta-principles-updated', { detail: data }));
+  }).catch(function() {});
+}
+
 function __setDirection(dir) {
   window.__taDirection = dir;
   localStorage.setItem("ta_direction", dir);
   renderDirectionToggle();
   renderStyleToggle();
+  __refreshPrinciples();
   // Update column headers
   __updateReactText();
 }
@@ -1448,6 +1464,7 @@ function __setStyle(style) {
   localStorage.setItem("ta_style", style);
   renderStyleToggle();
   updatePrinciplesBadge();
+  __refreshPrinciples();
 }
 
 function __setStyleOther(text) {
