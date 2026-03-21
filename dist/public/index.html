@@ -1022,6 +1022,20 @@ function injectAdminSections() {
         '</div>' +
         '</div>' +
         '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6"/><path d="M12 18v4"/><circle cx="12" cy="14" r="4"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">Temperature Controls</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Separate creativity settings for translation and rewriting. Higher = more creative.</p>' +
+        '<div style="display:flex;flex-direction:column;gap:16px">' +
+        '<div><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Translation Temperature: <span id="ta-temp-trans-val">0.3</span></label>' +
+        '<input type="range" id="ta-temp-trans" min="0" max="1" step="0.05" value="0.3" style="width:100%;cursor:pointer"></div>' +
+        '<div><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Rewrite Temperature: <span id="ta-temp-rw-val">0.7</span></label>' +
+        '<input type="range" id="ta-temp-rw" min="0" max="1" step="0.05" value="0.7" style="width:100%;cursor:pointer"></div>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+        '<button class="ta-btn ta-btn-primary" id="ta-temp-save" style="font-size:12px;padding:6px 16px">Save</button>' +
+        '<span id="ta-temp-status" style="font-size:12px;color:var(--muted-foreground,#64748b)"></span>' +
+        '</div></div>' +
+        '</div>' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
         '<h3 style="font-size:18px;font-weight:600;margin:0">Style Prompts</h3></div>' +
         '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">View and edit the 6 style prompts (3 French, 3 English). Changes persist across updates.</p>' +
@@ -1108,6 +1122,45 @@ function injectAdminSections() {
               setTimeout(function() { status.textContent = ''; }, 2000);
             }
           } catch(e) { status.textContent = 'Error'; }
+        });
+      })();
+
+      // Wire up temperature sliders
+      (async function() {
+        var transSlider = document.getElementById('ta-temp-trans');
+        var rwSlider = document.getElementById('ta-temp-rw');
+        var transVal = document.getElementById('ta-temp-trans-val');
+        var rwVal = document.getElementById('ta-temp-rw-val');
+        var tempSave = document.getElementById('ta-temp-save');
+        var tempStatus = document.getElementById('ta-temp-status');
+        if (!transSlider || !rwSlider) return;
+        // Load current values
+        try {
+          var at = getAdminToken();
+          var r = await origFetch('/api/admin/temperatures', { headers: { 'x-admin-token': at } });
+          if (r.ok) {
+            var d = await r.json();
+            transSlider.value = d.translateTemperature;
+            transVal.textContent = d.translateTemperature;
+            rwSlider.value = d.rewriteTemperature;
+            rwVal.textContent = d.rewriteTemperature;
+          }
+        } catch(e) {}
+        transSlider.addEventListener('input', function() { transVal.textContent = this.value; });
+        rwSlider.addEventListener('input', function() { rwVal.textContent = this.value; });
+        tempSave.addEventListener('click', async function() {
+          tempStatus.textContent = 'Saving...';
+          try {
+            var at = getAdminToken();
+            var r = await origFetch('/api/admin/temperatures', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-admin-token': at },
+              body: JSON.stringify({ translateTemperature: parseFloat(transSlider.value), rewriteTemperature: parseFloat(rwSlider.value) })
+            });
+            if (r.ok) { tempStatus.textContent = 'Saved!'; tempStatus.style.color = '#22c55e'; }
+            else { tempStatus.textContent = 'Error'; tempStatus.style.color = '#ef4444'; }
+            setTimeout(function() { tempStatus.textContent = ''; tempStatus.style.color = ''; }, 3000);
+          } catch(e) { tempStatus.textContent = 'Error'; }
         });
       })();
 
