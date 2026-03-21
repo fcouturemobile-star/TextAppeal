@@ -164,6 +164,43 @@
         color: hsl(var(--primary-foreground));
         border-color: hsl(var(--primary));
       }
+      .ta-style-other-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+      }
+      .ta-style-other-btn {
+        font-size: 11px;
+        padding: 5px 10px;
+        border: 1px solid hsl(var(--border));
+        background: transparent;
+        color: hsl(var(--foreground));
+        cursor: pointer;
+        border-radius: 5px;
+        white-space: nowrap;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+      .ta-style-other-btn.ta-style-active {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        border-color: hsl(var(--primary));
+      }
+      .ta-style-other-input {
+        flex: 1;
+        font-size: 10px;
+        padding: 4px 6px;
+        border: 1px solid hsl(var(--border));
+        border-radius: 4px;
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        min-width: 0;
+      }
+      .ta-style-other-input:focus {
+        outline: none;
+        border-color: hsl(var(--primary));
+      }
       .ta-web-terms-title {
         font-size: 12px;
         font-weight: 600;
@@ -497,7 +534,14 @@ window.fetch = function(url, opts) {
   if (typeof url === "string" && url.includes("/api/rewrite") && opts.body) {
     try {
       var _rb = JSON.parse(opts.body);
-      if (!_rb.style) { _rb.style = window.__taStyle || "textAppeal"; opts.body = JSON.stringify(_rb); }
+      if (!_rb.style) {
+        var _st = window.__taStyle || "textAppeal";
+        _rb.style = _st;
+        if (_st === "other" && window.__taStyleOtherText) {
+          _rb.customStyleText = window.__taStyleOtherText;
+        }
+        opts.body = JSON.stringify(_rb);
+      }
     } catch(e) {}
   }
   // Gate: require login for translate/rewrite
@@ -1282,13 +1326,18 @@ function renderLangToggle() {
 
 // ═══ Style Toggle ═══
 window.__taStyle = localStorage.getItem("ta_style") || "textAppeal";
+window.__taStyleOtherText = localStorage.getItem("ta_style_other") || "";
 
 function __setStyle(style) {
   window.__taStyle = style;
   localStorage.setItem("ta_style", style);
   renderStyleToggle();
-  // Update principles panel label
   updatePrinciplesBadge();
+}
+
+function __setStyleOther(text) {
+  window.__taStyleOtherText = text;
+  localStorage.setItem("ta_style_other", text);
 }
 
 function renderStyleToggle() {
@@ -1329,6 +1378,24 @@ function renderStyleToggle() {
     btn.addEventListener('click', function() { __setStyle(key); });
     btnContainer.appendChild(btn);
   });
+  // "Other" row: button + text input
+  var otherRow = document.createElement('div');
+  otherRow.className = 'ta-style-other-row';
+  var otherBtn = document.createElement('button');
+  otherBtn.className = 'ta-style-other-btn' + (s === 'other' ? ' ta-style-active' : '');
+  otherBtn.textContent = lang === 'fr' ? 'Autre :' : 'Other:';
+  otherBtn.addEventListener('click', function() { __setStyle('other'); });
+  otherRow.appendChild(otherBtn);
+  var otherInput = document.createElement('input');
+  otherInput.type = 'text';
+  otherInput.className = 'ta-style-other-input';
+  otherInput.id = 'ta-style-other-input';
+  otherInput.placeholder = lang === 'fr' ? 'Vos consignes de style...' : 'Your style instructions...';
+  otherInput.value = window.__taStyleOtherText || '';
+  otherInput.addEventListener('input', function() { __setStyleOther(this.value); });
+  otherInput.addEventListener('focus', function() { __setStyle('other'); });
+  otherRow.appendChild(otherInput);
+  btnContainer.appendChild(otherRow);
   toggle.appendChild(btnContainer);
 }
 
