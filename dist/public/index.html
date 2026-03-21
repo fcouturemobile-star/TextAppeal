@@ -787,6 +787,8 @@ function renderUserBar() {
         ? '<button class="ta-btn ta-btn-cancel" onclick="window.__taFreemium.doCancelSubscription()" style="font-size:11px;padding:3px 8px;background:transparent;color:#64748b;border:1px solid #64748b">' + (window.__taLang === "fr" ? "Annuler l\u2019abonnement" : "Cancel subscription") + '</button>'
         : '') +
       '<button class="ta-btn ta-btn-logout" onclick="window.__taFreemium.doLogout()">' + __t("logout") + '</button>' +
+      '<a href="https://www.textappeal.pro/shop/" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
+      '<a href="' + (window.__taLang === 'fr' ? 'https://a.co/d/07c4LrCZ' : 'https://a.co/d/0e8L3V1K') + '" target="_blank" rel="noopener" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("buyBook") + '</a>' +
       '</div>';
     bar.style.display = "flex";
   } else {
