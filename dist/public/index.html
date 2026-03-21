@@ -2214,6 +2214,10 @@ if (document.readyState === "loading") {
     var tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     sanitizeChildren(tempDiv);
+    // 10. Merge Word's false paragraph breaks
+    // Word creates separate <p> for each visual line. Merge consecutive <p> elements
+    // that are part of the same logical paragraph.
+    mergeWordParagraphs(tempDiv);
     return tempDiv.innerHTML;
   }
 
@@ -2259,6 +2263,45 @@ if (document.readyState === "loading") {
     var newEl = document.createElement(newTag);
     while (node.firstChild) newEl.appendChild(node.firstChild);
     parent.replaceChild(newEl, node);
+  }
+
+  function mergeWordParagraphs(container) {
+    // Word creates a <p> for each visual line. We merge consecutive <p> elements
+    // that look like they belong to the same paragraph.
+    // Strategy: if a <p> ends mid-sentence (no terminal punctuation) and the next
+    // sibling is also a <p>, merge them with a space.
+    var paragraphs = Array.from(container.querySelectorAll('p'));
+    for (var i = 0; i < paragraphs.length - 1; i++) {
+      var current = paragraphs[i];
+      var next = paragraphs[i + 1];
+      // Only merge if they're siblings (same parent)
+      if (current.parentNode !== next.parentNode) continue;
+      if (current.nextElementSibling !== next) continue;
+      // Get the text content to analyze
+      var curText = current.textContent.trim();
+      var nextText = next.textContent.trim();
+      if (!curText || !nextText) continue;
+      // Check if current paragraph ends mid-sentence
+      var lastChar = curText.charAt(curText.length - 1);
+      var endsWithTerminal = /[.!?:;\u00BB\u201D"\)]/.test(lastChar);
+      // Check if next paragraph starts with lowercase (continuation)
+      var firstChar = nextText.charAt(0);
+      var startsLower = /[a-z\u00E0-\u00FF]/.test(firstChar);
+      // Also check if next starts with common continuation patterns
+      var startsContinuation = /^[a-z\u00E0-\u00FF,;]/.test(nextText);
+      // Merge if: current doesn't end with terminal punctuation,
+      // OR next starts with lowercase/continuation
+      if (!endsWithTerminal || startsContinuation) {
+        // Merge: append a space + next's children into current
+        current.appendChild(document.createTextNode(' '));
+        while (next.firstChild) current.appendChild(next.firstChild);
+        next.remove();
+        // Don't advance i, so we can try merging again with the new next
+        i--;
+        // Rebuild the array since we removed an element
+        paragraphs = Array.from(container.querySelectorAll('p'));
+      }
+    }
   }
 
   function setupPasteCleanup() {
