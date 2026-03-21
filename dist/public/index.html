@@ -575,14 +575,14 @@ window.fetch = function(url, opts) {
       if (!opts.headers["x-user-token"]) opts.headers["x-user-token"] = token;
     }
   }
-  // Inject direction into translate requests
+  // Inject direction into translate requests and capture translation result
   if (typeof url === "string" && url.includes("/api/translate") && opts.body) {
     try {
       var _tb = JSON.parse(opts.body);
       if (!_tb.direction) { _tb.direction = window.__taDirection || "en-fr"; opts.body = JSON.stringify(_tb); }
     } catch(e) {}
   }
-  // Inject style + direction into rewrite requests
+  // Inject style + direction into rewrite requests; swap text for FR->EN
   if (typeof url === "string" && url.includes("/api/rewrite") && opts.body) {
     try {
       var _rb = JSON.parse(opts.body);
@@ -594,6 +594,11 @@ window.fetch = function(url, opts) {
         }
       }
       if (!_rb.direction) { _rb.direction = window.__taDirection || "en-fr"; }
+      // For FR->EN: the React app sends the source French text to rewrite,
+      // but we need to rewrite the English translation instead
+      if (_rb.direction === "fr-en" && window.__taLastTranslation) {
+        _rb.text = window.__taLastTranslation;
+      }
       opts.body = JSON.stringify(_rb);
     } catch(e) {}
   }
@@ -615,9 +620,11 @@ window.fetch = function(url, opts) {
         if (data.token) capturedAdminToken = data.token;
       });
     }
-    // Intercept translate response to capture web terminology suggestions + TM toggle
+    // Intercept translate response to capture translation + web terminology
     if (typeof url === "string" && url.includes("/api/translate") && resp.ok) {
       resp.clone().json().then(function(data) {
+        // Store the translation result for the rewrite step
+        window.__taLastTranslation = data.translation || '';
         window.__taLocalTMEnabled = data.localTMEnabled !== false;
         window.__taWebTerms = (data.webTermSuggestions && data.webTermSuggestions.length > 0) ? data.webTermSuggestions : [];
         console.log('Web terms received:', window.__taWebTerms.length, 'localTM:', window.__taLocalTMEnabled);
