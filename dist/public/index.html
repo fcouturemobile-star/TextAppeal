@@ -997,6 +997,29 @@ function injectAdminSections() {
         '<span id="ta-local-tm-status" style="font-size:12px;color:var(--muted-foreground,#64748b)"></span>' +
         '</div>' +
         '</div>' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">Style Prompts</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">View and edit the 6 style prompts (3 French, 3 English). Changes persist across updates.</p>' +
+        '<div id="ta-style-prompts-editor">' +
+        '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">' +
+        '<select id="ta-sp-select" style="flex:1;padding:6px 10px;border:1px solid var(--border,#e2e8f0);border-radius:6px;font-size:13px;background:var(--background,#fff);color:var(--foreground,#000)">' +
+        '<option value="fr:textAppeal">Text Appeal (FR)</option>' +
+        '<option value="fr:clearSimpleInclusive">Clair et inclusif (FR)</option>' +
+        '<option value="fr:classicalFrench">Fran\u00e7ais classique (FR)</option>' +
+        '<option value="en:textAppeal">Text Appeal (EN)</option>' +
+        '<option value="en:clearSimpleInclusive">Clear &amp; Inclusive (EN)</option>' +
+        '<option value="en:classicalEnglish">Classical English (EN)</option>' +
+        '</select>' +
+        '<button class="ta-btn ta-btn-primary" id="ta-sp-load" style="font-size:12px;padding:6px 12px">Load</button>' +
+        '</div>' +
+        '<textarea id="ta-sp-textarea" rows="12" style="width:100%;padding:8px;border:1px solid var(--border,#e2e8f0);border-radius:6px;font-size:11px;font-family:monospace;resize:vertical;background:var(--background,#fff);color:var(--foreground,#000)"></textarea>' +
+        '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<button class="ta-btn ta-btn-primary" id="ta-sp-save" style="font-size:12px;padding:6px 16px">Save</button>' +
+        '<span id="ta-sp-status" style="font-size:12px;color:var(--muted-foreground,#64748b);align-self:center"></span>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
         '</div>';
 
       container.appendChild(sections);
@@ -1031,6 +1054,56 @@ function injectAdminSections() {
               setTimeout(function() { status.textContent = ''; }, 2000);
             }
           } catch(e) { status.textContent = 'Error'; }
+        });
+      })();
+
+      // Wire up style prompts editor
+      (function() {
+        var spLoad = document.getElementById('ta-sp-load');
+        var spSave = document.getElementById('ta-sp-save');
+        var spSelect = document.getElementById('ta-sp-select');
+        var spTextarea = document.getElementById('ta-sp-textarea');
+        var spStatus = document.getElementById('ta-sp-status');
+        if (!spLoad || !spSave) return;
+
+        spLoad.addEventListener('click', async function() {
+          var val = spSelect.value;
+          var parts = val.split(':');
+          spStatus.textContent = 'Loading...';
+          try {
+            var at = getAdminToken();
+            var r = await origFetch('/api/admin/style-prompts', { headers: { 'x-admin-token': at } });
+            var data = await r.json();
+            var prompt = data[parts[0]]?.[parts[1]]?.prompt || '';
+            spTextarea.value = prompt;
+            spStatus.textContent = 'Loaded (' + prompt.length + ' chars)';
+            setTimeout(function() { spStatus.textContent = ''; }, 3000);
+          } catch(e) { spStatus.textContent = 'Error loading'; }
+        });
+
+        spSave.addEventListener('click', async function() {
+          var val = spSelect.value;
+          var parts = val.split(':');
+          var prompt = spTextarea.value;
+          if (!prompt.trim()) { spStatus.textContent = 'Cannot save empty prompt'; return; }
+          spStatus.textContent = 'Saving...';
+          try {
+            var at = getAdminToken();
+            var r = await origFetch('/api/admin/style-prompts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-admin-token': at },
+              body: JSON.stringify({ lang: parts[0], key: parts[1], prompt: prompt })
+            });
+            if (r.ok) {
+              spStatus.textContent = 'Saved!';
+              spStatus.style.color = '#22c55e';
+            } else {
+              var d = await r.json();
+              spStatus.textContent = 'Error: ' + (d.error || 'unknown');
+              spStatus.style.color = '#ef4444';
+            }
+            setTimeout(function() { spStatus.textContent = ''; spStatus.style.color = ''; }, 3000);
+          } catch(e) { spStatus.textContent = 'Error saving'; }
         });
       })();
     }, 1000);
