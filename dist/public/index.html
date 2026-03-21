@@ -654,6 +654,8 @@ window.fetch = function(url, opts) {
         setTimeout(function() { renderWebTermSuggestions(); updateTMPaneVisibility(); }, 300);
         setTimeout(function() { renderWebTermSuggestions(); updateTMPaneVisibility(); }, 1000);
         setTimeout(function() { renderWebTermSuggestions(); updateTMPaneVisibility(); }, 2000);
+        // Refresh principles panel to match current style
+        if (typeof __refreshPrinciples === 'function') __refreshPrinciples();
       }).catch(function(e) { console.warn('Web terms intercept error:', e); });
     }
     // Intercept 402 (limit reached) responses
@@ -2385,6 +2387,13 @@ if (document.readyState === "loading") {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
   else go();
+
+  // When principles data changes (style or direction switch), clear fingerprint and rebuild
+  window.addEventListener('ta-principles-updated', function() {
+    var prMirror = document.getElementById('ta-mirror-pr');
+    if (prMirror) prMirror.removeAttribute('data-pr-fp');
+    relocatePanels();
+  });
 
   // Re-size on window resize
   window.addEventListener('resize', function() {
