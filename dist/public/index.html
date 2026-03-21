@@ -2013,13 +2013,13 @@ if (document.readyState === "loading") {
       // Create the left pane (button + contact)
       row.appendChild(buildLeftPane());
       // Render direction and style toggles into the left pane
-      renderDirectionToggle();
-      renderStyleToggle();
+      if(typeof renderDirectionToggle==="function")renderDirectionToggle();
+      if(typeof renderStyleToggle==="function")renderStyleToggle();
     }
 
     // Re-render if not present (in case left pane was rebuilt)
-    if (!document.getElementById('ta-direction-toggle')) renderDirectionToggle();
-    if (!document.getElementById('ta-style-toggle')) renderStyleToggle();
+    if (!document.getElementById('ta-direction-toggle')&&typeof renderDirectionToggle==='function') renderDirectionToggle();
+    if (!document.getElementById('ta-style-toggle')&&typeof renderStyleToggle==='function') renderStyleToggle();
 
     // Explicitly size the grid in pixels
     sizeGrid(grid, row);
@@ -2208,9 +2208,14 @@ if (document.readyState === "loading") {
     html = html.replace(/<span>(.*?)<\/span>/gi, '$1');
     // 7. Replace &nbsp; with space
     html = html.replace(/&nbsp;/g, ' ');
-    // 8. Clean up empty paragraphs (but keep at least a <br> for spacing)
+    // 8. Clean up empty paragraphs
     html = html.replace(/<p>\s*<\/p>/gi, '');
-    // 9. Remove tags not in allowed list using DOM
+    // 9. Collapse newlines inside content to spaces (Word's visual line wraps)
+    // Preserve newlines that are between block tags (real paragraph structure)
+    html = html.replace(/>\s*\n\s*</g, '><');  // remove whitespace between tags
+    html = html.replace(/\n/g, ' ');             // collapse remaining newlines to spaces
+    html = html.replace(/  +/g, ' ');            // clean up double spaces
+    // 10. Remove tags not in allowed list using DOM
     var tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     sanitizeChildren(tempDiv);
