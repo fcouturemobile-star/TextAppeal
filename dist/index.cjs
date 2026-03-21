@@ -257,118 +257,118 @@ IMPORTANT : Vous devez conserver la même structure HTML/formatage que le texte 
 Les 20 Principes du langage clair, simple et inclusif
 
 Principe 1 : Information essentielle en premier.
-  - Explication : Placez l'information la plus importante au début du paragraphe ou de la phrase. Le lecteur doit saisir l'essentiel dès les premiers mots.
+  - Explication : Placez l'information la plus importante au début du paragraphe ou de la phrase. Le lecteur doit saisir l'essentiel dès les premiers mots, sans devoir lire jusqu'à la fin pour comprendre l'enjeu central.
   - Exemple :
     - À éviter : Dans le contexte des changements apportés au programme, il convient de noter que la date limite est le 31 mars.
     - À privilégier : La date limite est le 31 mars.
 
 Principe 2 : Une idée par paragraphe.
-  - Explication : Chaque paragraphe ne doit développer qu'une seule idée centrale. Si un sujet est complexe, divisez-le en plusieurs paragraphes courts.
+  - Explication : Chaque paragraphe ne doit développer qu'une seule idée centrale. Si un sujet est complexe, divisez-le en plusieurs paragraphes courts, chacun axé sur un aspect précis.
   - Exemple :
     - À éviter : Un long paragraphe qui mélange les critères d'admissibilité, les délais et les formulaires requis.
     - À privilégier : Trois paragraphes distincts, chacun traitant d'un seul aspect.
 
 Principe 3 : Phrases courtes, une idée à la fois.
-  - Explication : Visez environ 15 à 20 mots par phrase. Évitez d'insérer plusieurs idées dans une même phrase. Divisez les phrases surchargées.
+  - Explication : Visez environ 15 mots par phrase. Évitez d'insérer plusieurs idées dans une même phrase. Divisez les phrases surchargées en plusieurs phrases distinctes.
   - Exemple :
     - À éviter : Puisque le stationnement entre 23 h et 7 h est interdit, si votre véhicule est garé dans le parc K et si vous désirez utiliser les transports en commun, il vous est possible d'utiliser le garage souterrain I, moyennant 3,50 $, à condition d'en sortir avant 9 h.
     - À privilégier : Le stationnement est interdit entre 23 h et 7 h. Si votre véhicule est dans le parc K, vous pouvez utiliser le garage souterrain I pour 3,50 $. Votre véhicule doit en être sorti avant 9 h.
 
 Principe 4 : Voix active plutôt que passive.
-  - Explication : En français, la voix active est plus facile à comprendre. Le sujet accomplit l'action au lieu de la subir.
+  - Explication : En français, la voix active est plus facile à comprendre. Le sujet accomplit l'action au lieu de la subir. Quand l'agent est connu, nommez-le et faites-le agir.
   - Exemple :
     - À éviter : Votre dossier sera étudié par le Comité dans trois semaines.
     - À privilégier : Le Comité étudiera votre dossier dans trois semaines.
 
 Principe 5 : Sujet proche de son verbe.
-  - Explication : Évitez les longues incises entre le sujet et le verbe. Un lien direct entre qui agit et ce qu'il fait facilite la compréhension.
+  - Explication : Évitez les longues incises entre le sujet et le verbe. Un lien direct entre qui agit et ce qu'il fait facilite la compréhension immédiate.
   - Exemple :
-    - À éviter : Les admissions conditionnelles envoyées à la mi-juin aux élèves des écoles secondaires qui finissent leurs études se font sur la base des notes intérimaires.
+    - À éviter : Les admissions conditionnelles envoyées à la mi-juin aux élèves des écoles secondaires de la province qui finissent leurs études au printemps se font sur la base des notes intérimaires.
     - À privilégier : Les admissions conditionnelles se font sur la base des notes intérimaires. Elles sont envoyées à la mi-juin aux élèves qui terminent leurs études secondaires.
 
 Principe 6 : Adresse directe au lecteur.
-  - Explication : Utilisez « vous » pour vous adresser directement au lecteur. Évitez les tournures impersonnelles qui créent une distance inutile.
+  - Explication : Utilisez « vous » pour vous adresser directement au lecteur. Évitez les tournures impersonnelles qui créent une distance inutile avec les personnes concernées par le texte.
   - Exemple :
     - À éviter : Les clients sont priés de soumettre leur formulaire avant la date limite.
     - À privilégier : Soumettez votre formulaire avant la date limite.
 
-Principe 7 : Mots simples et courants.
+Principe 7 : Éliminer les ambiguïtés de référence.
+  - Explication : Relisez pour repérer les pronoms mal placés ou les propositions relatives trop éloignées de leur antécédent. En cas de doute sur ce à quoi renvoie un pronom, reformulez la phrase.
+  - Exemple :
+    - À éviter : Un automobiliste heurte un piéton qui est tué sur le coup et prend la fuite. (Qui prend la fuite ?)
+    - À privilégier : Un automobiliste prend la fuite après avoir heurté un piéton tué sur le coup.
+
+Principe 8 : Mots simples et courants.
   - Explication : Choisissez des mots du quotidien plutôt que des termes recherchés ou administratifs. Remplacez les périphrases par un seul mot plus simple.
   - Exemple :
-    - À éviter : préalablement à / subséquemment / nonobstant le fait que / solliciter
-    - À privilégier : avant / après / bien que / demander
+    - À éviter : préalablement à / subséquemment / nonobstant le fait que / solliciter / au sein de
+    - À privilégier : avant / après / bien que / demander / dans
 
-Principe 8 : Pas de jargon non expliqué.
-  - Explication : Si un terme technique ou spécialisé est indispensable, définissez-le dans le corps du texte dès sa première apparition.
+Principe 9 : Pas de jargon non expliqué.
+  - Explication : Si un terme technique ou spécialisé est indispensable, définissez-le dans le corps du texte dès sa première apparition. Ne renvoyez pas le lecteur à un glossaire en fin de document.
   - Exemple :
     - À éviter : Les orthèses visuelles sont couvertes par le régime.
     - À privilégier : Les orthèses visuelles (lunettes ou verres de contact) sont couvertes par le régime.
 
-Principe 9 : Verbe plutôt que nom déverbal.
-  - Explication : Les verbes donnent une tournure plus concrète et plus courte. Libérez l'action emprisonnée dans les noms.
+Principe 10 : Éliminer les mots inutiles.
+  - Explication : Supprimez les mots qui n'ajoutent aucun sens. Remplacez les groupes de mots redondants par un seul mot équivalent. Chaque mot doit gagner sa place.
+  - Exemple :
+    - À éviter : tous et chacun / une période de temps / plus souvent qu'autrement / les données contenues dans une liste
+    - À privilégier : tous / une période / le plus souvent / les données d'une liste
+
+Principe 11 : Verbe plutôt que nom déverbal.
+  - Explication : Les noms déverbaux (nominalisation) alourdissent et allongent la phrase. Libérez l'action emprisonnée dans le nom en revenant au verbe.
   - Exemple :
     - À éviter : La mise en œuvre de ce programme a nécessité une réévaluation de la politique.
     - À privilégier : Quand le Ministère a mis en œuvre ce programme, il a dû réévaluer sa politique.
 
-Principe 10 : Forme affirmative préférée.
+Principe 12 : Mots concrets plutôt qu'abstraits.
+  - Explication : Ancrez les idées abstraites dans des réalités tangibles. Préférez les termes précis et les exemples concrets aux formulations vagues. La clarté passe par le concret.
+  - Exemple :
+    - À éviter : La population a connu d'importants changements de conditions.
+    - À privilégier : Le nombre de familles vivant sous le seuil de la pauvreté a doublé en dix ans.
+
+Principe 13 : Mots clés répétés pour la clarté.
+  - Explication : Ne cherchez pas à varier les termes par souci stylistique si cela crée de la confusion. Répétez le même mot clé pour désigner le même concept tout au long du texte.
+  - Exemple :
+    - À éviter : le programme / le dispositif / la mesure / l'initiative (quatre mots pour désigner la même chose)
+    - À privilégier : « le programme » répété de manière cohérente.
+
+Principe 14 : Forme affirmative préférée.
   - Explication : Les phrases négatives créent de la confusion et produisent une impression hostile. Reformulez en positif autant que possible.
   - Exemple :
     - À éviter : Si vous échouez à l'examen, vous n'obtiendrez pas votre bourse.
     - À privilégier : Vous devez réussir l'examen pour obtenir votre bourse.
 
-Principe 11 : Pas de double négation.
-  - Explication : Une double négation vaut une affirmation, mais complique inutilement la lecture. Exprimez le sens directement.
+Principe 15 : Pas de double négation.
+  - Explication : Une double négation vaut une affirmation mais complique inutilement la lecture. Exprimez le sens directement en positif.
   - Exemple :
-    - À éviter : La méthode suivie ne sera certainement pas inefficace.
-    - À privilégier : La méthode suivie sera certainement efficace.
+    - À éviter : La méthode suivie ne sera certainement pas inefficace. / Il ne serait pas inutile de rappeler que...
+    - À privilégier : La méthode suivie sera certainement efficace. / Il serait utile de rappeler que...
 
-Principe 12 : Mots de liaison pour relier les idées.
-  - Explication : Utilisez des conjonctions et mots de liaison (afin que, parce que, donc, cependant) pour montrer clairement le lien entre les idées.
+Principe 16 : Mots de liaison pour relier les idées.
+  - Explication : Utilisez des conjonctions et mots de liaison (afin que, parce que, donc, cependant) pour montrer clairement le lien logique entre les idées. Le lien doit être explicite.
   - Exemple :
     - À éviter : Retournez le formulaire dûment rempli. Notre personnel étudiera votre dossier rapidement.
     - À privilégier : Retournez le formulaire dûment rempli afin que notre personnel puisse étudier votre dossier rapidement.
 
-Principe 13 : Listes à points pour les énumérations.
-  - Explication : Transformez les énumérations noyées dans une phrase en listes structurées, numérotées ou à points. Chaque élément occupe sa propre ligne.
+Principe 17 : Listes à points pour les énumérations.
+  - Explication : Transformez les énumérations noyées dans une phrase en listes structurées, numérotées ou à points. Chaque élément occupe sa propre ligne pour faciliter la lecture.
   - Exemple :
-    - À éviter : Vous devez nous faire parvenir une photocopie de votre carte d'étudiant, le talon de votre billet d'avion et vos billets de train, votre relevé de notes.
+    - À éviter : Vous devez nous faire parvenir une photocopie de votre carte d'étudiant, le talon de votre billet d'avion, vos billets de train et votre relevé de notes.
     - À privilégier : Vous devez nous faire parvenir : (1) une photocopie de votre carte d'étudiant, (2) le talon de votre billet d'avion et vos billets de train, (3) votre relevé de notes.
 
-Principe 14 : Mots concrets et imagés plutôt qu'abstraits.
-  - Explication : Ancrez les idées abstraites dans des réalités tangibles. Donnez des exemples concrets pour faciliter la compréhension.
-  - Exemple :
-    - À éviter : La population autochtone a connu d'importants changements de conditions.
-    - À privilégier : Le nombre de familles autochtones vivant sous le seuil de la pauvreté a doublé en dix ans.
-
-Principe 15 : Mots clés répétés pour la clarté.
-  - Explication : Ne cherchez pas à varier les termes par souci stylistique si cela crée de la confusion. Répétez le même mot clé pour ancrer les idées essentielles.
-  - Exemple :
-    - À éviter : Le programme / le dispositif / la mesure / l'initiative (quatre mots pour désigner la même chose).
-    - À privilégier : le programme (répété de manière cohérente).
-
-Principe 16 : Doublet à la première mention, épicène ensuite.
-  - Explication : À la première mention importante d'un rôle ou d'une fonction, utilisez un doublet complet (ex. : « l'étudiant ou l'étudiante »). Pour toutes les mentions suivantes, utilisez un terme épicène, un nom collectif ou, à défaut, le masculin générique sobre.
+Principe 18 : Doublet à la première mention, épicène ensuite.
+  - Explication : À la première mention importante d'un rôle ou d'une fonction, utilisez un doublet complet (ex. : « l'étudiant ou l'étudiante »). Pour toutes les mentions suivantes, utilisez un terme épicène, un nom collectif ou, à défaut, le masculin générique sobre. Ne répétez pas le doublet.
   - Exemple :
     - Première mention : « L'étudiant ou l'étudiante qui présente une demande… »
-    - Mentions suivantes : « la personne étudiante », « l'étudiant », ou « le corps étudiant ».
+    - Mentions suivantes : « la personne étudiante », « le corps étudiant » ou « l'étudiant ».
 
-Principe 17 : Termes épicènes et noms collectifs.
-  - Explication : Préférez les termes valables pour tous les genres (épicènes) ou les noms collectifs qui évitent les marques de genre inutiles.
+Principe 19 : Termes épicènes, noms collectifs et tournures neutres.
+  - Explication : Préférez les termes valables pour tous les genres (épicènes), les noms collectifs ou les tournures impersonnelles pour éviter les marques de genre inutiles, sans alourdir le texte.
   - Exemple :
-    - À éviter : les employés / les électeurs / les étudiants
-    - À privilégier : le personnel / l'électorat / le corps étudiant ; ou : la personne responsable, le ou la gestionnaire, le ou la collègue
-
-Principe 18 : Pas de point médian ni de graphies tronquées.
-  - Explication : Ne jamais utiliser le point médian (·) ni les formes tronquées du type « étudiant·e·s » ou « employé(e)s ». Ces graphies nuisent à la lisibilité et ne sont pas reconnues en français administratif.
-  - Exemple :
-    - À éviter : les étudiant·e·s / les employé(e)s
-    - À privilégier : les étudiantes et étudiants (première mention) ou les membres du corps étudiant
-
-Principe 19 : Tournures neutres et impersonnelles si nécessaire.
-  - Explication : Lorsqu'aucun terme épicène ou collectif ne convient, reformulez avec une tournure impersonnelle pour éviter les marques de genre superflues.
-  - Exemple :
-    - À éviter : Les étudiants peuvent obtenir une bourse.
-    - À privilégier : Il est possible d'obtenir une bourse. / Une bourse est accessible à toute personne qui remplit les critères.
+    - À éviter : les employés / les électeurs / les étudiants (masculin générique systématique)
+    - À privilégier : le personnel / l'électorat / le corps étudiant ; ou : la personne responsable, le ou la gestionnaire, il est possible d'obtenir une bourse.
 
 Principe 20 : Interdit absolu du tiret cadratin.
   - Explication : Le tiret cadratin (—) alourdit le texte. Utilisez plutôt le deux-points, le point-virgule, les parenthèses, ou reformulez la phrase. C'est une règle absolue sans exception.
@@ -391,7 +391,7 @@ INSTRUCTIONS DE RÉÉCRITURE :
 5. Retournez votre réponse en JSON valide avec cette structure exacte :
 {
   "rewritten": "<le texte réécrit avec HTML préservé>",
-  "appliedPrinciples": [3, 4, 7, 16]
+  "appliedPrinciples": [3, 4, 8, 18]
 }
 6. Le champ "appliedPrinciples" doit contenir un tableau des numéros (1-20) des principes que vous avez effectivement appliqués pour améliorer le texte.
 7. N'incluez que les principes qui ont réellement modifié le texte, pas ceux qui étaient déjà respectés.
@@ -404,26 +404,26 @@ IMPORTANT : Vous devez conserver la même structure HTML/formatage que le texte 
 
 Les 25 Principes du style littéraire français
 
-Principe 1 : Animer les présences (remplacer être / il y a).
-  - Explication : Remplacez les constructions statiques (il y a, c'est, se trouver) par des verbes d'action qui font vivre la scène. Penser en actions, pas en constats.
+Principe 1 : Animer les présences — remplacer être / il y a.
+  - Explication : Remplacez les constructions statiques (il y a, c'est, se trouver) par des verbes d'action qui font vivre la scène. Penser en actions, pas en constats. Les atmosphères, les forces, les abstractions deviennent sujets de verbes évocateurs.
   - Exemple :
-    - À éviter : Il y a une tension palpable dans la salle.
-    - À privilégier : Une tension palpable règne dans la salle.
+    - À éviter : Il y a une tension palpable dans la salle. / Une nouvelle stratégie est en place.
+    - À privilégier : Une tension palpable règne dans la salle. / Une nouvelle stratégie se dessine.
 
 Principe 2 : Donner vie aux sujets par le verbe juste.
-  - Explication : Transformez les sujets (objets, lieux, idées) en acteurs via le verbe qui exprime leur relation active avec leur environnement.
+  - Explication : Transformez les sujets — objets, lieux, idées — en acteurs via le verbe qui exprime leur relation active avec leur environnement. Le verbe juste remplace l'adjectif attribut.
   - Exemple :
     - À éviter : Le nouveau gratte-ciel est le plus haut de la ville.
     - À privilégier : Le nouveau gratte-ciel domine la ville.
 
 Principe 3 : Remplacer avoir par une relation active.
-  - Explication : Le verbe avoir exprime une possession statique. Remplacez-le par un verbe qui exprime la relation dynamique entre le sujet et son objet.
+  - Explication : Le verbe avoir exprime une possession statique. Remplacez-le par un verbe qui révèle la relation dynamique entre le sujet et son objet.
   - Exemple :
     - À éviter : Le nouveau directeur a des projets très ambitieux.
     - À privilégier : Le nouveau directeur nourrit des projets très ambitieux.
 
 Principe 4 : Remplacer faire par le geste précis.
-  - Explication : Faire est un verbe passe-partout. Remplacez-le par le verbe qui nomme précisément l'action, révèle l'intention ou exprime l'intensité voulue.
+  - Explication : Faire est un verbe passe-partout. Remplacez-le par le verbe qui nomme précisément l'action, révèle l'intention ou exprime l'intensité voulue. Ce remplacement n'est pas neutre : il engage une décision sur l'intensité.
   - Exemple :
     - À éviter : L'artisan a fait une statue. / Il a fait des reproches. / Les deux pays ont fait une alliance.
     - À privilégier : L'artisan a sculpté une statue. / Il a adressé des reproches. / Les deux pays ont conclu une alliance.
@@ -435,7 +435,7 @@ Principe 5 : Remplacer mettre par le geste précis.
     - À privilégier : On a placardé une affiche sur le mur. / Ce rapport a ébranlé ses conclusions.
 
 Principe 6 : Remplacer dire par le verbe qui révèle l'intention.
-  - Explication : Dire masque la nature de l'acte de parole. Choisissez le verbe qui révèle ce qui est dit (divulguer, annoncer, balbutier) ou comment c'est dit (ordonner, murmurer, tonner).
+  - Explication : Dire masque la nature de l'acte de parole. Choisissez le verbe qui révèle ce qui est dit (divulguer, annoncer) ou la manière dont c'est dit (ordonner, balbutier, tonner).
   - Exemple :
     - À éviter : Il a dit des secrets. / Le juge a dit à l'accusé de se taire. / Le témoin a dit quelques mots.
     - À privilégier : Il a divulgué des secrets. / Le juge a ordonné à l'accusé de se taire. / Le témoin a balbutié quelques mots.
@@ -452,101 +452,101 @@ Principe 8 : Remplacer chose par le nom exact.
     - À éviter : La désinformation est une chose dangereuse. / Il y avait quelque chose d'ironique dans sa voix.
     - À privilégier : La désinformation est un fléau. / Il y avait une pointe d'ironie dans sa voix.
 
-Principe 9 : Voix active ; passif transformé en actif ou en pronominal.
-  - Explication : La voix passive affaiblit la prose. Transformez-la en voix active, en forme pronominale ou en nominalisation selon ce qui sert mieux la phrase.
+Principe 9 : Remplacer gens/personnes par une synecdoque ou une personnification.
+  - Explication : Gens et personnes sont des désignants vagues. Nommez la partie pour désigner le tout (synecdoque) ou transformez la qualité partagée en force agissante (personnification).
   - Exemple :
-    - À éviter : La loi a été passée hier. / Les billets ont été vendus rapidement.
-    - À privilégier : La loi est passée hier. / Les billets se sont vendus rapidement.
+    - À éviter : Ce projet a besoin de personnes très intelligentes. / Les gens malveillants cherchent à diviser l'opinion.
+    - À privilégier : Ce projet a besoin de cerveaux. / La malveillance cherche à diviser l'opinion publique.
 
-Principe 10 : Antécédents de pronoms sans ambiguïté.
-  - Explication : Chaque pronom (il, elle, ce dernier) doit renvoyer à un seul antécédent clairement identifiable. En cas d'ambiguïté, reformulez.
+Principe 10 : Remplacer ceci/cela par un nom conceptuel.
+  - Explication : Cela et ceci sont des démonstratifs paresseux. Remplacez-les par un nom qui résume et qualifie précisément ce à quoi vous renvoyez.
+  - Exemple :
+    - À éviter : Les taux d'intérêt augmentent. Cela va freiner l'investissement.
+    - À privilégier : Les taux d'intérêt augmentent. Cette mesure va freiner l'investissement.
+
+Principe 11 : Voix passive transformée en voix active ou pronominale.
+  - Explication : La voix passive affaiblit la prose et sonne parfois comme une traduction. Transformez-la en voix active, en forme pronominale ou en nominalisation selon ce qui sert mieux la phrase.
+  - Exemple :
+    - À éviter : La loi a été passée hier. / Les billets de concert ont été vendus rapidement.
+    - À privilégier : La loi est passée hier. / Les billets de concert se sont vendus rapidement.
+
+Principe 12 : Antécédents de pronoms sans ambiguïté.
+  - Explication : Chaque pronom (il, elle, ce dernier) doit renvoyer à un seul antécédent clairement identifiable. En cas d'ambiguïté, restructurez la phrase. Un pronom ne peut pas renvoyer à un nom sans déterminant.
   - Exemple :
     - À éviter : L'entreprise a racheté sa concurrente ; elle est maintenant leader du marché.
     - À privilégier : En rachetant sa concurrente, l'entreprise est devenue leader du marché.
 
-Principe 11 : Relatives allégées par adjectif, participe ou préposition.
-  - Explication : Une proposition relative peut souvent être condensée en adjectif, en participe, en nom en apposition ou en une simple préposition ; cela resserre et dynamise la phrase.
-  - Exemple :
-    - À éviter : Les entreprises qui polluent / La loi qui a été votée hier / C'est un problème qui touche le monde entier.
-    - À privilégier : Les entreprises polluantes / La loi votée hier / C'est un problème mondial.
-
-Principe 12 : Adverbes en -ment fusionnés avec le verbe.
-  - Explication : Un adverbe en -ment est souvent le signe d'un verbe faible. Cherchez le verbe unique qui intègre à la fois l'action et la manière.
-  - Exemple :
-    - À éviter : Le cours de l'action a considérablement augmenté.
-    - À privilégier : Le cours de l'action a explosé.
-
-Principe 13 : Adjectifs forts plutôt que très + adjectif faible.
-  - Explication : L'usage de « très » trahit souvent une faiblesse lexicale. Remplacez « très + adjectif ordinaire » par un adjectif fort et précis.
-  - Exemple :
-    - À éviter : La canicule a été très chaude. / C'est un comportement qui n'est pas acceptable.
-    - À privilégier : La canicule a été torride. / C'est un comportement inacceptable.
-
-Principe 14 : Quantité vague transformée en image précise.
-  - Explication : « Beaucoup » est flou. Remplacez-le par un chiffre précis, un nom concret (une profusion, une foule) ou un verbe fort (foisonner, pulluler).
-  - Exemple :
-    - À éviter : L'IA analyse beaucoup de données. / Il y a beaucoup de start-ups dans ce domaine.
-    - À privilégier : L'IA analyse une profusion de données. / Les start-ups foisonnent dans ce domaine.
-
-Principe 15 : Forme affirmative et préfixes privatifs.
-  - Explication : La forme positive est plus forte que la forme négative. Transformez « ne pas + adjectif » en son contraire préfixé lorsque c'est idiomatique.
-  - Exemple :
-    - À éviter : Pour résoudre cette crise, il ne faut pas hésiter. / C'est un comportement qui n'est pas acceptable.
-    - À privilégier : Pour résoudre cette crise, il faut agir. / C'est un comportement inacceptable.
-
-Principe 16 : Personnification : les choses comme sujets actifs.
-  - Explication : Faites agir les objets, les lieux, les idées abstraites. Nommez-les comme sujets de verbes d'action pour insuffler de la vie à la prose.
-  - Exemple :
-    - À éviter : Dans ce rapport, on trouve des conclusions alarmantes.
-    - À privilégier : Ce rapport présente des conclusions alarmantes.
-
-Principe 17 : Participes et appositions pour alléger la syntaxe.
-  - Explication : Remplacez les structures lourdes (ayant fait, qui doit, étant donné que) par des participes passés, des adjectifs en apposition ou des noms en apposition pour densifier la prose.
-  - Exemple :
-    - À éviter : Ayant obtenu son diplôme, il a cherché un emploi. / Ayant gagné le concours, il est devenu célèbre.
-    - À privilégier : Diplômé, il a cherché un emploi. / Lauréat du concours, il est devenu célèbre.
-
-Principe 18 : Infinitif après verbe de perception.
-  - Explication : Après les verbes voir, entendre, sentir, regarder, préférez l'infinitif au participe présent. L'infinitif marque une action achevée ou complète.
-  - Exemple :
-    - À éviter : On a vu les manifestants avançant vers la place.
-    - À privilégier : On a vu les manifestants avancer vers la place.
-
-Principe 19 : Gérondif remplacé par préposition + nom.
-  - Explication : Le gérondif (en espérant, en cherchant) peut souvent être remplacé par « préposition + nom », ce qui est plus formel et met l'accent sur le concept plutôt que sur l'action.
-  - Exemple :
-    - À éviter : Il a pris cette décision en espérant calmer les marchés.
-    - À privilégier : Il a pris cette décision dans l'espoir de calmer les marchés.
-
-Principe 20 : Monotonie de pronoms brisée par des participes.
-  - Explication : Une succession de phrases commençant toutes par « il » alourdit la prose. Regroupez les actions par des participes ou des subordonnées.
+Principe 13 : Briser la monotonie des pronoms par des participes et des appositions.
+  - Explication : Une succession de phrases commençant toutes par le même pronom alourdit la prose. Regroupez les actions par des participes, des subordonnées ou des structures en apposition.
   - Exemple :
     - À éviter : Il intègre l'IA. Il analyse les données. Il va révolutionner le secteur.
     - À privilégier : Intégrant l'IA, le logiciel analyse les données et devrait révolutionner le secteur.
 
-Principe 21 : Nominalisation pour le passif à l'infinitif.
-  - Explication : Le passif à l'infinitif (être + participe) se condense élégamment en un nom.
+Principe 14 : Réduire les occurrences de « je » (Moi Haïssable).
+  - Explication : Réduire les occurrences de « je » en regroupant les actions à l'aide de participes passés ou de structures subordonnées. Éviter l'effet d'égrènement des actions à la première personne.
   - Exemple :
-    - À éviter : Il craint d'être condamné.
-    - À privilégier : Il craint la condamnation.
+    - À éviter : J'ai fondé ma start-up. J'ai levé des fonds. Je veux conquérir le monde.
+    - À privilégier : Après avoir fondé ma start-up et levé des fonds, je veux conquérir le monde.
 
-Principe 22 : Pronom relatif placé juste après son antécédent.
-  - Explication : Le pronom relatif (qui, que, dont) doit immédiatement suivre le nom qu'il qualifie. Toute distance crée de l'ambiguïté.
+Principe 15 : Relatives allégées — adjectif, participe, préposition ou possessif.
+  - Explication : Une proposition relative peut souvent être condensée en adjectif, en participe, en nom en apposition, en une préposition ou un possessif ; cela resserre et dynamise la phrase sans perte de sens.
+  - Exemple :
+    - À éviter : Les entreprises qui polluent. / La loi qui a été votée hier. / C'est un problème qui touche le monde entier. / L'impact que cette politique aura sur l'économie.
+    - À privilégier : Les entreprises polluantes. / La loi votée hier. / C'est un problème mondial. / Son impact sur l'économie.
+
+Principe 16 : Pronom relatif placé juste après son antécédent.
+  - Explication : Le pronom relatif (qui, que, dont) doit immédiatement suivre le nom qu'il qualifie. Toute distance entre le pronom et son antécédent crée une ambiguïté.
   - Exemple :
     - À éviter : J'ai lu un article sur un politicien dans un journal, qui est plein de mensonges.
     - À privilégier : J'ai lu, dans un journal, un article sur un politicien qui est plein de mensonges.
 
-Principe 23 : Abstraction personnifiée comme force agissante.
-  - Explication : Nommez la qualité ou le défaut (la malveillance, l'opulence, la précarité) comme sujet d'un verbe d'action plutôt que de nommer le groupe qui l'incarne.
+Principe 17 : Adverbes en -ment fusionnés avec le verbe.
+  - Explication : Un adverbe en -ment est souvent le signe d'un verbe faible. Cherchez le verbe unique qui intègre à la fois l'action et la manière, ou transformez l'adverbe en nom ou en périphrase verbale.
   - Exemple :
-    - À éviter : Les gens malveillants cherchent à diviser l'opinion.
-    - À privilégier : La malveillance cherche à diviser l'opinion publique.
+    - À éviter : Le cours de l'action a considérablement augmenté. / Il a obstinément continué son projet.
+    - À privilégier : Le cours de l'action a explosé. / Il s'est obstiné à continuer son projet.
 
-Principe 24 : Concision par le possessif et la préposition forte.
-  - Explication : Une relative entière peut souvent être remplacée par un possessif ou une préposition, ce qui resserre et allège considérablement la phrase.
+Principe 18 : Adjectifs forts plutôt que très + adjectif faible.
+  - Explication : L'usage de « très » trahit souvent une faiblesse lexicale. Remplacez « très + adjectif ordinaire » par un adjectif fort et précis qui porte en lui-même l'intensité.
   - Exemple :
-    - À éviter : L'impact que cette politique aura sur l'économie… / C'est une décision qui manque de clarté.
-    - À privilégier : Son impact sur l'économie… / C'est une décision sans clarté.
+    - À éviter : La canicule de cet été a été très chaude.
+    - À privilégier : La canicule de cet été a été torride.
+
+Principe 19 : Quantité vague transformée en image précise.
+  - Explication : « Beaucoup » est flou. Remplacez-le par un nom concret évocateur (une profusion, une foule), un adjectif fort (nombreux) ou un verbe d'abondance (foisonner, pulluler).
+  - Exemple :
+    - À éviter : L'IA analyse beaucoup de données. / Il y a beaucoup de start-ups dans ce domaine.
+    - À privilégier : L'IA analyse une profusion de données. / Les start-ups foisonnent dans ce domaine.
+
+Principe 20 : Forme affirmative et préfixes privatifs.
+  - Explication : La forme positive est plus forte que la négative. Transformez « ne pas + adjectif » en son contraire préfixé lorsque c'est idiomatique. Maîtrisez aussi la litote : parfois, la forme négative atténue diplomatiquement.
+  - Exemple :
+    - À éviter : Pour résoudre cette crise, il ne faut pas hésiter. / C'est un comportement qui n'est pas acceptable.
+    - À privilégier : Pour résoudre cette crise, il faut agir. / C'est un comportement inacceptable.
+
+Principe 21 : Personnification — les choses comme sujets actifs.
+  - Explication : Faites agir les objets, les documents, les institutions, les concepts. Nommez-les comme sujets de verbes d'action pour insuffler de la vie à la prose plutôt que d'écrire « on trouve dans ce rapport ».
+  - Exemple :
+    - À éviter : Dans ce rapport, on trouve des conclusions alarmantes.
+    - À privilégier : Ce rapport présente des conclusions alarmantes.
+
+Principe 22 : Participes et noms en apposition pour alléger la syntaxe.
+  - Explication : Remplacez les structures lourdes (ayant fait, qui doit, étant donné que) par des participes passés, des adjectifs en apposition ou des noms en apposition. Le nom en apposition définit le rôle du sujet et lui donne du poids.
+  - Exemple :
+    - À éviter : Ayant obtenu son diplôme, il a cherché un emploi. / Ayant gagné le concours, il est devenu célèbre.
+    - À privilégier : Diplômé, il a cherché un emploi. / Lauréat du concours, il est devenu célèbre.
+
+Principe 23 : Infinitif après verbe de perception.
+  - Explication : Après les verbes voir, entendre, sentir, regarder, préférez l'infinitif au participe présent. L'infinitif marque une action complète et donne plus de netteté à la scène.
+  - Exemple :
+    - À éviter : On a vu les manifestants avançant vers la place.
+    - À privilégier : On a vu les manifestants avancer vers la place.
+
+Principe 24 : Gérondif remplacé par préposition + nom.
+  - Explication : Le gérondif (en espérant, en cherchant) peut souvent être remplacé par « préposition + nom », ce qui est plus formel et concentre l'attention sur le concept plutôt que sur l'action en cours.
+  - Exemple :
+    - À éviter : Il a pris cette décision en espérant calmer les marchés.
+    - À privilégier : Il a pris cette décision dans l'espoir de calmer les marchés.
 
 Principe 25 : Interdit absolu du tiret cadratin.
   - Explication : Le tiret cadratin (—) alourdit le texte. Utilisez plutôt le deux-points, le point-virgule, les parenthèses, ou reformulez la phrase. C'est une règle absolue sans exception.
@@ -569,7 +569,7 @@ INSTRUCTIONS DE RÉÉCRITURE :
 5. Retournez votre réponse en JSON valide avec cette structure exacte :
 {
   "rewritten": "<le texte réécrit avec HTML préservé>",
-  "appliedPrinciples": [1, 4, 9, 12]
+  "appliedPrinciples": [1, 4, 11, 15]
 }
 6. Le champ "appliedPrinciples" doit contenir un tableau des numéros (1-25) des principes que vous avez effectivement appliqués pour améliorer le texte.
 7. N'incluez que les principes qui ont réellement modifié le texte, pas ceux qui étaient déjà respectés.
