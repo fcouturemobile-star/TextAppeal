@@ -594,11 +594,6 @@ window.fetch = function(url, opts) {
         }
       }
       if (!_rb.direction) { _rb.direction = window.__taDirection || "en-fr"; }
-      // For FR->EN: the React app sends the source French text to rewrite,
-      // but we need to rewrite the English translation instead
-      if (_rb.direction === "fr-en" && window.__taLastTranslation) {
-        _rb.text = window.__taLastTranslation;
-      }
       opts.body = JSON.stringify(_rb);
     } catch(e) {}
   }
