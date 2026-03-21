@@ -82,6 +82,10 @@
       .overflow-auto.custom-scroll::-webkit-scrollbar-thumb:hover {
         background: hsl(var(--muted-foreground));
       }
+      /* Make output panels editable */
+      .rich-text-output {
+        cursor: text;
+      }
       /* Also make the input contenteditable scrollable */
       [contenteditable].rich-text-editor {
         overflow-y: auto !important;
@@ -200,6 +204,42 @@
       .ta-style-other-input:focus {
         outline: none;
         border-color: hsl(var(--primary));
+      }
+      /* Source language toggle */
+      .ta-direction-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        width: 100%;
+      }
+      .ta-direction-caption {
+        font-size: 11px;
+        color: hsl(var(--muted-foreground));
+        font-weight: 500;
+      }
+      .ta-direction-toggle {
+        display: flex;
+        gap: 0;
+        background: hsl(var(--card));
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid hsl(var(--border));
+      }
+      .ta-dir-btn {
+        font-size: 11px;
+        padding: 3px 10px;
+        border: none;
+        background: transparent;
+        color: hsl(var(--foreground));
+        cursor: pointer;
+        border-radius: 3px;
+        font-weight: 600;
+        transition: all 0.15s;
+      }
+      .ta-dir-btn.ta-dir-active {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
       }
       .ta-web-terms-title {
         font-size: 12px;
@@ -380,30 +420,40 @@ function __updateReactText() {
     }
   });
 
-  // Update section headers
+  // Update section headers (direction-aware)
+  var _d = window.__taDirection || 'en-fr';
+  var _inputLabel = L === 'fr' ? (_d === 'en-fr' ? 'Collez le texte anglais ici' : 'Collez le texte fran\u00e7ais ici') : (_d === 'en-fr' ? 'Paste English Here' : 'Paste French Here');
+  var _col2Label = L === 'fr' ? (_d === 'en-fr' ? 'Premi\u00e8re version fran\u00e7aise' : 'First English Version') : (_d === 'en-fr' ? 'First French Version' : 'First English Version');
+  var _col3Label = L === 'fr' ? 'Version plus fluide' : 'More fluid Version';
   const headerMap = {
-    "Paste English Here": "Collez le texte anglais ici",
-    "Collez le texte anglais ici": "Collez le texte anglais ici",
-    "First French Version": "Première version française",
-    "Première version française": "Première version française",
-    "Text Appeal Version": "Version plus fluide",
-    "Version Text Appeal": "Version plus fluide",
-    "Version plus fluide": "Version plus fluide",
-    "More fluid Version": "Version plus fluide",
+    "Paste English Here": _inputLabel,
+    "Paste French Here": _inputLabel,
+    "Collez le texte anglais ici": _inputLabel,
+    "Collez le texte fran\u00e7ais ici": _inputLabel,
+    "First French Version": _col2Label,
+    "First English Version": _col2Label,
+    "Premi\u00e8re version fran\u00e7aise": _col2Label,
+    "Text Appeal Version": _col3Label,
+    "Version Text Appeal": _col3Label,
+    "Version plus fluide": _col3Label,
+    "More fluid Version": _col3Label,
     "Translation Memory": "Mémoire de traduction",
     "Mémoire de traduction": "Mémoire de traduction",
     "Glossary": "Glossaire",
     "Glossaire": "Glossaire",
   };
   const headerMapEN = {
-    "Collez le texte anglais ici": "Paste English Here",
-    "Paste English Here": "Paste English Here",
-    "Première version française": "First French Version",
-    "First French Version": "First French Version",
-    "Version Text Appeal": "More fluid Version",
-    "Text Appeal Version": "More fluid Version",
-    "Version plus fluide": "More fluid Version",
-    "More fluid Version": "More fluid Version",
+    "Collez le texte anglais ici": _inputLabel,
+    "Collez le texte fran\u00e7ais ici": _inputLabel,
+    "Paste English Here": _inputLabel,
+    "Paste French Here": _inputLabel,
+    "Premi\u00e8re version fran\u00e7aise": _col2Label,
+    "First French Version": _col2Label,
+    "First English Version": _col2Label,
+    "Version Text Appeal": _col3Label,
+    "Text Appeal Version": _col3Label,
+    "Version plus fluide": _col3Label,
+    "More fluid Version": _col3Label,
     "Mémoire de traduction": "Translation Memory",
     "Translation Memory": "Translation Memory",
     "Glossaire": "Glossary",
@@ -423,20 +473,15 @@ function __updateReactText() {
     }
   });
 
-  // Update placeholder in the input area
+  // Update placeholder in the input area (direction-aware)
+  var _phText = _inputLabel;
   document.querySelectorAll('[contenteditable="true"]').forEach(function(el) {
     if (el.dataset.placeholder) {
-      if (L === "fr") {
-        if (el.dataset.placeholder.includes("Paste")) el.dataset.placeholder = "Collez le texte anglais ici";
-      } else {
-        if (el.dataset.placeholder.includes("Collez")) el.dataset.placeholder = "Paste English Here";
-      }
+      el.dataset.placeholder = _phText;
     }
-    // Also check for placeholder attribute
-    const ph = el.getAttribute("placeholder");
+    var ph = el.getAttribute("placeholder");
     if (ph) {
-      if (L === "fr" && ph.includes("Paste")) el.setAttribute("placeholder", "Collez le texte anglais ici");
-      else if (L === "en" && ph.includes("Collez")) el.setAttribute("placeholder", "Paste English Here");
+      el.setAttribute("placeholder", _phText);
     }
   });
 
@@ -530,7 +575,14 @@ window.fetch = function(url, opts) {
       if (!opts.headers["x-user-token"]) opts.headers["x-user-token"] = token;
     }
   }
-  // Inject style parameter into rewrite requests
+  // Inject direction into translate requests
+  if (typeof url === "string" && url.includes("/api/translate") && opts.body) {
+    try {
+      var _tb = JSON.parse(opts.body);
+      if (!_tb.direction) { _tb.direction = window.__taDirection || "en-fr"; opts.body = JSON.stringify(_tb); }
+    } catch(e) {}
+  }
+  // Inject style + direction into rewrite requests
   if (typeof url === "string" && url.includes("/api/rewrite") && opts.body) {
     try {
       var _rb = JSON.parse(opts.body);
@@ -540,8 +592,9 @@ window.fetch = function(url, opts) {
         if (_st === "other" && window.__taStyleOtherText) {
           _rb.customStyleText = window.__taStyleOtherText;
         }
-        opts.body = JSON.stringify(_rb);
       }
+      if (!_rb.direction) { _rb.direction = window.__taDirection || "en-fr"; }
+      opts.body = JSON.stringify(_rb);
     } catch(e) {}
   }
   // Gate: require login for translate/rewrite
@@ -679,6 +732,7 @@ function updateUI() {
   renderUsageCounter();
   injectAccountButton();
   renderLangToggle();
+  renderDirectionToggle();
   renderStyleToggle();
   renderCreativitySlider();
   setTimeout(__updateReactText, 600);
@@ -1324,6 +1378,64 @@ function renderLangToggle() {
     '<button class="ta-lang-btn' + (lang==="fr"?" ta-lang-active":"") + '" onclick="__setLang(\'fr\')">FR</button>';
 }
 
+// ═══ Direction Toggle ═══
+window.__taDirection = localStorage.getItem("ta_direction") || "en-fr";
+
+function __setDirection(dir) {
+  window.__taDirection = dir;
+  localStorage.setItem("ta_direction", dir);
+  renderDirectionToggle();
+  // Update column headers
+  __updateReactText();
+}
+
+function renderDirectionToggle() {
+  var leftPane = document.getElementById('ta-bottom-left');
+  var styleToggle = document.getElementById('ta-style-toggle');
+  var btnSlot = document.getElementById('ta-btn-slot');
+  if (!leftPane) return;
+  var insertBefore = styleToggle || btnSlot;
+  if (!insertBefore) return;
+
+  var d = window.__taDirection || 'en-fr';
+  var lang = window.__taLang || 'en';
+  var toggle = document.getElementById('ta-direction-toggle');
+
+  if (toggle) {
+    // Update active states only
+    toggle.querySelectorAll('.ta-dir-btn').forEach(function(btn) {
+      var dir = btn.getAttribute('data-dir');
+      btn.className = 'ta-dir-btn' + (d === dir ? ' ta-dir-active' : '');
+    });
+    var cap = toggle.querySelector('.ta-direction-caption');
+    if (cap) cap.textContent = lang === 'fr' ? 'Direction :' : 'Direction:';
+    return;
+  }
+
+  toggle = document.createElement('div');
+  toggle.id = 'ta-direction-toggle';
+  toggle.className = 'ta-direction-wrapper';
+  leftPane.insertBefore(toggle, insertBefore);
+
+  var cap = document.createElement('span');
+  cap.className = 'ta-direction-caption';
+  cap.textContent = lang === 'fr' ? 'Direction :' : 'Direction:';
+  toggle.appendChild(cap);
+
+  var btnGroup = document.createElement('div');
+  btnGroup.className = 'ta-direction-toggle';
+  var dirs = [{key:'en-fr',label:'EN \u2192 FR'},{key:'fr-en',label:'FR \u2192 EN'}];
+  dirs.forEach(function(item) {
+    var btn = document.createElement('button');
+    btn.className = 'ta-dir-btn' + (d === item.key ? ' ta-dir-active' : '');
+    btn.textContent = item.label;
+    btn.setAttribute('data-dir', item.key);
+    btn.addEventListener('click', function() { __setDirection(item.key); });
+    btnGroup.appendChild(btn);
+  });
+  toggle.appendChild(btnGroup);
+}
+
 // ═══ Style Toggle ═══
 window.__taStyle = localStorage.getItem("ta_style") || "textAppeal";
 window.__taStyleOtherText = localStorage.getItem("ta_style_other") || "";
@@ -1596,6 +1708,9 @@ async function doCancelSubscription() {
     c = document.createElement('div');
     c.id = id;
     c.className = 'rich-text-output';
+    c.contentEditable = 'true';
+    c.style.outline = 'none';
+    c.style.cursor = 'text';
     // Prepend so it appears at the top of the scrollable area
     if (scrollParent.firstChild) {
       scrollParent.insertBefore(c, scrollParent.firstChild);
@@ -1684,7 +1799,7 @@ async function doCancelSubscription() {
 window.__taFreemium = {
   showAuthModal, doLogout, doSubscribe, showMembersPanel, showStripePanel, showDatabasePanel, showSmtpPanel,
   updateMemberPlan, toggleMember, deleteMember, initDb,
-  updateUI, renderLangToggle, renderStyleToggle, renderCreativitySlider, setCreativity,
+  updateUI, renderLangToggle, renderDirectionToggle, renderStyleToggle, renderCreativitySlider, setCreativity,
   showLostPasswordModal, doCancelSubscription
 };
 
@@ -1796,11 +1911,13 @@ if (document.readyState === "loading") {
       else parent.appendChild(row);
       // Create the left pane (button + contact)
       row.appendChild(buildLeftPane());
-      // Render style toggle into the left pane
+      // Render direction and style toggles into the left pane
+      renderDirectionToggle();
       renderStyleToggle();
     }
 
-    // Re-render style toggle if not present (in case left pane was rebuilt)
+    // Re-render if not present (in case left pane was rebuilt)
+    if (!document.getElementById('ta-direction-toggle')) renderDirectionToggle();
     if (!document.getElementById('ta-style-toggle')) renderStyleToggle();
 
     // Explicitly size the grid in pixels

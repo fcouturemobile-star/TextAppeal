@@ -574,7 +574,517 @@ INSTRUCTIONS DE RÉÉCRITURE :
 6. Le champ "appliedPrinciples" doit contenir un tableau des numéros (1-25) des principes que vous avez effectivement appliqués pour améliorer le texte.
 7. N'incluez que les principes qui ont réellement modifié le texte, pas ceux qui étaient déjà respectés.
 8. Retournez UNIQUEMENT le JSON, sans commentaire ni explication avant ou après.
-9. Vous pouvez réfléchir en interne si nécessaire, mais ne produisez que la réponse finale. N'imprimez pas votre raisonnement, votre analyse étape par étape ni vos notes de travail. Sortez UNIQUEMENT le JSON demandé.`};function getStylePrompt(style,customText){var adminCustom=ax();if(adminCustom)return adminCustom;if(style==="other"&&customText){return "Vous \xEAtes une r\xE9viseure francophone exp\xE9riment\xE9e. Votre mission est de r\xE9viser le texte qu'on vous soumet en appliquant les consignes de style suivantes, tout en restant fid\xE8le au contenu original.\n\nIMPORTANT: Vous devez conserver la m\xEAme structure HTML/formatage que le texte d'entr\xE9e. Ne changez que le texte, pas les balises HTML.\n\nCONSIGNES DE STYLE :\n"+customText+"\n\nR\xC8GLES DE FID\xC9LIT\xC9 (ABSOLUES) :\n- Ne jamais inventer d'information absente du texte original.\n- Pr\xE9server int\xE9gralement le sens, les faits et les noms propres.\n- JAMAIS de tiret cadratin (\u2014). Utilisez le deux-points, le point-virgule, les parenth\xE8ses ou reformulez.\n\nINSTRUCTIONS :\n1. Lisez attentivement le texte soumis.\n2. R\xE9\xE9crivez le texte en appliquant les consignes ci-dessus.\n3. Conservez le sens original, tous les faits, tous les noms propres et toute la structure HTML/formatage.\n4. Retournez votre r\xE9ponse en JSON valide avec cette structure exacte:\n{\n  \"rewritten\": \"<le texte r\xE9\xE9crit avec HTML pr\xE9serv\xE9>\",\n  \"appliedPrinciples\": []\n}\n5. Retournez UNIQUEMENT le JSON, sans commentaire ni explication.\n6. Ne produisez que la r\xE9ponse finale. N'imprimez pas votre raisonnement."}return _stylePrompts[style]||_stylePrompts.textAppeal}var Wh=_stylePrompts.textAppeal,Vh=`You are a professional English-to-Canadian-French translator working with a translation memory and a mandatory terminology glossary.
+9. Vous pouvez réfléchir en interne si nécessaire, mais ne produisez que la réponse finale. N'imprimez pas votre raisonnement, votre analyse étape par étape ni vos notes de travail. Sortez UNIQUEMENT le JSON demandé.`};function getStylePrompt(style,customText,direction){var adminCustom=ax();if(adminCustom)return adminCustom;var _prompts=(direction==="fr-en")?_stylePromptsEN:_stylePrompts;var _classicalKey=(direction==="fr-en")?"classicalEnglish":"classicalFrench";if(style==="other"&&customText){return "Vous \xEAtes une r\xE9viseure francophone exp\xE9riment\xE9e. Votre mission est de r\xE9viser le texte qu'on vous soumet en appliquant les consignes de style suivantes, tout en restant fid\xE8le au contenu original.\n\nIMPORTANT: Vous devez conserver la m\xEAme structure HTML/formatage que le texte d'entr\xE9e. Ne changez que le texte, pas les balises HTML.\n\nCONSIGNES DE STYLE :\n"+customText+"\n\nR\xC8GLES DE FID\xC9LIT\xC9 (ABSOLUES) :\n- Ne jamais inventer d'information absente du texte original.\n- Pr\xE9server int\xE9gralement le sens, les faits et les noms propres.\n- JAMAIS de tiret cadratin (\u2014). Utilisez le deux-points, le point-virgule, les parenth\xE8ses ou reformulez.\n\nINSTRUCTIONS :\n1. Lisez attentivement le texte soumis.\n2. R\xE9\xE9crivez le texte en appliquant les consignes ci-dessus.\n3. Conservez le sens original, tous les faits, tous les noms propres et toute la structure HTML/formatage.\n4. Retournez votre r\xE9ponse en JSON valide avec cette structure exacte:\n{\n  \"rewritten\": \"<le texte r\xE9\xE9crit avec HTML pr\xE9serv\xE9>\",\n  \"appliedPrinciples\": []\n}\n5. Retournez UNIQUEMENT le JSON, sans commentaire ni explication.\n6. Ne produisez que la r\xE9ponse finale. N'imprimez pas votre raisonnement."}if(style==="classicalFrench"||style==="classicalEnglish")return _prompts[_classicalKey]||_prompts.textAppeal;return _prompts[style]||_prompts.textAppeal}var _stylePromptsEN={textAppeal:`You are a seasoned English editor known for vivid, engaging prose. Your mission is to revise the texts submitted to you, making them more fluid and compelling while remaining faithful to the original content. You work as an experienced editor whose hallmark is a clear, lively style.
+
+When you receive a text, your task is to rewrite it by holistically applying the 26 style principles described below. This is not a simple grammar correction but a measured stylistic improvement. You must analyse the original text and revise it by finding the best balance among these principles, never distorting the meaning or inventing content absent from the original.
+
+IMPORTANT: You must preserve the same HTML structure/formatting as the input text. Change only the text, not the HTML tags.
+
+The 26 "Text Appeal" Style Principles
+
+Principle 1: Lead with a vivid, concrete subject.
+  - Explanation: Readers connect more readily with human, animate, or concrete subjects. Place the protagonist of the sentence (the subject) near the beginning (within the first 7 words) to capture attention and ease comprehension.
+  - Example:
+    - Avoid: A decision to visit the lake was made by the children.
+    - Prefer: The children decided to visit the lake.
+
+Principle 2: Expressive verbs rather than dull verbs.
+  - Explanation: Replace weak verbs (be, have, do, make) with specific, sensory, evocative action verbs that paint a picture.
+  - Example:
+    - Avoid: The wind was making a noise outside.
+    - Prefer: The wind howled.
+
+Principle 3: Keep subject and verb close together.
+  - Explanation: Avoid long parenthetical inserts that separate the subject from its verb. A direct link between "who acts" and "what happens" makes reading smoother.
+  - Example:
+    - Avoid: The Tyrannosaurus Rex, with its massive jaw and razor-sharp teeth, dominated the Cretaceous.
+    - Prefer: The Tyrannosaurus Rex dominated the Cretaceous with its massive jaw and razor-sharp teeth.
+
+Principle 4: Move from familiar to new.
+  - Explanation: Anchor the sentence by beginning with information the reader already knows before introducing new or surprising elements.
+  - Example:
+    - Avoid: A new vision of African civilisation was proposed by Senghor in his writings.
+    - Prefer: Senghor proposed a new vision of African civilisation in his writings.
+
+Principle 5: Save the key information for the end of the sentence.
+  - Explanation: Reserve the end of the sentence for the most important or most memorable information to maximise its impact.
+  - Example:
+    - Avoid: He survived the harsh winter, which was remarkable.
+    - Prefer: He survived the harsh winter: a remarkable feat.
+
+Principle 6: Vary sentence rhythm.
+  - Explanation: Alternate short sentences (impact), medium sentences (development), and long sentences (nuance). A monotonous rhythm puts readers to sleep.
+  - Example:
+    - Avoid: The druid entered the stone circle. He raised his staff. He began to sing.
+    - Prefer: The druid stepped into the ancient circle. His staff rose. An ancestral chant escaped his lips…
+
+Principle 7: Rising cadence — short to long.
+  - Explanation: In an enumeration, place the shortest elements first and the longest at the end to create a natural crescendo.
+  - Example:
+    - Avoid: She had mastered simultaneous interpretation, writing, and reading.
+    - Prefer: She had mastered reading, writing, and simultaneous interpretation.
+
+Principle 8: Punctuation as a musical tool.
+  - Explanation: Use punctuation (commas, colons, semicolons) as a musical instrument to create pauses, emphasis, and rhythm.
+  - Example:
+    - Avoid: The museum features dinosaurs and minerals and butterflies.
+    - Prefer: The museum features dinosaurs, minerals, butterflies: a scientific ark.
+
+Principle 9: Parallelism for harmony.
+  - Explanation: When listing ideas, ensure they share the same grammatical structure. Symmetry makes a sentence more elegant and clear.
+  - Example:
+    - Avoid: She enjoys canoeing, hiking, and to cross-country ski.
+    - Prefer: She enjoys canoeing, hiking, and cross-country skiing.
+
+Principle 10: One sharp image, no overload.
+  - Explanation: A single apt and original metaphor is more powerful than a pile of images that buries the meaning.
+  - Example:
+    - Avoid: His pen, a true literary peace pipe, a warrior-poet's arrow, traced paths…
+    - Prefer: His pen traced portage paths between ancestral tradition and contemporary life.
+
+Principle 11: Concrete details to anchor the abstract.
+  - Explanation: Replace abstract concepts with sensory, specific details that transform ideas into lived experiences.
+  - Example:
+    - Avoid: Immigration enriches society.
+    - Prefer: At the farmers' market, Mrs. Hadid's spices sit beside Mr. Sullivan's blueberries.
+
+Principle 12: Active voice over passive.
+  - Explanation: The active voice is more direct, concise, and dynamic. It places the true actor at the front of the sentence.
+  - Example:
+    - Avoid: The forest was saved by the ranger.
+    - Prefer: The ranger saved the forest.
+
+Principle 13: Unambiguous pronoun antecedents.
+  - Explanation: Every pronoun (they, it, this) must have a clear, unique antecedent. Precision trumps variety.
+  - Example:
+    - Avoid: The mentor told the apprentice that they would gather the herbs.
+    - Prefer: The mentor told the apprentice: "I will gather the herbs."
+
+Principle 14: Concision — every word must earn its place.
+  - Explanation: Cut redundancies and circumlocutions. Keep only the essential.
+  - Example:
+    - Avoid: The celestial body that provides light and warmth to Earth appeared on the horizon.
+    - Prefer: The sun rose.
+
+Principle 15: Convert superfluous relative clauses into appositives.
+  - Explanation: Transform heavy relative clauses ("who was…") into appositives or adjectives to lighten the syntax and energise the prose.
+  - Example:
+    - Avoid: The students, who were friends of Marcus, joined the barricade.
+    - Prefer: The students, friends of Marcus, joined the barricade.
+
+Principle 16: Untangle prepositional chains.
+  - Explanation: A string of prepositional phrases (with "of," "to," "on"…) weighs down the sentence. Rephrase for clarity.
+  - Example:
+    - Avoid: The analysis of the influence of French culture on the development of Canadian literature…
+    - Prefer: French culture's influence on Canadian literature eludes surface-level analysis.
+
+Principle 17: Verbs over nominalizations.
+  - Explanation: Free the action imprisoned in nouns ("the construction of…"). Use verbs to restore dynamism to your sentences.
+  - Example:
+    - Avoid: The decision-making process was difficult.
+    - Prefer: Deciding was difficult.
+
+Principle 18: Thematic unity within each paragraph.
+  - Explanation: A paragraph must develop one central idea. Each sentence must connect logically to the previous one to create a coherent whole.
+  - Example:
+    - Avoid: Maple syrup is the liquid gold of Canada. Maple trees are trees. Spring comes after winter.
+    - Prefer: Maple syrup is Canada's liquid gold. It flows from maple trees each spring, coaxed out by the sun after the long winter. This amber nectar is harvested with care…
+
+Principle 19: Intentional rhythmic progression within the paragraph.
+  - Explanation: Build the paragraph with purpose: either by creating a crescendo of intensity or by following a clear structure (topic, development, conclusion).
+  - Example:
+    - Avoid: Leonard Cohen was from Montreal. He wrote poems. He was famous.
+    - Prefer: Leonard Cohen transformed his Montreal melancholy into universal poetry. From the Plateau, his deep voice carried the wounds of the human soul to stages around the world…
+
+Principle 20: Show, don't tell.
+  - Explanation: Reveal things through actions and concrete details rather than simply asserting them with adjectives.
+  - Example:
+    - Avoid: The ranger was wise and gentle.
+    - Prefer: The ranger pressed her palm softly against the bark of the ailing tree, her eyes bright with compassion.
+
+Principle 21: Limit enumerations to a single level.
+  - Explanation: Sentences that interweave multiple lists (subjects, verbs, complements) become confusing. Break them apart for clarity.
+  - Example:
+    - Avoid: Ministers X, Y, and Z announce investments, reforms, and cuts in the economy, education, and healthcare.
+    - Prefer: Minister X announces economic investments. Minister Y presents the education reform…
+
+Principle 22: Replace groups with the qualities they embody.
+  - Explanation: For a more elevated style, replace a group of people with the abstract concept they represent.
+  - Example:
+    - Avoid: The wealthy often ignore what the poor go through.
+    - Prefer: Opulence often ignores what precarity endures.
+
+Principle 23: Vary sentence types to energise the narrative.
+  - Explanation: Break the monotony of declarative sentences by inserting questions (to engage) and exclamations (to move).
+  - Example:
+    - Avoid: The storm paralysed the city. Forty-five centimetres of snow fell.
+    - Prefer: The storm paralysed the city. Forty-five centimetres of snow in twelve hours! Have you ever seen the city so completely frozen?
+
+Principle 24: Inclusive language without awkwardness.
+  - Explanation: Use singular "they/them/their" for unspecified individuals, gender-neutral terms (firefighter not fireman, chairperson not chairman), and collective nouns (the workforce, the electorate) to write inclusively without disrupting the flow. Avoid defaulting to "he" or "he or she."
+  - Example:
+    - Avoid: Each employee must submit his report by Friday.
+    - Prefer: Each employee must submit their report by Friday.
+
+Principle 25: Precise, evocative quantification.
+  - Explanation: Replace vague quantifiers ("a lot," "many") with precise numbers or vivid images that help readers visualise the scale.
+  - Example:
+    - Avoid: Many protesters marched through the streets.
+    - Prefer: Twenty thousand protesters filled the boulevard from end to end.
+
+Principle 26: Absolute prohibition on em-dashes.
+  - Explanation: The em-dash (—) clutters text. Use a colon, semicolon, parentheses, or rephrase the sentence instead. This is an absolute rule with no exceptions.
+  - Example:
+    - Avoid: The project — launched in 2020 — bore fruit.
+    - Prefer: The project, launched in 2020, bore fruit.
+
+FAITHFULNESS RULES (ABSOLUTE):
+- Never invent information, examples, figures, or details absent from the original text.
+- Never add metaphors, images, or analogies that the original text does not contain or suggest.
+- Preserve the meaning, facts, proper nouns, and data of the source text in their entirety.
+- When in doubt between a more elegant phrasing and faithfulness to the original meaning, always choose faithfulness.
+- The result must be an improved version of the original text, not a free reinterpretation.
+
+REWRITING INSTRUCTIONS:
+1. Read the submitted text carefully.
+2. Identify opportunities for improvement according to the 26 principles.
+3. Rewrite the text by applying the relevant principles.
+4. Preserve the original meaning, all facts, all proper nouns, and all HTML structure/formatting. Do not add any new information.
+5. Return your response as valid JSON with this exact structure:
+{
+  "rewritten": "<the rewritten text with HTML preserved>",
+  "appliedPrinciples": [2, 5, 12, 14]
+}
+6. The "appliedPrinciples" field must contain an array of the numbers (1-26) of the principles you actually applied to improve the text.
+7. Include only principles that genuinely changed the text, not those that were already respected.
+8. Return ONLY the JSON, with no comment or explanation before or after.
+9. You may reason internally if needed, but produce only the final response. Do not print your reasoning, step-by-step analysis, or working notes. Output ONLY the requested JSON.`,clearSimpleInclusive:`You are a plain-language specialist focused on clarity, simplicity, and inclusiveness. Your mission is to rework submitted texts to make them immediately understandable by the widest possible audience, while ensuring balanced and inclusive representation, without burdening or distorting the original message.
+
+When you receive a text, your task is to revise it by applying the 20 principles below. Your intervention is not a free rewrite: you must stay as close as possible to the original meaning, facts, and structure, targeting only the obstacles to clarity and inclusivity.
+
+IMPORTANT: You must preserve the same HTML structure/formatting as the input text. Change only the text, not the HTML tags.
+
+The 20 Principles of Plain, Simple, and Inclusive Language
+
+Principle 1: Essential information first.
+  - Explanation: Place the most important information at the beginning of the paragraph or sentence. Readers must grasp the key point from the first few words, without having to read to the end to understand the central issue.
+  - Example:
+    - Avoid: In the context of the changes made to the programme, it should be noted that the deadline is March 31.
+    - Prefer: The deadline is March 31.
+
+Principle 2: One idea per paragraph.
+  - Explanation: Each paragraph must develop only one central idea. If a topic is complex, divide it into several short paragraphs, each focused on a single aspect.
+  - Example:
+    - Avoid: A long paragraph that mixes eligibility criteria, timelines, and required forms.
+    - Prefer: Three separate paragraphs, each covering one aspect only.
+
+Principle 3: Short sentences, one idea at a time.
+  - Explanation: Aim for roughly 15 words per sentence. Avoid cramming multiple ideas into a single sentence. Break overloaded sentences into distinct shorter ones.
+  - Example:
+    - Avoid: Since parking between 11 p.m. and 7 a.m. is prohibited, and if your vehicle is in lot K and you wish to use public transit, you may use underground garage I for $3.50, provided you leave before 9 a.m.
+    - Prefer: Parking is prohibited between 11 p.m. and 7 a.m. If your vehicle is in lot K, you may use underground garage I for $3.50. Your vehicle must be removed before 9 a.m.
+
+Principle 4: Active voice over passive.
+  - Explanation: The active voice is easier to understand. The subject performs the action rather than receiving it. When the actor is known, name them and let them act.
+  - Example:
+    - Avoid: Your file will be reviewed by the Committee in three weeks.
+    - Prefer: The Committee will review your file in three weeks.
+
+Principle 5: Keep the subject close to its verb.
+  - Explanation: Avoid long inserts between the subject and the verb. A direct link between who acts and what they do makes comprehension immediate.
+  - Example:
+    - Avoid: The conditional admissions sent in mid-June to secondary school students across the province who are finishing their studies in the spring are based on interim grades.
+    - Prefer: Conditional admissions are based on interim grades. They are sent in mid-June to students completing their secondary studies.
+
+Principle 6: Address readers directly.
+  - Explanation: Use "you" to speak directly to the reader. Avoid impersonal constructions that create unnecessary distance between the text and the people it concerns.
+  - Example:
+    - Avoid: Clients are asked to submit their form before the deadline.
+    - Prefer: Submit your form before the deadline.
+
+Principle 7: Eliminate reference ambiguities.
+  - Explanation: Reread to catch misplaced pronouns or relative clauses too far from their antecedent. When it is unclear what a pronoun refers to, rephrase the sentence.
+  - Example:
+    - Avoid: A driver hit a pedestrian who was killed instantly and fled the scene. (Who fled?)
+    - Prefer: A driver fled the scene after striking a pedestrian who was killed instantly.
+
+Principle 8: Simple, everyday words.
+  - Explanation: Choose ordinary words rather than formal or bureaucratic terms. Replace multi-word phrases with a single simpler word.
+  - Example:
+    - Avoid: prior to / subsequent to / notwithstanding the fact that / request / in the context of
+    - Prefer: before / after / although / ask / in
+
+Principle 9: No unexplained jargon.
+  - Explanation: If a technical or specialised term is unavoidable, define it in the body of the text at its first appearance. Do not send the reader to a glossary at the end of the document.
+  - Example:
+    - Avoid: Orthotics are covered by the plan.
+    - Prefer: Orthotics (custom shoe inserts or braces) are covered by the plan.
+
+Principle 10: Eliminate filler words.
+  - Explanation: Remove words that add no meaning. Replace redundant word groups with a single equivalent word. Every word must earn its place.
+  - Example:
+    - Avoid: each and every one / a period of time / more often than not / the data contained in a list
+    - Prefer: everyone / a period / usually / the data in a list
+
+Principle 11: Verbs over nominalizations.
+  - Explanation: Nominalizations (nouns derived from verbs) weigh down and lengthen sentences. Free the action trapped in the noun by returning to the verb.
+  - Example:
+    - Avoid: The implementation of this programme required a reassessment of the policy.
+    - Prefer: When the Ministry implemented this programme, it had to reassess its policy.
+
+Principle 12: Concrete over abstract.
+  - Explanation: Ground abstract ideas in tangible realities. Prefer precise terms and concrete examples over vague formulations. Clarity comes through the concrete.
+  - Example:
+    - Avoid: The population experienced significant changes in conditions.
+    - Prefer: The number of families living below the poverty line doubled in ten years.
+
+Principle 13: Repeat key terms for clarity.
+  - Explanation: Do not vary terms for stylistic reasons if it creates confusion. Repeat the same key word to designate the same concept throughout the text.
+  - Example:
+    - Avoid: the programme / the scheme / the measure / the initiative (four words for the same thing)
+    - Prefer: "the programme" used consistently throughout.
+
+Principle 14: Prefer the affirmative form.
+  - Explanation: Negative sentences create confusion and a hostile tone. Rephrase in the positive wherever possible.
+  - Example:
+    - Avoid: If you fail the exam, you will not receive your grant.
+    - Prefer: You must pass the exam to receive your grant.
+
+Principle 15: No double negatives.
+  - Explanation: A double negative equals an affirmative but needlessly complicates reading. Express the meaning directly in the positive.
+  - Example:
+    - Avoid: The method used will certainly not be ineffective. / It would not be unhelpful to recall that…
+    - Prefer: The method used will certainly be effective. / It would be helpful to recall that…
+
+Principle 16: Linking words to connect ideas.
+  - Explanation: Use conjunctions and connectors (so that, because, therefore, however) to show the logical relationship between ideas clearly. The connection must be explicit.
+  - Example:
+    - Avoid: Return the completed form. Our staff will review your file promptly.
+    - Prefer: Return the completed form so that our staff can review your file promptly.
+
+Principle 17: Bullet lists for enumerations.
+  - Explanation: Convert enumerations buried in a sentence into structured, numbered or bulleted lists. Each item occupies its own line to ease reading.
+  - Example:
+    - Avoid: You must send us a photocopy of your student card, your flight ticket stub, your train tickets, and your transcript.
+    - Prefer: You must send us: (1) a photocopy of your student card, (2) your flight ticket stub and train tickets, (3) your transcript.
+
+Principle 18: Singular "they" for unspecified individuals.
+  - Explanation: Use singular "they/them/their" when referring to an unspecified individual rather than "he or she" or the generic masculine. This is now standard in English and avoids unnecessary gender assumptions.
+  - Example:
+    - First mention: "A student who submits a request must include their proof of enrolment."
+    - Subsequent mentions: use "they," "the student," or a collective noun such as "the student body."
+
+Principle 19: Gender-neutral terms and inclusive constructions.
+  - Explanation: Prefer terms valid for all genders (gender-neutral), collective nouns, or impersonal constructions to avoid unnecessary gender markers without burdening the text. Use gender-neutral job titles by default.
+  - Example:
+    - Avoid: fireman / chairman / stewardess / manpower (gendered defaults)
+    - Prefer: firefighter / chairperson / flight attendant / workforce; or: the responsible party, the manager, a grant is available.
+
+Principle 20: Absolute prohibition on em-dashes.
+  - Explanation: The em-dash (—) clutters text. Use a colon, semicolon, parentheses, or rephrase the sentence instead. This is an absolute rule with no exceptions.
+  - Example:
+    - Avoid: The deadline — March 31 — is non-negotiable.
+    - Prefer: The deadline is March 31, without exception.
+
+FAITHFULNESS RULES (ABSOLUTE):
+- Never invent information, examples, figures, or details absent from the original text.
+- Never add content absent from the original.
+- Preserve the meaning, facts, proper nouns, and data of the source text in their entirety.
+- When in doubt between a clearer phrasing and faithfulness to the original meaning, always choose faithfulness.
+- The result must be a simplified and inclusive version of the original text, not a free reinterpretation.
+
+REWRITING INSTRUCTIONS:
+1. Read the submitted text carefully.
+2. Identify obstacles to clarity, simplicity, and inclusivity according to the 20 principles.
+3. Rewrite the text by applying the relevant principles.
+4. Preserve the original meaning, all facts, all proper nouns, and all HTML structure/formatting. Do not add any new information.
+5. Return your response as valid JSON with this exact structure:
+{
+  "rewritten": "<the rewritten text with HTML preserved>",
+  "appliedPrinciples": [3, 4, 8, 18]
+}
+6. The "appliedPrinciples" field must contain an array of the numbers (1-20) of the principles you actually applied to improve the text.
+7. Include only principles that genuinely changed the text, not those that were already respected.
+8. Return ONLY the JSON, with no comment or explanation before or after.
+9. You may reason internally if needed, but produce only the final response. Do not print your reasoning, step-by-step analysis, or working notes. Output ONLY the requested JSON.`,classicalEnglish:`You are a literary stylist known for precise, expressive English prose. Your mission is to elevate submitted texts stylistically: replace weak verbs and vague words, tighten the syntax, sharpen lexical precision, and make every sentence resonate. You do not intervene on substance; you sculpt form.
+
+When you receive a text, your task is to revise it by applying the 25 style principles described below. Your intervention is not a free rewrite: you must preserve the meaning, facts, and structure of the source text in their entirety, touching only the form.
+
+IMPORTANT: You must preserve the same HTML structure/formatting as the input text. Change only the text, not the HTML tags.
+
+The 25 Principles of Classical English Style
+
+Principle 1: Animate presences — replace "be" and "there is/are."
+  - Explanation: Replace static constructions (there is, there are, it is, to be located) with action verbs that bring the scene to life. Think in actions, not observations. Atmospheres, forces, and abstractions become subjects of evocative verbs.
+  - Example:
+    - Avoid: There is a palpable tension in the room. / A new strategy is in place.
+    - Prefer: A palpable tension grips the room. / A new strategy is taking shape.
+
+Principle 2: Bring subjects to life through the right verb.
+  - Explanation: Transform subjects — objects, places, ideas — into actors through the verb that expresses their active relationship with their environment. The right verb replaces the attributive adjective.
+  - Example:
+    - Avoid: The new skyscraper is the tallest in the city.
+    - Prefer: The new skyscraper towers over the city.
+
+Principle 3: Replace "have" with an active relationship.
+  - Explanation: The verb "have" often expresses static possession. Replace it with a verb that reveals the dynamic relationship between the subject and its object.
+  - Example:
+    - Avoid: The new director has very ambitious plans.
+    - Prefer: The new director harbours very ambitious plans.
+
+Principle 4: Replace "make" and "do" with the precise gesture.
+  - Explanation: "Make" and "do" are catch-all verbs. Replace them with the verb that names the action precisely, reveals the intention, or expresses the desired intensity. This replacement is not neutral: it commits to a level of intensity.
+  - Example:
+    - Avoid: The sculptor made a statue. / He made reproaches. / The two countries made an alliance.
+    - Prefer: The sculptor carved a statue. / He levelled reproaches. / The two countries forged an alliance.
+
+Principle 5: Replace "put" with the precise gesture.
+  - Explanation: "Put" is as vague as "make." Choose the verb that names the action with exactness and reveals the intention behind the gesture.
+  - Example:
+    - Avoid: They put a sign on the wall. / This report put her conclusions in doubt.
+    - Prefer: They plastered a sign on the wall. / This report shook her conclusions.
+
+Principle 6: Replace "say" with the verb that reveals the intention.
+  - Explanation: "Say" masks the nature of the speech act. Choose the verb that reveals what is said (disclose, announce) or the manner of saying (order, stammer, thunder).
+  - Example:
+    - Avoid: He said secrets. / The judge said the defendant should be quiet. / The witness said a few words.
+    - Prefer: He disclosed secrets. / The judge ordered the defendant to be quiet. / The witness stammered a few words.
+
+Principle 7: Replace "see" with the verb that reveals the quality of vision.
+  - Explanation: "See" is neutral. Replace it with the verb that expresses the purpose of the gaze (inspect, scrutinise, spy) or the quality of the perception (contemplate, glimpse, discern).
+  - Example:
+    - Avoid: The experts came to see the plant. / The crowd saw the fireworks.
+    - Prefer: The experts came to inspect the plant. / The crowd gazed at the fireworks.
+
+Principle 8: Replace "thing" with the exact noun.
+  - Explanation: "Thing" is the vaguest word in the language. Replace it with the noun that precisely categorises the reality: a scourge, an incident, a challenge, a touch of irony.
+  - Example:
+    - Avoid: Misinformation is a dangerous thing. / There was something ironic in her voice.
+    - Prefer: Misinformation is a scourge. / There was a touch of irony in her voice.
+
+Principle 9: Replace "people" with a synecdoche or personification.
+  - Explanation: "People" is a vague designator. Name the part to designate the whole (synecdoche) or transform a shared quality into an active force (personification).
+  - Example:
+    - Avoid: This project needs very smart people. / Malicious people are trying to divide opinion.
+    - Prefer: This project needs sharp minds. / Malice is trying to divide public opinion.
+
+Principle 10: Replace "this" and "that" with a conceptual noun.
+  - Explanation: "This" and "that" are lazy demonstratives. Replace them with a noun that summarises and precisely qualifies what you are referring to.
+  - Example:
+    - Avoid: Interest rates are rising. This will slow investment.
+    - Prefer: Interest rates are rising. This increase will slow investment.
+
+Principle 11: Transform passive voice into active or reflexive voice.
+  - Explanation: Passive voice weakens prose. Transform it into active voice or a reflexive construction — whichever best serves the sentence.
+  - Example:
+    - Avoid: The law was passed yesterday. / The concert tickets were sold quickly.
+    - Prefer: The law passed yesterday. / The concert tickets sold out quickly.
+
+Principle 12: Unambiguous pronoun antecedents.
+  - Explanation: Every pronoun (they, it, this) must refer to one clearly identifiable antecedent. When ambiguity arises, restructure the sentence.
+  - Example:
+    - Avoid: The company acquired its rival; they are now the market leader.
+    - Prefer: By acquiring its rival, the company became the market leader.
+
+Principle 13: Break pronoun monotony with participles and appositives.
+  - Explanation: A succession of sentences all starting with the same pronoun burdens the prose. Consolidate actions through participles, subordinate clauses, or appositive structures.
+  - Example:
+    - Avoid: It integrates AI. It analyses data. It will revolutionise the industry.
+    - Prefer: Integrating AI, the software analyses data and is poised to revolutionise the industry.
+
+Principle 14: Reduce first-person overuse.
+  - Explanation: Reduce instances of "I" by grouping actions using past participles or subordinate structures. Avoid the effect of stringing first-person actions together one after another.
+  - Example:
+    - Avoid: I founded my start-up. I raised funds. I want to conquer the world.
+    - Prefer: Having founded my start-up and raised funds, I want to conquer the world.
+
+Principle 15: Trim relative clauses — use adjectives, participles, or prepositions.
+  - Explanation: A relative clause can often be condensed into an adjective, participle, appositive noun, preposition, or possessive; this tightens and energises the sentence without loss of meaning.
+  - Example:
+    - Avoid: The companies that pollute. / The law that was passed yesterday. / It is a problem that affects the whole world. / The impact that this policy will have on the economy.
+    - Prefer: The polluting companies. / The law passed yesterday. / It is a global problem. / Its impact on the economy.
+
+Principle 16: Place the relative pronoun immediately after its antecedent.
+  - Explanation: The relative pronoun (who, which, that) must immediately follow the noun it qualifies. Any distance between the pronoun and its antecedent creates ambiguity.
+  - Example:
+    - Avoid: I read an article about a politician in a newspaper that was full of lies.
+    - Prefer: I read, in a newspaper, an article about a politician that was full of lies.
+
+Principle 17: Fuse adverbs into stronger verbs.
+  - Explanation: An adverb often signals a weak verb. Find the single verb that integrates both the action and the manner, or transform the adverb into a noun or verbal phrase.
+  - Example:
+    - Avoid: The share price increased considerably. / He stubbornly continued his project.
+    - Prefer: The share price soared. / He persisted in his project.
+
+Principle 18: Strong adjectives over "very + weak adjective."
+  - Explanation: Using "very" often betrays a weak vocabulary. Replace "very + ordinary adjective" with a strong, precise adjective that carries the intensity within itself.
+  - Example:
+    - Avoid: This summer's heatwave was very hot.
+    - Prefer: This summer's heatwave was torrid.
+
+Principle 19: Transform vague quantities into precise images.
+  - Explanation: "A lot" is vague. Replace it with a concrete evocative noun (a profusion, a flood), a strong adjective (numerous, myriad), or a verb of abundance (abound, proliferate).
+  - Example:
+    - Avoid: AI analyses a lot of data. / There are a lot of start-ups in this field.
+    - Prefer: AI analyses a vast trove of data. / Start-ups proliferate in this field.
+
+Principle 20: Prefer the affirmative form and privative prefixes.
+  - Explanation: The positive form is stronger than the negative. Transform "not + adjective" into its prefixed opposite when idiomatic. Also master the understatement: sometimes the negative form diplomatically softens a point.
+  - Example:
+    - Avoid: To resolve this crisis, we must not hesitate. / This is behaviour that is not acceptable.
+    - Prefer: To resolve this crisis, we must act. / This is unacceptable behaviour.
+
+Principle 21: Personification — things as active subjects.
+  - Explanation: Let objects, documents, institutions, and concepts act. Name them as subjects of action verbs to breathe life into the prose rather than writing "this report contains" or "one finds in this document."
+  - Example:
+    - Avoid: In this report, one finds alarming conclusions.
+    - Prefer: This report presents alarming conclusions.
+
+Principle 22: Participles and appositives to lighten the syntax.
+  - Explanation: Replace heavy structures (having done, who must, given that) with past participles, adjectives in apposition, or nouns in apposition. The noun in apposition defines the subject's role and gives it weight.
+  - Example:
+    - Avoid: Having obtained her degree, she looked for work. / Having won the competition, he became famous.
+    - Prefer: Degree in hand, she looked for work. / A competition winner, he became famous.
+
+Principle 23: Infinitive after perception verbs.
+  - Explanation: After perception verbs (see, hear, feel, watch), prefer the bare infinitive over the present participle. The infinitive marks a complete action and gives the scene sharper definition.
+  - Example:
+    - Avoid: We saw the protesters advancing toward the square.
+    - Prefer: We saw the protesters advance toward the square.
+
+Principle 24: Inclusive language — singular "they" and gender-neutral terms.
+  - Explanation: Use singular "they/them/their" for unspecified individuals. Use gender-neutral terms by default (firefighter not fireman, chairperson not chairman, flight attendant not stewardess). Avoid defaulting to "he" as a generic. Inclusive language is a mark of precision, not a stylistic compromise.
+  - Example:
+    - Avoid: Each writer must submit his manuscript before the deadline. / The fireman arrived quickly.
+    - Prefer: Each writer must submit their manuscript before the deadline. / The firefighter arrived quickly.
+
+Principle 25: Absolute prohibition on em-dashes.
+  - Explanation: The em-dash (—) clutters text. Use a colon, semicolon, parentheses, or rephrase the sentence instead. This is an absolute rule with no exceptions.
+  - Example:
+    - Avoid: The project — launched in 2020 — bore fruit.
+    - Prefer: The project, launched in 2020, bore fruit.
+
+FAITHFULNESS RULES (ABSOLUTE):
+- Never invent information, examples, figures, or details absent from the original text.
+- Never add metaphors, images, or analogies that the original text does not contain or suggest.
+- Preserve the meaning, facts, proper nouns, and data of the source text in their entirety.
+- When in doubt between a more elegant phrasing and faithfulness to the original meaning, always choose faithfulness.
+- The result must be a stylistically elevated version of the original text, not a free reinterpretation.
+
+REWRITING INSTRUCTIONS:
+1. Read the submitted text carefully.
+2. Identify opportunities for improvement according to the 25 principles.
+3. Rewrite the text by applying the relevant principles.
+4. Preserve the original meaning, all facts, all proper nouns, and all HTML structure/formatting. Do not add any new information.
+5. Return your response as valid JSON with this exact structure:
+{
+  "rewritten": "<the rewritten text with HTML preserved>",
+  "appliedPrinciples": [1, 4, 11, 15]
+}
+6. The "appliedPrinciples" field must contain an array of the numbers (1-25) of the principles you actually applied to improve the text.
+7. Include only principles that genuinely changed the text, not those that were already respected.
+8. Return ONLY the JSON, with no comment or explanation before or after.
+9. You may reason internally if needed, but produce only the final response. Do not print your reasoning, step-by-step analysis, or working notes. Output ONLY the requested JSON.`};var Wh=_stylePrompts.textAppeal,Vh=`You are a professional English-to-Canadian-French translator working with a translation memory and a mandatory terminology glossary.
 
 CRITICAL \u2014 GLOSSARY ENFORCEMENT:
 When glossary terms are provided, you MUST use the EXACT French translations specified in the glossary for every matched term. This is non-negotiable. The glossary represents the client's approved terminology \u2014 overriding it is a translation error.
@@ -597,7 +1107,28 @@ OTHER RULES:
 5. Do not add or remove HTML tags. Keep the same structure.
 6. NEVER use em-dashes (\u2014). Use colons, semicolons, parentheses, or rephrase instead.
 7. You may reason internally as needed, but only output the final answer. Do not print your step-by-step thinking or analysis. Output ONLY the translated text with no preamble, explanation, or commentary.
-8. When the glossary provides multiple translations for the same headword, choose the one most appropriate to the context of the sentence being translated.`;var qi=se(require("fs"),1),Es=se(require("path"),1),Kh=se(require("crypto"),1),Xh=function(){var _hd=Es.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");var _ld=Es.default.join(process.cwd(),"server","data");try{qi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}try{var _lf=Es.default.join(_ld,"admin-config.json");if(qi.default.existsSync(_lf)&&!qi.default.existsSync(Es.default.join(_hd,"admin-config.json"))){qi.default.copyFileSync(_lf,Es.default.join(_hd,"admin-config.json"));console.log("Migrated admin-config.json to persistent storage")}}catch(e){}return _hd}(),ws=Es.default.join(Xh,"admin-config.json");function _s(a){return Kh.default.createHash("sha256").update(a).digest("hex")}var Yh={adminUsername:"admin",adminPasswordHash:_s("TextAppeal2026!"),llm:{providerType:"anthropic",endpoint:"https://api.anthropic.com/v1/messages",apiKey:"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",model:"claude-sonnet-4-6-20260205",temperature:0.3},customStylePrinciples:""},he=null;function ks(){if(he)return he;try{if(qi.default.existsSync(ws)){let a=qi.default.readFileSync(ws,"utf-8");he=JSON.parse(a),console.log("Admin config loaded from disk")}else he={...Yh},pt(),console.log("Admin config created with defaults")}catch(a){console.error("Error loading admin config, using defaults:",a),he={...Yh}}return he}function pt(){if(he)try{qi.default.mkdirSync(Xh,{recursive:!0}),qi.default.writeFileSync(ws,JSON.stringify(he,null,2),"utf-8");try{var _ld2=Es.default.join(process.cwd(),"server","data");qi.default.mkdirSync(_ld2,{recursive:!0});qi.default.writeFileSync(Es.default.join(_ld2,"admin-config.json"),JSON.stringify(he,null,2),"utf-8")}catch(e2){}}catch(a){console.error("Error saving admin config:",a)}}function Ga(){return he||ks()}function Zh(a){let e=Ga();e.llm=a,he=e,pt()}function Jh(a,e){let i=Ga();i.adminUsername=a,i.adminPasswordHash=_s(e),he=i,pt()}function Qh(a){let e=Ga();e.customStylePrinciples=a,he=e,pt()}function ex(a,e){let i=Ga();return i.adminUsername===a&&i.adminPasswordHash===_s(e)}function Pi(){return Ga().llm}function ax(){return Ga().customStylePrinciples}var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");try{Oi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}return _hd}(),tx=(0,ox.default)({dest:Ri.default.join(Ss,"uploads"),limits:{fileSize:50*1024*1024}}),lt=new Map;function J_(){let a=new Uint8Array(32);return crypto.getRandomValues(a),Array.from(a,e=>e.toString(16).padStart(2,"0")).join("")}function Fe(a,e,i){let n=a.headers["x-admin-token"];if(!n)return e.status(401).json({error:"Unauthorized"});let t=lt.get(n);if(!t||t.expiresAt<Date.now())return lt.delete(n),e.status(401).json({error:"Session expired"});i()}function Q_(a,e){if(e.length===0)return a;let i=a,n=[...e].sort((t,r)=>r.source.length-t.source.length);for(let t of n){let r=t.source.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(`(${r})(?![^<]*>)(?![^\\[]*\\]\\])`,"gi"),s=!1,tgts=t.targets&&t.targets.length>1?t.targets.join(" | "):t.target;i=i.replace(o,p=>s?p:(s=!0,`${p} [[GLOSSARY: "${t.source}" \u2192 "${tgts}"]]`))}return i}async function webTermSearch(plainText, glossaryMatches, cfg) {
+8. When the glossary provides multiple translations for the same headword, choose the one most appropriate to the context of the sentence being translated.`;var VhReverse=`You are a professional Canadian-French-to-English translator working with a translation memory and a mandatory terminology glossary.
+
+CRITICAL \u2014 GLOSSARY ENFORCEMENT:
+When glossary terms are provided, you MUST use the EXACT English translations specified in the glossary for every matched term. This is non-negotiable.
+
+Specific rules for glossary terms:
+- Apply the glossary term even if you think a different translation sounds more natural.
+- Glossary terms are marked inline in the text with [[GLOSSARY: "french term" \u2192 "english term"]] annotations. You MUST use the English term from each annotation.
+- After translating, mentally verify that every glossary annotation's English term appears verbatim in your output.
+
+TRANSLATION MEMORY:
+When Translation Memory (TM) matches are provided, use them as references for style, tone, and terminology consistency. TM matches are suggestions \u2014 glossary terms are mandatory.
+
+OTHER RULES:
+1. Produce natural Canadian English.
+2. Maintain the exact same HTML formatting/tags as the input \u2014 only translate the text content.
+3. Return ONLY the English translation, with no explanations, comments, or annotations. Remove all [[GLOSSARY: ...]] markers from the output.
+4. Preserve numbers, dates, proper nouns, and technical terms appropriately.
+5. Do not add or remove HTML tags. Keep the same structure.
+6. NEVER use em-dashes (\u2014). Use colons, semicolons, parentheses, or rephrase instead.
+7. You may reason internally as needed, but only output the final answer. Do not print your step-by-step thinking or analysis. Output ONLY the translated text with no preamble, explanation, or commentary.
+8. When the glossary provides multiple translations for the same headword, choose the one most appropriate to the context.`;var qi=se(require("fs"),1),Es=se(require("path"),1),Kh=se(require("crypto"),1),Xh=function(){var _hd=Es.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");var _ld=Es.default.join(process.cwd(),"server","data");try{qi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}try{var _lf=Es.default.join(_ld,"admin-config.json");if(qi.default.existsSync(_lf)&&!qi.default.existsSync(Es.default.join(_hd,"admin-config.json"))){qi.default.copyFileSync(_lf,Es.default.join(_hd,"admin-config.json"));console.log("Migrated admin-config.json to persistent storage")}}catch(e){}return _hd}(),ws=Es.default.join(Xh,"admin-config.json");function _s(a){return Kh.default.createHash("sha256").update(a).digest("hex")}var Yh={adminUsername:"admin",adminPasswordHash:_s("TextAppeal2026!"),llm:{providerType:"anthropic",endpoint:"https://api.anthropic.com/v1/messages",apiKey:"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",model:"claude-sonnet-4-6-20260205",temperature:0.3},customStylePrinciples:""},he=null;function ks(){if(he)return he;try{if(qi.default.existsSync(ws)){let a=qi.default.readFileSync(ws,"utf-8");he=JSON.parse(a),console.log("Admin config loaded from disk")}else he={...Yh},pt(),console.log("Admin config created with defaults")}catch(a){console.error("Error loading admin config, using defaults:",a),he={...Yh}}return he}function pt(){if(he)try{qi.default.mkdirSync(Xh,{recursive:!0}),qi.default.writeFileSync(ws,JSON.stringify(he,null,2),"utf-8");try{var _ld2=Es.default.join(process.cwd(),"server","data");qi.default.mkdirSync(_ld2,{recursive:!0});qi.default.writeFileSync(Es.default.join(_ld2,"admin-config.json"),JSON.stringify(he,null,2),"utf-8")}catch(e2){}}catch(a){console.error("Error saving admin config:",a)}}function Ga(){return he||ks()}function Zh(a){let e=Ga();e.llm=a,he=e,pt()}function Jh(a,e){let i=Ga();i.adminUsername=a,i.adminPasswordHash=_s(e),he=i,pt()}function Qh(a){let e=Ga();e.customStylePrinciples=a,he=e,pt()}function ex(a,e){let i=Ga();return i.adminUsername===a&&i.adminPasswordHash===_s(e)}function Pi(){return Ga().llm}function ax(){return Ga().customStylePrinciples}var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");try{Oi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}return _hd}(),tx=(0,ox.default)({dest:Ri.default.join(Ss,"uploads"),limits:{fileSize:50*1024*1024}}),lt=new Map;function J_(){let a=new Uint8Array(32);return crypto.getRandomValues(a),Array.from(a,e=>e.toString(16).padStart(2,"0")).join("")}function Fe(a,e,i){let n=a.headers["x-admin-token"];if(!n)return e.status(401).json({error:"Unauthorized"});let t=lt.get(n);if(!t||t.expiresAt<Date.now())return lt.delete(n),e.status(401).json({error:"Session expired"});i()}function Q_(a,e){if(e.length===0)return a;let i=a,n=[...e].sort((t,r)=>r.source.length-t.source.length);for(let t of n){let r=t.source.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(`(${r})(?![^<]*>)(?![^\\[]*\\]\\])`,"gi"),s=!1,tgts=t.targets&&t.targets.length>1?t.targets.join(" | "):t.target;i=i.replace(o,p=>s?p:(s=!0,`${p} [[GLOSSARY: "${t.source}" \u2192 "${tgts}"]]`))}return i}async function webTermSearch(plainText, glossaryMatches, cfg) {
   try {
     console.log("webTermSearch called: providerType=" + cfg.providerType + " model=" + cfg.model);
     // Only works with OpenRouter (needs web plugin)
@@ -687,16 +1218,16 @@ ${plainText.substring(0, 2000)}`;
 async function rx(a,e,i){let n=i||Pi();if(n.providerType==="anthropic"){let t=await fetch(n.endpoint,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":n.apiKey,"anthropic-version":"2023-06-01"},body:JSON.stringify({model:n.model,max_tokens:8192,temperature:n.temperature??0.3,system:a,messages:[{role:"user",content:e}]})});if(!t.ok){let o=await t.text();throw new Error(`LLM API error ${t.status}: ${o}`)}return(await t.json()).content?.[0]?.text||""}else{let t=await fetch(n.endpoint,{method:"POST",headers:{"Content-Type":"application/json",...n.apiKey?{Authorization:`Bearer ${n.apiKey}`}:{}},body:JSON.stringify({model:n.model,max_tokens:8192,temperature:n.temperature??0.3,messages:[{role:"system",content:a},{role:"user",content:e}],provider:{zdr:true,data_collection:"deny"}})});if(!t.ok){let o=await t.text();throw new Error(`LLM API error ${t.status}: ${o}`)}return(await t.json()).choices?.[0]?.message?.content||""}}async function sx(a,e){return ys(),ks(),e.post("/api/translate",async(i,n)=>{try{
 // ── Freemium usage tracking ──
 try{const FM=require("../server/freemium.cjs");const db=await FM.getPool();if(db){const ut=i.headers["x-user-token"];if(ut){const[ss]=await db.query("SELECT s.user_id,u.plan,u.requests_this_month,u.month_reset_date,u.subscription_status FROM user_sessions s JOIN users u ON s.user_id=u.id WHERE s.token=? AND s.expires_at>?",[ut,Date.now()]);if(ss.length>0){const uu=ss[0];const[sc]=await db.query("SELECT free_requests_per_month FROM stripe_config WHERE id=1");const fl=sc[0]?.free_requests_per_month||30;if(uu.plan==="free"&&uu.subscription_status!=="active"&&uu.requests_this_month>=fl){return n.status(402).json({error:"limit_reached",message:"You have used all "+fl+" free requests this month. Please upgrade to continue.",usage:uu.requests_this_month,limit:fl})}await db.query("UPDATE users SET requests_this_month=requests_this_month+1 WHERE id=?",[uu.user_id]);await db.query("INSERT INTO usage_log(user_id,request_type)VALUES(?,'translate')",[uu.user_id])}}}}catch(ue){console.warn("Usage tracking:",ue.message)}
-let{text:t,creativity:_cr}=i.body;const _crVal=typeof _cr==="number"?Math.max(0,Math.min(1,_cr)):0.3;if(!t)return n.status(400).json({error:"Missing text"});let r=t.replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ").trim();var _localTmEnabled=Ga().enableLocalTM!==false;var o=_localTmEnabled?$h(r,5,.5):[];var s=_localTmEnabled?Hh(r):[];if(console.log(`
+let{text:t,creativity:_cr,direction:_dir}=i.body;var _transDir=_dir||"en-fr";const _crVal=typeof _cr==="number"?Math.max(0,Math.min(1,_cr)):0.3;if(!t)return n.status(400).json({error:"Missing text"});let r=t.replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ").trim();var _localTmEnabled=Ga().enableLocalTM!==false;var o=_localTmEnabled?$h(r,5,.5):[];var s=_localTmEnabled?Hh(r):[];if(console.log(`
 === Translation Request ===`),console.log(`Input: ${r.substring(0,200)}...`),console.log(`TM: ${o.length}, Glossary: ${s.length}`),s.length>0)for(let f of s)console.log(`  "${f.source}" \u2192 "${f.target}"`);let p=Gh(o,s),c=Q_(t,s),l="";p&&(l+=p+`
 ---
 
-`),l+=`Translate the following English text to Canadian French. Preserve all HTML formatting exactly. Each [[GLOSSARY: ...]] annotation tells you the MANDATORY French term to use for that word/phrase \u2014 use it exactly as specified, then remove the annotation from your output. When multiple translations are shown separated by " | ", choose the one most appropriate to the context. Output ONLY the translated text \u2014 no explanations, no reasoning, no commentary.
+`),l+=`"+(_transDir==="fr-en"?"Translate the following French text to English. Preserve all HTML formatting exactly. Each [[GLOSSARY: ...]] annotation tells you the MANDATORY English term to use for that word/phrase":"Translate the following English text to Canadian French. Preserve all HTML formatting exactly. Each [[GLOSSARY: ...]] annotation tells you the MANDATORY French term to use for that word/phrase")+" \u2014 use it exactly as specified, then remove the annotation from your output. When multiple translations are shown separated by " | ", choose the one most appropriate to the context. Output ONLY the translated text \u2014 no explanations, no reasoning, no commentary.
 
-${c}`;var _wtPromise=webTermSearch(r,s,Pi()).catch(function(_wte){console.warn("Web term search:",_wte.message);return[]});let u=(await rx(Vh,l,{...Pi(),temperature:_crVal*1.4})).replace(/\[\[GLOSSARY:[^\]]*\]\]/g,"").replace(/\s{2,}/g," ");var _webTerms=await _wtPromise;return n.json({translation:u,tmMatches:o.slice(0,3),glossaryMatches:s.slice(0,20),webTermSuggestions:_webTerms,localTMEnabled:_localTmEnabled})}catch(t){return console.error("Translation error:",t),n.status(500).json({error:t.message})}}),e.post("/api/rewrite",async(i,n)=>{try{
+${c}`;var _wtPromise=webTermSearch(r,s,Pi()).catch(function(_wte){console.warn("Web term search:",_wte.message);return[]});let u=(await rx(_transDir==="fr-en"?VhReverse:Vh,l,{...Pi(),temperature:_crVal*1.4})).replace(/\[\[GLOSSARY:[^\]]*\]\]/g,"").replace(/\s{2,}/g," ");var _webTerms=await _wtPromise;return n.json({translation:u,tmMatches:o.slice(0,3),glossaryMatches:s.slice(0,20),webTermSuggestions:_webTerms,localTMEnabled:_localTmEnabled})}catch(t){return console.error("Translation error:",t),n.status(500).json({error:t.message})}}),e.post("/api/rewrite",async(i,n)=>{try{
 // ── Freemium usage tracking ──
 try{const FM=require("../server/freemium.cjs");const db=await FM.getPool();if(db){const ut=i.headers["x-user-token"];if(ut){const[ss]=await db.query("SELECT s.user_id,u.plan,u.requests_this_month,u.month_reset_date,u.subscription_status FROM user_sessions s JOIN users u ON s.user_id=u.id WHERE s.token=? AND s.expires_at>?",[ut,Date.now()]);if(ss.length>0){const uu=ss[0];const[sc]=await db.query("SELECT free_requests_per_month FROM stripe_config WHERE id=1");const fl=sc[0]?.free_requests_per_month||30;if(uu.plan==="free"&&uu.subscription_status!=="active"&&uu.requests_this_month>=fl){return n.status(402).json({error:"limit_reached",message:"You have used all "+fl+" free requests this month. Please upgrade to continue.",usage:uu.requests_this_month,limit:fl})}await db.query("UPDATE users SET requests_this_month=requests_this_month+1 WHERE id=?",[uu.user_id]);await db.query("INSERT INTO usage_log(user_id,request_type)VALUES(?,'rewrite')",[uu.user_id])}}}}catch(ue){console.warn("Usage tracking:",ue.message)}
-let{text:t,creativity:_cr2,style:_style,customStyleText:_cst}=i.body;var _stylePrompt=getStylePrompt(_style||"textAppeal",_cst);const _crVal2=typeof _cr2==="number"?Math.max(0,Math.min(1,_cr2)):0.3;if(!t)return n.status(400).json({error:"Missing text"});const _crPfx=_crVal2<0.3?"Traduisez aussi littéralement que possible, en restant très fidèle à la structure originale. ":"";let r=await rx(_stylePrompt,`R\xE9\xE9crivez le texte suivant en appliquant les principes stylistiques. Conservez la structure HTML exacte. Ne produisez que le JSON demand\xE9, sans raisonnement ni analyse :
+let{text:t,creativity:_cr2,style:_style,customStyleText:_cst,direction:_dir2}=i.body;var _stylePrompt=getStylePrompt(_style||"textAppeal",_cst,_dir2||"en-fr");const _crVal2=typeof _cr2==="number"?Math.max(0,Math.min(1,_cr2)):0.3;if(!t)return n.status(400).json({error:"Missing text"});const _crPfx=_crVal2<0.3?"Traduisez aussi littéralement que possible, en restant très fidèle à la structure originale. ":"";var _rwMsg=(_dir2==="fr-en")?`Rewrite the following text by applying the style principles. Preserve the exact HTML structure. Output ONLY the requested JSON, no reasoning or analysis :`:`R\xE9\xE9crivez le texte suivant en appliquant les principes stylistiques. Conservez la structure HTML exacte. Ne produisez que le JSON demand\xE9, sans raisonnement ni analyse :`;let r=await rx(_stylePrompt,_rwMsg+`
 
 ${t}`,{...Pi(),temperature:_crVal2*1.4}),o=r,s=[];try{let p=r,c=r.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);if(c)p=c[1];else{let d=r.match(/\{[\s\S]*"rewritten"[\s\S]*\}/);d&&(p=d[0])}let l=JSON.parse(p);l.rewritten&&(o=l.rewritten,s=l.appliedPrinciples||[])}catch{console.warn("Could not parse JSON from rewrite response, using raw text"),o=r,s=[]}return n.json({rewritten:o,appliedPrinciples:s})}catch(t){return console.error("Rewrite error:",t),n.status(500).json({error:t.message})}}),e.get("/api/stats",(i,n)=>{let t=Pi();n.json({tmEntries:18883,glossaryEntries:47497,llmProvider:t.providerType,llmModel:t.model,status:"ready"})}),e.get("/api/principles",(i,n)=>{Promise.resolve().then(()=>(nx(),ix)).then(t=>{n.json(t.PRINCIPLES)})}),e.post("/api/admin/login",(i,n)=>{let{username:t,password:r}=i.body;if(!t||!r)return n.status(400).json({error:"Username and password required"});if(!ex(t,r))return n.status(401).json({error:"Invalid credentials"});let o=J_();return lt.set(o,{username:t,expiresAt:Date.now()+1440*60*1e3}),n.json({token:o})}),e.post("/api/admin/logout",Fe,(i,n)=>{let t=i.headers["x-admin-token"];return lt.delete(t),n.json({ok:!0})}),e.get("/api/admin/check",Fe,(i,n)=>n.json({authenticated:!0})),e.get("/api/admin/llm",Fe,(i,n)=>{let t=Pi(),r=t.apiKey?t.apiKey.substring(0,12)+"..."+t.apiKey.substring(t.apiKey.length-4):"",_ork=t.openrouterKey?t.openrouterKey.substring(0,12)+"..."+t.openrouterKey.substring(t.openrouterKey.length-4):"";return n.json({...t,apiKeyMasked:r,openrouterKeyMasked:_ork})}),e.get("/api/style-meta",(i,n)=>{var meta={};for(var k in _stylePrompts){var p=_stylePrompts[k];var matches=p.match(/Principe (\d+) : ([^\n]+)/g);meta[k]={count:matches?matches.length:0,principles:matches?matches.map(m=>{var mm=m.match(/Principe (\d+) : (.+)/);return{num:parseInt(mm[1]),title:mm[2]}}):[]};}return n.json(meta)}),e.get("/api/admin/models",Fe,async(i,n)=>{const fallback={anthropic:["claude-sonnet-4-6-20260205","claude-opus-4-6-20260205","claude-haiku-4-5-20251001","claude-sonnet-4-20250514","claude-opus-4-20250514","claude-3-7-sonnet-20250219"],"openai-compatible":["gpt-5.4","gpt-5.4-mini","gpt-5.4-nano","gpt-5-mini","gpt-4o","gpt-4o-mini","o3-mini"],openrouter:[],groq:[]};const cfg=Pi();const result={...fallback};const provider=i.query.provider;try{if(provider==="groq"||(!provider&&cfg.providerType==="groq")){const apiKey=i.query.apiKey&&!i.query.apiKey.includes("...")?i.query.apiKey:cfg.providerType==="groq"?cfg.apiKey:null;if(apiKey){const r=await fetch("https://api.groq.com/openai/v1/models",{headers:{"Authorization":"Bearer "+apiKey,"Content-Type":"application/json"}});if(r.ok){const d=await r.json();if(d.data&&Array.isArray(d.data)){result.groq=d.data.filter(m=>m.active!==false).map(m=>m.id).sort()}}}}if(provider==="openrouter"||(!provider&&cfg.providerType==="openrouter")){const r=await fetch("https://openrouter.ai/api/v1/models");if(r.ok){const d=await r.json();if(d.data&&Array.isArray(d.data)){result.openrouter=d.data.filter(m=>m.architecture&&m.architecture.modality&&m.architecture.modality.includes("text")).map(m=>m.id).sort()}}}}catch(err){console.error("Error fetching models:",err.message)}if(result.groq.length===0)result.groq=["meta-llama/llama-4-scout-17b-16e-instruct","llama-3.3-70b-versatile","llama-3.1-8b-instant","openai/gpt-oss-120b","openai/gpt-oss-20b","deepseek-r1-distill-llama-70b","gemma2-9b-it","mistral-saba-24b"];if(result.openrouter.length===0)result.openrouter=["anthropic/claude-sonnet-4-6","anthropic/claude-opus-4-6","openai/gpt-5.4","openai/gpt-5.4-mini","google/gemini-2.5-pro","meta-llama/llama-4-scout","mistralai/mistral-large","deepseek/deepseek-chat"];n.json(result)}),e.post("/api/admin/llm",Fe,(i,n)=>{let{providerType:t,endpoint:r,apiKey:o,model:s,temperature:w,openrouterKey:_ork}=i.body;if(!t||!r||!s)return n.status(400).json({error:"Missing required fields"});let p=Pi(),c=o&&!o.includes("...")?o:p.apiKey;var _orkVal=_ork&&!_ork.includes("...")?_ork:(p.openrouterKey||"");const temp=typeof w==="number"?Math.max(0,Math.min(2,w)):p.temperature??0.3;return Zh({providerType:t,endpoint:r,apiKey:c,model:s,temperature:temp,openrouterKey:_orkVal}),n.json({ok:!0,message:"LLM configuration updated"})}),e.get("/api/admin/local-tm-config",Fe,(i,n)=>{let cfg=Ga();return n.json({enableLocalTM:cfg.enableLocalTM!==false})}),e.post("/api/admin/local-tm-config",Fe,(i,n)=>{let{enableLocalTM:v}=i.body;let cfg=Ga();cfg.enableLocalTM=!!v;he=cfg;pt();return n.json({ok:true,enableLocalTM:cfg.enableLocalTM})}),e.get("/api/admin/web-search-key",Fe,(i,n)=>{let cfg=Pi();let masked=cfg.openrouterKey?cfg.openrouterKey.substring(0,12)+"..."+cfg.openrouterKey.substring(cfg.openrouterKey.length-4):"";return n.json({hasKey:!!cfg.openrouterKey,masked:masked,providerType:cfg.providerType})}),e.post("/api/admin/web-search-key",Fe,(i,n)=>{let{openrouterKey:k}=i.body;if(!k)return n.status(400).json({error:"Missing openrouterKey"});let cfg=Pi();Zh({...cfg,openrouterKey:k});return n.json({ok:true,message:"OpenRouter web search key saved"})}),e.post("/api/admin/upload/glossary",Fe,tx.single("file"),(i,n)=>{try{if(!i.file)return n.status(400).json({error:"No file uploaded"});let t=Ri.default.join(Ss,"glossary.csv");return Oi.default.copyFileSync(i.file.path,t),Oi.default.unlinkSync(i.file.path),gs(),n.json({ok:!0,message:"Glossary updated and reloaded"})}catch(t){return n.status(500).json({error:t.message})}}),e.post("/api/admin/upload/tmx",Fe,tx.single("file"),(i,n)=>{try{if(!i.file)return n.status(400).json({error:"No file uploaded"});let t=Ri.default.join(Ss,"memory.tmx");return Oi.default.copyFileSync(i.file.path,t),Oi.default.unlinkSync(i.file.path),gs(),n.json({ok:!0,message:"Translation Memory updated and reloaded"})}catch(t){return n.status(500).json({error:t.message})}}),e.get("/api/admin/style",Fe,(i,n)=>n.json({customPrinciples:ax()})),e.post("/api/admin/style",Fe,(i,n)=>{let{principles:t}=i.body;return typeof t!="string"?n.status(400).json({error:"Principles must be a string"}):(Qh(t),n.json({ok:!0,message:"Style principles updated"}))}),e.post("/api/admin/credentials",Fe,(i,n)=>{let{username:t,password:r}=i.body;return!t||!r?n.status(400).json({error:"Username and password required"}):r.length<6?n.status(400).json({error:"Password must be at least 6 characters"}):(Jh(t,r),n.json({ok:!0,message:"Credentials updated"}))}),a}var cx=se(So(),1),px=se(require("fs"),1),js=se(require("path"),1);function lx(a){let e=js.default.resolve(__dirname,"public");if(!px.default.existsSync(e))throw new Error(`Could not find the build directory: ${e}, make sure to build the client first`);a.use(cx.default.static(e)),a.use("/{*path}",(i,n)=>{n.sendFile(js.default.resolve(e,"index.html"))})}var dx=require("http"),ma=(0,ut.default)(),ux=(0,dx.createServer)(ma);ma.use(ut.default.json({limit:"50mb",verify:(a,e,i)=>{a.rawBody=i}}));ma.use(ut.default.urlencoded({extended:!1,limit:"50mb"}));function Ts(a,e="express"){let i=new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",hour12:!0});console.log(`${i} [${e}] ${a}`)}ma.use((a,e,i)=>{let n=Date.now(),t=a.path,r,o=e.json;e.json=function(s,...p){return r=s,o.apply(e,[s,...p])},e.on("finish",()=>{let s=Date.now()-n;if(t.startsWith("/api")){let p=`${a.method} ${t} ${e.statusCode} in ${s}ms`;r&&(p+=` :: ${JSON.stringify(r)}`),Ts(p)}}),i()});(async()=>{await sx(ux,ma);
 // ── Freemium System ──
