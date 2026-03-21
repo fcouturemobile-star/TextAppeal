@@ -793,7 +793,7 @@ function renderUserBar() {
     bar.innerHTML = '<div class="ta-user-bar-inner">' +
       '<button class="ta-btn ta-btn-login" onclick="window.__taFreemium.showAuthModal(\'login\')">' + __t("logIn") + '</button>' +
       '<button class="ta-btn ta-btn-register" onclick="window.__taFreemium.showAuthModal(\'register\')">' + __t("createFreeAccount") + '</button>' +
-      '<a href="mailto:' + (window.__taLang === 'fr' ? 'fcouture@traductionsvoila.com' : 'fcouture@voilatranslations.com') + '" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
+      '<a href="https://www.textappeal.pro/shop/" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
       '<a href="' + (window.__taLang === 'fr' ? 'https://a.co/d/07c4LrCZ' : 'https://a.co/d/0e8L3V1K') + '" target="_blank" rel="noopener" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("buyBook") + '</a>' +
       '</div>';
     bar.style.display = "flex";
@@ -847,7 +847,7 @@ function injectAccountButton() {
       '<button class="ta-btn ta-btn-hero" onclick="window.__taFreemium.showAuthModal(\'register\')">' +
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
       ' ' + __t('createFreeAccount') + '</button>' +
-      '<a href="mailto:' + (window.__taLang === 'fr' ? 'fcouture@traductionsvoila.com' : 'fcouture@voilatranslations.com') + '" class="ta-btn ta-btn-hero" style="background:transparent;border:2px solid hsl(var(--primary));color:hsl(var(--primary));text-decoration:none;display:inline-flex;align-items:center;gap:6px">' +
+      '<a href="https://www.textappeal.pro/shop/" class="ta-btn ta-btn-hero" style="background:transparent;border:2px solid hsl(var(--primary));color:hsl(var(--primary));text-decoration:none;display:inline-flex;align-items:center;gap:6px">' +
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="m22 5-10 7L2 5"/></svg>' +
       ' ' + __t('getCustomSite') + '</a>' +
       '<span class="ta-hero-subtitle">' + freemiumConfig.freeRequestsPerMonth + ' ' + __t('freeRequests') + ' - ' + __t('noCreditCard') + '</span>' +
