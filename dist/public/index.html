@@ -1344,41 +1344,72 @@ function renderStyleToggle() {
   // Render into the left bottom pane, above the translate button
   var leftPane = document.getElementById('ta-bottom-left');
   var btnSlot = document.getElementById('ta-btn-slot');
-  if (!leftPane || !btnSlot) return; // bottom row not ready yet
+  if (!leftPane || !btnSlot) return;
 
-  var toggle = document.getElementById('ta-style-toggle');
-  if (!toggle) {
-    toggle = document.createElement('div');
-    toggle.id = 'ta-style-toggle';
-    toggle.className = 'ta-style-wrapper';
-    // Insert before the button slot
-    leftPane.insertBefore(toggle, btnSlot);
-  }
   var s = window.__taStyle || 'textAppeal';
   var lang = window.__taLang || 'en';
-  var caption = lang === 'fr' ? 'Choisissez un style' : 'Choose your style';
+
+  // If the toggle already exists, just update active states (don't rebuild)
+  var toggle = document.getElementById('ta-style-toggle');
+  if (toggle) {
+    // Update caption text
+    var cap = toggle.querySelector('.ta-style-caption');
+    if (cap) cap.textContent = lang === 'fr' ? 'Choisissez un style' : 'Choose your style';
+    // Update active states on preset buttons
+    var btns = toggle.querySelectorAll('.ta-style-btn');
+    btns.forEach(function(btn) {
+      var key = btn.getAttribute('data-style');
+      if (key) {
+        btn.className = 'ta-style-btn' + (s === key ? ' ta-style-active' : '');
+        // Update label for language
+        var labelMap = {textAppeal:'Text Appeal', clearSimpleInclusive: lang==='fr'?'Clair et inclusif':'Clear & Inclusive', classicalFrench: lang==='fr'?'Fran\u00e7ais classique':'Classical French'};
+        if (labelMap[key]) btn.textContent = labelMap[key];
+      }
+    });
+    // Update Other button active state
+    var otherBtn = toggle.querySelector('.ta-style-other-btn');
+    if (otherBtn) {
+      otherBtn.className = 'ta-style-other-btn' + (s === 'other' ? ' ta-style-active' : '');
+      otherBtn.textContent = lang === 'fr' ? 'Autre :' : 'Other:';
+    }
+    // Update placeholder on input (but do NOT touch value or rebuild it)
+    var otherInput = document.getElementById('ta-style-other-input');
+    if (otherInput) {
+      otherInput.placeholder = lang === 'fr' ? 'Vos consignes de style...' : 'Your style instructions...';
+    }
+    return;
+  }
+
+  // First-time build
+  toggle = document.createElement('div');
+  toggle.id = 'ta-style-toggle';
+  toggle.className = 'ta-style-wrapper';
+  leftPane.insertBefore(toggle, btnSlot);
+
+  var cap = document.createElement('div');
+  cap.className = 'ta-style-caption';
+  cap.textContent = lang === 'fr' ? 'Choisissez un style' : 'Choose your style';
+  toggle.appendChild(cap);
+
+  var btnContainer = document.createElement('div');
+  btnContainer.className = 'ta-style-buttons';
+
   var labels = {
     textAppeal: 'Text Appeal',
     clearSimpleInclusive: lang === 'fr' ? 'Clair et inclusif' : 'Clear & Inclusive',
     classicalFrench: lang === 'fr' ? 'Fran\u00e7ais classique' : 'Classical French'
   };
-  // Clear and rebuild
-  toggle.innerHTML = '';
-  var cap = document.createElement('div');
-  cap.className = 'ta-style-caption';
-  cap.textContent = caption;
-  toggle.appendChild(cap);
-  var btnContainer = document.createElement('div');
-  btnContainer.className = 'ta-style-buttons';
   var keys = ['textAppeal', 'clearSimpleInclusive', 'classicalFrench'];
   keys.forEach(function(key) {
     var btn = document.createElement('button');
     btn.className = 'ta-style-btn' + (s === key ? ' ta-style-active' : '');
     btn.textContent = labels[key];
+    btn.setAttribute('data-style', key);
     btn.addEventListener('click', function() { __setStyle(key); });
     btnContainer.appendChild(btn);
   });
-  // "Other" row: button + text input
+
+  // "Other" row
   var otherRow = document.createElement('div');
   otherRow.className = 'ta-style-other-row';
   var otherBtn = document.createElement('button');
@@ -1396,6 +1427,7 @@ function renderStyleToggle() {
   otherInput.addEventListener('focus', function() { __setStyle('other'); });
   otherRow.appendChild(otherInput);
   btnContainer.appendChild(otherRow);
+
   toggle.appendChild(btnContainer);
 }
 
