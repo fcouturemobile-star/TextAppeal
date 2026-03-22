@@ -402,6 +402,8 @@ function __setLang(lang) {
   window.dispatchEvent(new Event("ta-lang-changed"));
   // Update style toggle labels for new language
   renderStyleToggle();
+  // Update site link buttons for new language (different email / shop URL)
+  updateSiteLinkButtons();
   // Update any React-rendered text via DOM manipulation
   __updateReactText();
 }
@@ -576,6 +578,40 @@ function __updateReactText() {
 // ═══ State ═══
 let currentUser = null;
 let freemiumConfig = { freeRequestsPerMonth: 30, monthlyPriceCad: 20 };
+
+// ═══ "Get Your Own Site" link mode (shop vs email) ═══
+window.__taSiteLinkMode = 'shop'; // default, loaded from API on init
+var _siteLinkShop = 'https://www.textappeal.pro/shop/';
+
+function getSiteLinkHref() {
+  if (window.__taSiteLinkMode === 'email') {
+    var isFr = (window.__taLang === 'fr');
+    var email = isFr ? 'fcouture@traductionsvoila.com' : 'fcouture@voilatranslations.com';
+    var subject = encodeURIComponent(isFr ? 'Demande de site TextAppeal\u2122 personnalis\u00e9' : 'Custom TextAppeal\u2122 Site Inquiry');
+    return 'mailto:' + email + '?subject=' + subject;
+  }
+  var isFr2 = (window.__taLang === 'fr');
+  return isFr2 ? _siteLinkShop + 'fr.html' : _siteLinkShop;
+}
+
+function updateSiteLinkButtons() {
+  var href = getSiteLinkHref();
+  document.querySelectorAll('.ta-site-link').forEach(function(a) {
+    a.href = href;
+  });
+}
+
+// Load site link mode from server on startup
+(function() {
+  var _origFetch = window.fetch && window.fetch.__origFetch || window.fetch;
+  // Use a small delay to let origFetch be set up
+  setTimeout(function() {
+    var f = typeof origFetch !== 'undefined' ? origFetch : fetch;
+    f('/api/site-link-mode').then(function(r) { return r.json(); }).then(function(d) {
+      if (d.mode) { window.__taSiteLinkMode = d.mode; updateSiteLinkButtons(); }
+    }).catch(function() {});
+  }, 500);
+})();
 
 // ═══ Token Management ═══
 function getToken() { return localStorage.getItem("ta_user_token"); }
@@ -816,7 +852,7 @@ function renderUserBar() {
         ? '<button class="ta-btn ta-btn-cancel" onclick="window.__taFreemium.doCancelSubscription()" style="font-size:11px;padding:3px 8px;background:transparent;color:#64748b;border:1px solid #64748b">' + (window.__taLang === "fr" ? "Annuler l\u2019abonnement" : "Cancel subscription") + '</button>'
         : '') +
       '<button class="ta-btn ta-btn-logout" onclick="window.__taFreemium.doLogout()">' + __t("logout") + '</button>' +
-      '<a href="https://www.textappeal.pro/shop/" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
+      '<a href="' + getSiteLinkHref() + '" class="ta-btn ta-site-link" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
       '<a href="' + (window.__taLang === 'fr' ? 'https://a.co/d/07c4LrCZ' : 'https://a.co/d/0e8L3V1K') + '" target="_blank" rel="noopener" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("buyBook") + '</a>' +
       '</div>';
     bar.style.display = "flex";
@@ -824,7 +860,7 @@ function renderUserBar() {
     bar.innerHTML = '<div class="ta-user-bar-inner">' +
       '<button class="ta-btn ta-btn-login" onclick="window.__taFreemium.showAuthModal(\'login\')">' + __t("logIn") + '</button>' +
       '<button class="ta-btn ta-btn-register" onclick="window.__taFreemium.showAuthModal(\'register\')">' + __t("createFreeAccount") + '</button>' +
-      '<a href="https://www.textappeal.pro/shop/" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
+      '<a href="' + getSiteLinkHref() + '" class="ta-btn ta-site-link" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("getCustomSite") + '</a>' +
       '<a href="' + (window.__taLang === 'fr' ? 'https://a.co/d/07c4LrCZ' : 'https://a.co/d/0e8L3V1K') + '" target="_blank" rel="noopener" class="ta-btn" style="font-size:12px;padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.85);text-decoration:none;border-radius:6px;white-space:nowrap">' + __t("buyBook") + '</a>' +
       '</div>';
     bar.style.display = "flex";
@@ -878,7 +914,7 @@ function injectAccountButton() {
       '<button class="ta-btn ta-btn-hero" onclick="window.__taFreemium.showAuthModal(\'register\')">' +
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
       ' ' + __t('createFreeAccount') + '</button>' +
-      '<a href="https://www.textappeal.pro/shop/" class="ta-btn ta-btn-hero" style="background:transparent;border:2px solid hsl(var(--primary));color:hsl(var(--primary));text-decoration:none;display:inline-flex;align-items:center;gap:6px">' +
+      '<a href="' + getSiteLinkHref() + '" class="ta-btn ta-btn-hero ta-site-link" style="background:transparent;border:2px solid hsl(var(--primary));color:hsl(var(--primary));text-decoration:none;display:inline-flex;align-items:center;gap:6px">' +
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="m22 5-10 7L2 5"/></svg>' +
       ' ' + __t('getCustomSite') + '</a>' +
       '<span class="ta-hero-subtitle">' + freemiumConfig.freeRequestsPerMonth + ' ' + __t('freeRequests') + ' - ' + __t('noCreditCard') + '</span>' +
@@ -1065,6 +1101,20 @@ function injectAdminSections() {
         '</div></div>' +
         '</div>' +
         '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' +
+        '<h3 style="font-size:18px;font-weight:600;margin:0">"Get Your Own Site" Button</h3></div>' +
+        '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">Choose where the button sends visitors: to the shop page (Stripe checkout) or to your email for manual handling.</p>' +
+        '<div id="ta-site-link-mode" style="display:flex;flex-direction:column;gap:10px">' +
+        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;padding:8px 12px;border:1px solid var(--border,#e2e8f0);border-radius:8px">' +
+        '<input type="radio" name="ta-site-link" value="shop" style="width:16px;height:16px;cursor:pointer" checked>' +
+        '<div><strong>Shop page</strong><br><span style="font-size:12px;color:var(--muted-foreground,#64748b)">Sends to /shop/ with Stripe payment link</span></div></label>' +
+        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;padding:8px 12px;border:1px solid var(--border,#e2e8f0);border-radius:8px">' +
+        '<input type="radio" name="ta-site-link" value="email" style="width:16px;height:16px;cursor:pointer">' +
+        '<div><strong>Email</strong><br><span style="font-size:12px;color:var(--muted-foreground,#64748b)">EN: fcouture@voilatranslations.com / FR: fcouture@traductionsvoila.com</span></div></label>' +
+        '<span id="ta-site-link-status" style="font-size:12px;color:var(--muted-foreground,#64748b)"></span>' +
+        '</div>' +
+        '</div>' +
+        '<div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" style="margin-top:16px;padding:24px">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
         '<h3 style="font-size:18px;font-weight:600;margin:0">Style Prompts</h3></div>' +
         '<p style="color:var(--muted-foreground,#64748b);font-size:14px;margin:0 0 16px">View and edit the 6 style prompts (3 French, 3 English). Changes persist across updates.</p>' +
@@ -1205,6 +1255,46 @@ function injectAdminSections() {
             else { tempStatus.textContent = 'Error'; tempStatus.style.color = '#ef4444'; }
             setTimeout(function() { tempStatus.textContent = ''; tempStatus.style.color = ''; }, 3000);
           } catch(e) { tempStatus.textContent = 'Error'; }
+        });
+      })();
+
+      // Wire up "Get Your Own Site" link mode toggle
+      (async function() {
+        var radios = document.querySelectorAll('input[name="ta-site-link"]');
+        var status = document.getElementById('ta-site-link-status');
+        if (!radios.length) return;
+        // Load current value
+        try {
+          var at = getAdminToken();
+          var r = await origFetch('/api/admin/site-link-mode', { headers: { 'x-admin-token': at } });
+          if (r.ok) {
+            var d = await r.json();
+            radios.forEach(function(radio) { radio.checked = (radio.value === d.mode); });
+            window.__taSiteLinkMode = d.mode;
+          }
+        } catch(e) {}
+        // Save on change
+        radios.forEach(function(radio) {
+          radio.addEventListener('change', async function() {
+            var mode = this.value;
+            status.textContent = 'Saving...';
+            try {
+              var at = getAdminToken();
+              var r = await origFetch('/api/admin/site-link-mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-token': at },
+                body: JSON.stringify({ mode: mode })
+              });
+              if (r.ok) {
+                window.__taSiteLinkMode = mode;
+                status.textContent = mode === 'shop' ? 'Linked to shop page' : 'Linked to email';
+                status.style.color = '#22c55e';
+                // Update buttons on the page immediately
+                updateSiteLinkButtons();
+                setTimeout(function() { status.textContent = ''; status.style.color = ''; }, 3000);
+              } else { status.textContent = 'Error'; status.style.color = '#ef4444'; }
+            } catch(e) { status.textContent = 'Error'; status.style.color = '#ef4444'; }
+          });
         });
       })();
 

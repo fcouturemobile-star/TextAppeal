@@ -1691,6 +1691,28 @@ ma.post("/api/admin/splash-messages", function(req, res) {
 });
 
 // ═══ Separate Temperature Controls ═══
+// ── "Get your own site" button link mode ──
+ma.get("/api/site-link-mode", function(req, res) {
+  var cfg = Ga();
+  res.json({ mode: cfg.siteLinkMode || "shop" });
+});
+ma.get("/api/admin/site-link-mode", function(req, res) {
+  var token = req.headers["x-admin-token"];
+  if (!token || !lt.has(token)) return res.status(401).json({ error: "Unauthorized" });
+  var cfg = Ga();
+  res.json({ mode: cfg.siteLinkMode || "shop" });
+});
+ma.post("/api/admin/site-link-mode", function(req, res) {
+  var token = req.headers["x-admin-token"];
+  if (!token || !lt.has(token)) return res.status(401).json({ error: "Unauthorized" });
+  var mode = req.body.mode;
+  if (mode !== "shop" && mode !== "email") return res.status(400).json({ error: "Mode must be 'shop' or 'email'" });
+  var cfg = Ga();
+  cfg.siteLinkMode = mode;
+  he = cfg;
+  pt();
+  res.json({ ok: true, mode: cfg.siteLinkMode });
+});
 ma.get("/api/admin/temperatures", function(req, res) {
   var token = req.headers["x-admin-token"];
   if (!token || !lt.has(token)) return res.status(401).json({ error: "Unauthorized" });

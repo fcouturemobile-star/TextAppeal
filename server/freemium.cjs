@@ -426,7 +426,8 @@ function registerFreemiumRoutes(app) {
         [email.toLowerCase().trim(), hash, displayName || '', 'free', monthReset]
       );
 
-      // Auto-login
+      // Auto-login (invalidate any prior sessions for this user)
+      await db.query('DELETE FROM user_sessions WHERE user_id = ?', [result.insertId]);
       const token = generateToken();
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
       await db.query('INSERT INTO user_sessions (token, user_id, expires_at) VALUES (?, ?, ?)', [token, result.insertId, expiresAt]);
@@ -468,6 +469,9 @@ function registerFreemiumRoutes(app) {
       // Reset monthly if needed
       await ensureMonthReset(db, user.id, user.month_reset_date);
       const [refreshed] = await db.query('SELECT requests_this_month FROM users WHERE id = ?', [user.id]);
+
+      // Invalidate all existing sessions for this user (single-session enforcement)
+      await db.query('DELETE FROM user_sessions WHERE user_id = ?', [user.id]);
 
       const token = generateToken();
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
