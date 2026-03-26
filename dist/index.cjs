@@ -1137,6 +1137,32 @@ var _commonEN = new Set('able about accept across act actually add after again a
 var _commonFR = new Set('aller aimer arriver avoir besoin bien bon bonne chose comme connais connu croire deux dire doit donner encore enfant entre faire femme fille fois gens grand homme heure jour lieu long mal mettre monde moment nouveau nuit oeil part parler passer pendant penser perdre petit peu place plus porter pouvoir premier prendre quelque raison regarder rendre reste rien savoir seul temps tenir tout trouver venir vieux ville vivre voir vouloir'.split(' '));
 var _stopFR = new Set('a ai aie ainsi ait allaient allons alors au aucun aucune aux avaient avais avait avant avec avoir ayant bon c ca car ce ceci cela celle celles celui ces cet cette ceux chaque chez comme comment d dans de des du elle elles en encore entre es est et eu eux fait faites fais font il ils j je l la le les leur leurs lui m ma mais me mes moi mon n ne ni nos notre nous on ont ou par pas pendant peu peut peuvent pour qu que quel quelle quelles quelque quelques quels qui quoi s sa sans se sera ses si soi soit son sont sous suis sur t ta te tes toi ton toujours tous tout toute toutes tu un une vos votre vous y'.split(' '));
 
+// ── TERMIUM Plus: real Government of Canada terminology database ──
+async function termiumSearch(words, direction) {
+  var srcLang = direction === 'fr-en' ? 'fra' : 'eng';
+  var results = [];
+  for (var w of words.slice(0, 4)) {
+    try {
+      var url = 'https://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-' + srcLang + '.html?lang=' + srcLang + '&i=1&srchtxt=' + encodeURIComponent(w) + '&codom2nd_wet=1&index=alt&wbdisable=true';
+      var resp = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) continue;
+      var html = await resp.text();
+      // Check if any records found
+      var countMatch = html.match(/\[(\d+) record/);
+      if (!countMatch || countMatch[1] === '0') continue;
+      // Extract EN and FR terms
+      var enSpans = html.match(/<span[^>]*lang="en"[^>]*>([^<]+)/g) || [];
+      var frSpans = html.match(/<span[^>]*lang="fr"[^>]*>([^<]+)/g) || [];
+      var enTerms = enSpans.map(function(s) { var m = s.match(/>([^<]+)/); return m ? decodeURIComponent(m[1].trim()) : ''; }).filter(function(t) { return t.length > 1; });
+      var frTerms = frSpans.map(function(s) { var m = s.match(/>([^<]+)/); return m ? decodeURIComponent(m[1].trim()) : ''; }).filter(function(t) { return t.length > 1; });
+      if (enTerms.length > 0 && frTerms.length > 0) {
+        results.push({ en: enTerms[0], fr: frTerms[0], source: 'TERMIUM Plus' });
+      }
+    } catch(e) { /* timeout or network error, skip */ }
+  }
+  return results;
+}
+
 // ── Linguee dictionary lookup for common words ──
 async function lingueeSearch(words, direction) {
   var src = direction === 'fr-en' ? 'fr' : 'en';
@@ -1184,16 +1210,26 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
     var seenWords = {};
     var uniqueWords = plainWords.filter(function(w) { var lw = w.toLowerCase(); if (seenWords[lw]) return false; seenWords[lw] = true; return true; });
     console.log('Terminology extraction: ' + uniqueWords.length + ' content words after stop word filter');
+    // Step 1a: Search TERMIUM Plus (real Government of Canada database)
+    var termiumResults = [];
+    try {
+      termiumResults = await termiumSearch(uniqueWords, direction);
+      console.log('TERMIUM Plus found ' + termiumResults.length + ' terms');
+    } catch(te) { console.warn('TERMIUM lookup error:', te.message); }
+
+    // Step 1b: Search Linguee for words TERMIUM didn't cover
+    var termiumFoundWords = new Set(termiumResults.map(function(r) { return (direction === 'fr-en' ? r.fr : r.en || '').toLowerCase(); }));
+    var remainingWords = uniqueWords.filter(function(w) { return !termiumFoundWords.has(w.toLowerCase()); });
     var lingueeResults = [];
     try {
-      lingueeResults = await lingueeSearch(uniqueWords, direction);
+      lingueeResults = await lingueeSearch(remainingWords, direction);
       console.log('Linguee dictionary found ' + lingueeResults.length + ' translations');
     } catch(le) { console.warn('Linguee lookup error:', le.message); }
 
-    // Linguee provides verified dictionary results. Return them directly.
-    // OpenRouter web search disabled: the LLM fabricates TERMIUM/GDT citations
-    // for terms it cannot actually verify. Linguee + glossary + TM are reliable.
-    return lingueeResults;
+    // Merge: TERMIUM first (authoritative), then Linguee (common dictionary)
+    var allResults = termiumResults.concat(lingueeResults);
+    console.log('Terminology search total: ' + termiumResults.length + ' TERMIUM + ' + lingueeResults.length + ' Linguee = ' + allResults.length);
+    return allResults.slice(0, 8);
 
     // --- OpenRouter web search (DISABLED: produces hallucinated sources) ---
     var _OR_DISABLED = true; if (_OR_DISABLED) return lingueeResults;
