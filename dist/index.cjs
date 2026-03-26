@@ -1190,8 +1190,13 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
       console.log('Linguee dictionary found ' + lingueeResults.length + ' translations');
     } catch(le) { console.warn('Linguee lookup error:', le.message); }
 
-    // Step 2: For specialized/technical terms, try OpenRouter web search (if key available)
-    // Only works with OpenRouter (needs web plugin)
+    // Linguee provides verified dictionary results. Return them directly.
+    // OpenRouter web search disabled: the LLM fabricates TERMIUM/GDT citations
+    // for terms it cannot actually verify. Linguee + glossary + TM are reliable.
+    return lingueeResults;
+
+    // --- OpenRouter web search (DISABLED: produces hallucinated sources) ---
+    var _OR_DISABLED = true; if (_OR_DISABLED) return lingueeResults;
     var orEndpoint = "https://openrouter.ai/api/v1/chat/completions";
     var orKey = cfg.apiKey;
     var orModel = cfg.model;
