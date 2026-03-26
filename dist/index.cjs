@@ -1231,25 +1231,27 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
     var _isFrToEn = (direction === 'fr-en');
     var _srcLabel = _isFrToEn ? 'French' : 'English';
     var _tgtLabel = _isFrToEn ? 'English' : 'Canadian French';
-    var _identifyPrompt = 'You are a terminology extraction specialist. From the following ' + _srcLabel + ' text, identify ALL terms worth looking up in a terminology database (TERMIUM Plus, Grand dictionnaire terminologique). Include:\n' +
-      '- Technical, scientific, legal, administrative, or industry-specific terms\n' +
-      '- Institutional names, titles, proper nouns, program names\n' +
-      '- Multi-word expressions with specialized meaning\n' +
-      '- Domain-specific vocabulary that a general bilingual dictionary might not cover well\n\n' +
-      'DO NOT include everyday words, common verbs, adjectives, or basic vocabulary.\n\n' +
+    var _cleanText = plainText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 3000);
+    var _identifyPrompt = 'You are a terminology extraction specialist. From the following ' + _srcLabel + ' text, extract terms that appear VERBATIM in the text and that would benefit from a terminology database lookup.\n\n' +
+      'CRITICAL RULES:\n' +
+      '1. Every term you return MUST appear word-for-word in the source text below. Do NOT invent, infer, or suggest terms that are not present.\n' +
+      '2. Only include terms that a professional translator would look up: titles, program names, institutional terms, policy vocabulary, domain-specific expressions.\n' +
+      '3. Do NOT include common English words, personal names, place names, or generic vocabulary.\n\n' +
       'EXCLUDE these terms (already in glossary): ' + (Array.from(knownTerms).join(', ') || '(none)') + '\n\n' +
-      'Return ONLY a JSON array of strings, e.g.: ["term1", "term2", "multi-word term"]. Return [] if no specialized terms found.\n\n' +
-      'Text:\n' + plainText.replace(/<[^>]*>/g, ' ').substring(0, 3000);
+      'Return ONLY a JSON array of strings that appear verbatim in the text. Return [] if nothing qualifies.\n\n' +
+      'Text:\n' + _cleanText;
 
     var llmTerms = [];
     try {
       var _identifyResp = await rx(_identifyPrompt, 'Extract terminology now.', {...cfg, temperature: 0.1});
       var _jsonMatch = _identifyResp.match(/\[\s*[\s\S]*?\]/);
       if (_jsonMatch) llmTerms = JSON.parse(_jsonMatch[0]);
-      // Also include the stop-word-filtered unique words the LLM might have missed
-      var llmSet = new Set(llmTerms.map(function(t) { return t.toLowerCase(); }));
-      uniqueWords.forEach(function(w) { if (!llmSet.has(w.toLowerCase()) && w.length > 4) llmTerms.push(w); });
-      console.log('Step 1 (LLM identify): ' + llmTerms.length + ' terms to look up');
+      // HARD FILTER: remove any term the LLM hallucinated (not present in source text)
+      var _cleanLower = _cleanText.toLowerCase();
+      llmTerms = llmTerms.filter(function(t) {
+        return typeof t === 'string' && t.length > 2 && _cleanLower.includes(t.toLowerCase());
+      });
+      console.log('Step 1 (LLM identify + verified in text): ' + llmTerms.length + ' terms');
     } catch(e) {
       console.warn('Step 1 error:', e.message, '- falling back to word filter');
       llmTerms = uniqueWords;
@@ -1280,14 +1282,23 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
 
     if (_timedOut) return allRaw.slice(0, 12);
     // ══════ STEP 3: LLM sorts and validates results ══════
-    var _sortPrompt = 'You are a bilingual terminology reviewer. Below are terminology suggestions found in real databases (TERMIUM Plus and Linguee) for a ' + _srcLabel + ' to ' + _tgtLabel + ' translation.\n\n' +
+    // Pre-filter: only keep TERMIUM/Linguee results whose source-language term appears in the actual text
+    var _srcKey = _isFrToEn ? 'fr' : 'en';
+    allRaw = allRaw.filter(function(r) {
+      var srcTerm = (r[_srcKey] || '').toLowerCase();
+      return srcTerm && _cleanLower.includes(srcTerm);
+    });
+    if (allRaw.length === 0) return [];
+
+    var _sortPrompt = 'You are a bilingual terminology reviewer. The source text is shown below, followed by terminology results found in real databases.\n\n' +
+      'SOURCE TEXT:\n' + _cleanText.substring(0, 1500) + '\n\n' +
+      'TERMINOLOGY RESULTS:\n' + JSON.stringify(allRaw) + '\n\n' +
       'Your task:\n' +
-      '1. Remove any results that are trivial or unhelpful for translation (common words any translator knows)\n' +
-      '2. Remove duplicates\n' +
-      '3. Keep results that would genuinely help a translator: specialized terms, institutional vocabulary, terms with non-obvious translations\n' +
+      '1. ONLY keep results where the source-language term actually appears in the source text above\n' +
+      '2. Remove trivial or unhelpful results (common words any translator knows)\n' +
+      '3. Remove duplicates\n' +
       '4. Preserve the exact source attribution (TERMIUM Plus or Linguee) - do NOT change it\n\n' +
-      'Raw results:\n' + JSON.stringify(allRaw) + '\n\n' +
-      'Return ONLY a filtered JSON array in the same format. Return [] if none are useful.';
+      'Return ONLY a filtered JSON array in the same format. Return [] if none are relevant to this text.';
 
     try {
       var _sortResp = await rx(_sortPrompt, 'Filter and sort now.', {...cfg, temperature: 0.1});
