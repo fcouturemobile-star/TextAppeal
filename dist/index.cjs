@@ -1137,63 +1137,78 @@ var _commonEN = new Set('able about accept across act actually add after again a
 var _commonFR = new Set('aller aimer arriver avoir besoin bien bon bonne chose comme connais connu croire deux dire doit donner encore enfant entre faire femme fille fois gens grand homme heure jour lieu long mal mettre monde moment nouveau nuit oeil part parler passer pendant penser perdre petit peu place plus porter pouvoir premier prendre quelque raison regarder rendre reste rien savoir seul temps tenir tout trouver venir vieux ville vivre voir vouloir'.split(' '));
 var _stopFR = new Set('a ai aie ainsi ait allaient allons alors au aucun aucune aux avaient avais avait avant avec avoir ayant bon c ca car ce ceci cela celle celles celui ces cet cette ceux chaque chez comme comment d dans de des du elle elles en encore entre es est et eu eux fait faites fais font il ils j je l la le les leur leurs lui m ma mais me mes moi mon n ne ni nos notre nous on ont ou par pas pendant peu peut peuvent pour qu que quel quelle quelles quelque quelques quels qui quoi s sa sans se sera ses si soi soit son sont sous suis sur t ta te tes toi ton toujours tous tout toute toutes tu un une vos votre vous y'.split(' '));
 
+// ── Timeout helper (AbortSignal.timeout may not exist on older Node) ──
+function _fetchWithTimeout(url, opts, ms) {
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, ms || 6000);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function() { clearTimeout(timer); });
+}
+
 // ── TERMIUM Plus: real Government of Canada terminology database ──
 async function termiumSearch(words, direction) {
   var srcLang = direction === 'fr-en' ? 'fra' : 'eng';
-  var results = [];
-  for (var w of words.slice(0, 12)) {
-    try {
-      var url = 'https://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-' + srcLang + '.html?lang=' + srcLang + '&i=1&srchtxt=' + encodeURIComponent(w) + '&codom2nd_wet=1&index=alt&wbdisable=true';
-      var resp = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(8000) });
-      if (!resp.ok) continue;
-      var html = await resp.text();
-      // Check if any records found
-      var countMatch = html.match(/\[(\d+) record/);
-      if (!countMatch || countMatch[1] === '0') continue;
-      // Extract EN and FR terms
-      var enSpans = html.match(/<span[^>]*lang="en"[^>]*>([^<]+)/g) || [];
-      var frSpans = html.match(/<span[^>]*lang="fr"[^>]*>([^<]+)/g) || [];
-      var enTerms = enSpans.map(function(s) { var m = s.match(/>([^<]+)/); return m ? decodeURIComponent(m[1].trim()) : ''; }).filter(function(t) { return t.length > 1; });
-      var frTerms = frSpans.map(function(s) { var m = s.match(/>([^<]+)/); return m ? decodeURIComponent(m[1].trim()) : ''; }).filter(function(t) { return t.length > 1; });
-      if (enTerms.length > 0 && frTerms.length > 0) {
-        results.push({ en: enTerms[0], fr: frTerms[0], source: 'TERMIUM Plus' });
-      }
-    } catch(e) { /* timeout or network error, skip */ }
-  }
-  return results;
+  // Run all lookups in PARALLEL for speed
+  var promises = words.slice(0, 8).map(function(w) {
+    var url = 'https://www.btb.termiumplus.gc.ca/tpv2alpha/alpha-' + srcLang + '.html?lang=' + srcLang + '&i=1&srchtxt=' + encodeURIComponent(w) + '&codom2nd_wet=1&index=alt&wbdisable=true';
+    return _fetchWithTimeout(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, 6000)
+      .then(function(resp) { return resp.ok ? resp.text() : ''; })
+      .then(function(html) {
+        if (!html) return null;
+        var countMatch = html.match(/\[(\d+) record/);
+        if (!countMatch || countMatch[1] === '0') return null;
+        var enSpans = html.match(/<span[^>]*lang="en"[^>]*>([^<]+)/g) || [];
+        var frSpans = html.match(/<span[^>]*lang="fr"[^>]*>([^<]+)/g) || [];
+        var enTerms = enSpans.map(function(s) { var m = s.match(/>([^<]+)/); return m ? decodeURIComponent(m[1].trim()) : ''; }).filter(function(t) { return t.length > 1; });
+        var frTerms = frSpans.map(function(s) { var m = s.match(/>([^<]+)/); return m ? decodeURIComponent(m[1].trim()) : ''; }).filter(function(t) { return t.length > 1; });
+        if (enTerms.length > 0 && frTerms.length > 0) return { en: enTerms[0], fr: frTerms[0], source: 'TERMIUM Plus' };
+        return null;
+      })
+      .catch(function() { return null; });
+  });
+  var results = await Promise.all(promises);
+  return results.filter(function(r) { return r !== null; });
 }
 
 // ── Linguee dictionary lookup for common words ──
 async function lingueeSearch(words, direction) {
   var src = direction === 'fr-en' ? 'fr' : 'en';
   var dst = direction === 'fr-en' ? 'en' : 'fr';
-  var results = [];
-  for (var w of words.slice(0, 10)) {
-    try {
-      var resp = await fetch('https://linguee-api.fly.dev/api/v2/translations?query=' + encodeURIComponent(w) + '&src=' + src + '&dst=' + dst);
-      if (!resp.ok) continue;
-      var data = await resp.json();
-      if (!Array.isArray(data) || data.length === 0) continue;
-      // Get top 2 translations for this word
-      var translations = [];
-      for (var lemma of data) {
-        for (var t of (lemma.translations || [])) {
-          if (t.text && translations.length < 2) translations.push(t.text + (t.pos ? ' (' + t.pos + ')' : ''));
+  // Run all lookups in PARALLEL
+  var promises = words.slice(0, 8).map(function(w) {
+    return _fetchWithTimeout('https://linguee-api.fly.dev/api/v2/translations?query=' + encodeURIComponent(w) + '&src=' + src + '&dst=' + dst, {}, 5000)
+      .then(function(resp) { return resp.ok ? resp.json() : []; })
+      .then(function(data) {
+        if (!Array.isArray(data) || data.length === 0) return null;
+        var translations = [];
+        for (var lemma of data) {
+          for (var t of (lemma.translations || [])) {
+            if (t.text && translations.length < 2) translations.push(t.text + (t.pos ? ' (' + t.pos + ')' : ''));
+          }
         }
-      }
-      if (translations.length > 0) {
-        var entry = { source: 'Linguee' };
-        entry[src] = w;
-        entry[dst] = translations.join('; ');
-        results.push(entry);
-      }
-    } catch(e) { /* skip failed lookups */ }
-  }
-  return results;
+        if (translations.length > 0) {
+          var entry = { source: 'Linguee' };
+          entry[src] = w;
+          entry[dst] = translations.join('; ');
+          return entry;
+        }
+        return null;
+      })
+      .catch(function() { return null; });
+  });
+  var results = await Promise.all(promises);
+  return results.filter(function(r) { return r !== null; });
 }
 
 async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
-  var _allFound = []; // accumulate across steps for error recovery
+  // Global timeout: if the entire pipeline takes more than 30 seconds, return whatever we have
+  var _allFound = [];
+  var _timedOut = false;
+  var _globalTimeout = new Promise(function(resolve) {
+    setTimeout(function() { _timedOut = true; console.warn('Terminology pipeline: 30s global timeout reached, returning partial results'); resolve('TIMEOUT'); }, 30000);
+  });
+  var _pipeline = (async function() {
   try {
     console.log("webTermSearch called (4-step pipeline): providerType=" + cfg.providerType + " model=" + cfg.model);
 
@@ -1241,6 +1256,7 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
     }
     if (llmTerms.length === 0) return [];
 
+    if (_timedOut) return _allFound;
     // ══════ STEP 2: Search TERMIUM Plus + Linguee (real databases) ══════
     var termiumResults = [];
     try {
@@ -1262,6 +1278,7 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
     var allRaw = termiumResults.concat(lingueeResults);
     if (allRaw.length === 0) return [];
 
+    if (_timedOut) return allRaw.slice(0, 12);
     // ══════ STEP 3: LLM sorts and validates results ══════
     var _sortPrompt = 'You are a bilingual terminology reviewer. Below are terminology suggestions found in real databases (TERMIUM Plus and Linguee) for a ' + _srcLabel + ' to ' + _tgtLabel + ' translation.\n\n' +
       'Your task:\n' +
@@ -1290,6 +1307,10 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
     console.warn('Terminology search error:', err.message);
     return _allFound || [];
   }
+  })();
+  // Race the pipeline against the global timeout
+  var result = await Promise.race([_pipeline, _globalTimeout]);
+  return result === 'TIMEOUT' ? (_allFound || []) : (result || []);
 }
 
 // ── AWS SigV4 signing for Bedrock ──
