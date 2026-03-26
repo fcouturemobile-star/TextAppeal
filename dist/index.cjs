@@ -1130,7 +1130,14 @@ OTHER RULES:
 6. NEVER use em-dashes (\u2014). Use colons, semicolons, parentheses, or rephrase instead.
 7. You may reason internally as needed, but only output the final answer. Do not print your step-by-step thinking or analysis. Output ONLY the translated text with no preamble, explanation, or commentary.
 8. When the glossary provides multiple translations for the same headword, choose the one most appropriate to the context.`;var qi=se(require("fs"),1),Es=se(require("path"),1),Kh=se(require("crypto"),1),Xh=function(){var _hd=Es.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");var _ld=Es.default.join(process.cwd(),"server","data");try{qi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}try{var _lf=Es.default.join(_ld,"admin-config.json");if(qi.default.existsSync(_lf)&&!qi.default.existsSync(Es.default.join(_hd,"admin-config.json"))){qi.default.copyFileSync(_lf,Es.default.join(_hd,"admin-config.json"));console.log("Migrated admin-config.json to persistent storage")}}catch(e){}return _hd}(),ws=Es.default.join(Xh,"admin-config.json");function _s(a){return Kh.default.createHash("sha256").update(a).digest("hex")}var Yh={adminUsername:"admin",adminPasswordHash:_s("TextAppeal2026!"),llm:{providerType:"anthropic",endpoint:"https://api.anthropic.com/v1/messages",apiKey:"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",model:"claude-sonnet-4-6-20260205",temperature:0.3},customStylePrinciples:""},he=null;function ks(){if(he)return he;try{if(qi.default.existsSync(ws)){let a=qi.default.readFileSync(ws,"utf-8");he=JSON.parse(a),console.log("Admin config loaded from disk")}else he={...Yh},pt(),console.log("Admin config created with defaults")}catch(a){console.error("Error loading admin config, using defaults:",a),he={...Yh}}return he}function pt(){if(he)try{qi.default.mkdirSync(Xh,{recursive:!0}),qi.default.writeFileSync(ws,JSON.stringify(he,null,2),"utf-8");try{var _ld2=Es.default.join(process.cwd(),"server","data");qi.default.mkdirSync(_ld2,{recursive:!0});qi.default.writeFileSync(Es.default.join(_ld2,"admin-config.json"),JSON.stringify(he,null,2),"utf-8")}catch(e2){}}catch(a){console.error("Error saving admin config:",a)}}function Ga(){return he||ks()}function Zh(a){let e=Ga();e.llm=a,he=e,pt()}function Jh(a,e){let i=Ga();i.adminUsername=a,i.adminPasswordHash=_s(e),he=i,pt()}function Qh(a){let e=Ga();e.customStylePrinciples=a,he=e,pt()}function ex(a,e){let i=Ga();return i.adminUsername===a&&i.adminPasswordHash===_s(e)}function Pi(){return Ga().llm}function ax(){return Ga().customStylePrinciples}
-var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");try{Oi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}return _hd}(),tx=(0,ox.default)({dest:Ri.default.join(Ss,"uploads"),limits:{fileSize:50*1024*1024}}),lt=new Map;function J_(){let a=new Uint8Array(32);return crypto.getRandomValues(a),Array.from(a,e=>e.toString(16).padStart(2,"0")).join("")}function Fe(a,e,i){let n=a.headers["x-admin-token"];if(!n)return e.status(401).json({error:"Unauthorized"});let t=lt.get(n);if(!t||t.expiresAt<Date.now())return lt.delete(n),e.status(401).json({error:"Session expired"});i()}function Q_(a,e){if(e.length===0)return a;let i=a,n=[...e].sort((t,r)=>r.source.length-t.source.length);for(let t of n){let r=t.source.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(`(${r})(?![^<]*>)(?![^\\[]*\\]\\])`,"gi"),s=!1,tgts=t.targets&&t.targets.length>1?t.targets.join(" | "):t.target;i=i.replace(o,p=>s?p:(s=!0,`${p} [[GLOSSARY: "${t.source}" \u2192 "${tgts}"]]`))}return i}// ── Linguee dictionary lookup for common words ──
+var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");try{Oi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}return _hd}(),tx=(0,ox.default)({dest:Ri.default.join(Ss,"uploads"),limits:{fileSize:50*1024*1024}}),lt=new Map;function J_(){let a=new Uint8Array(32);return crypto.getRandomValues(a),Array.from(a,e=>e.toString(16).padStart(2,"0")).join("")}function Fe(a,e,i){let n=a.headers["x-admin-token"];if(!n)return e.status(401).json({error:"Unauthorized"});let t=lt.get(n);if(!t||t.expiresAt<Date.now())return lt.delete(n),e.status(401).json({error:"Session expired"});i()}function Q_(a,e){if(e.length===0)return a;let i=a,n=[...e].sort((t,r)=>r.source.length-t.source.length);for(let t of n){let r=t.source.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(`(${r})(?![^<]*>)(?![^\\[]*\\]\\])`,"gi"),s=!1,tgts=t.targets&&t.targets.length>1?t.targets.join(" | "):t.target;i=i.replace(o,p=>s?p:(s=!0,`${p} [[GLOSSARY: "${t.source}" \u2192 "${tgts}"]]`))}return i}// ── Stop words: trivial words excluded from terminology lookup ──
+var _stopEN = new Set('i me my myself we our ours ourselves you your yours yourself yourselves he him his himself she her hers herself it its itself they them their theirs themselves what which who whom this that these those am is are was were be been being have has had having do does did doing a an the and but if or because as until while of at by for with about against between into through during before after above below to from up down in out on off over under again further then once here there when where why how all any both each few more most other some such no nor not only own same so than too very can will just don should now also back been being being below both could did does each even few first five for from get got had has have her here his how i if in into is it its just last least let like long look made make many may me might more most much must my never new no nor not now of off old on once one only or other our out over own part per perhaps put quite rather really right said same say second see seem shall she should show side since so some still such take than that the their them then there these they this those three through time to together too toward two under until up upon us use very want was way we well were what when where which while who why will with without would yet you your'.split(' '));
+// Common everyday English words that are NOT terminology (verbs, adjectives, basic nouns)
+var _commonEN = new Set('able about accept across act actually add after again age ago agree ahead allow almost along already also always amount another answer appear area around arrive ask away back bad base become before begin behind believe best better big black body book both boy bring build business buy call came can car care carry case catch cause certain change child children city clear close cold come common concern consider contain continue control cost could country course cover create current cut dark day dead deal death decide deep develop did die different difficult direction display do door draw drive during early east eat effect effort eight either end enough enter even evening every example expect experience eye face fact fall family far fast father feel feet field fight figure final find fine first follow food foot force form found four free friend front full game general get girl give go god gold gone good got great green ground group grow gun hair half hand happen hard hat head hear heart heavy help here high hold home hope hot hour house hundred idea important include increase inside instead interest into island issue it job join just keep key kid kill kind king know land large last late laugh lay lead leave less let letter level lie life light line list little live long look lose lot love low main major make man matter may mean meet might mind miss moment money month more morning most mother mouth move much music must name national near need never new next night no north nothing now number of off offer office often oh old on only open order other out outside over own page paper part party pass past pay people perhaps period person picture piece place plan plant play point poor position possible power president press probably problem program provide public pull purpose push put question quickly quite race raise ran rather reach read ready real reason receive record red remember report rest result return right rise river road room run same sat save say sea see seem sell send serious serve set seven several shall share short should show side simple since sit situation six size small so social some son soon sort sound south space speak special stand start state step still stop story strong student study such suggest summer support sure system table take talk teacher tell ten than that the their then there these thing think this those though thought through to today together too top total toward town travel tree trouble true try turn two type under understand unit united until upon use usual value very voice walk wall want war watch water way week well west what white whole why wife will win with without woman wonder word work world write year yes yet young'.split(' '));
+var _commonFR = new Set('aller aimer arriver avoir besoin bien bon bonne chose comme connais connu croire deux dire doit donner encore enfant entre faire femme fille fois gens grand homme heure jour lieu long mal mettre monde moment nouveau nuit oeil part parler passer pendant penser perdre petit peu place plus porter pouvoir premier prendre quelque raison regarder rendre reste rien savoir seul temps tenir tout trouver venir vieux ville vivre voir vouloir'.split(' '));
+var _stopFR = new Set('a ai aie ainsi ait allaient allons alors au aucun aucune aux avaient avais avait avant avec avoir ayant bon c ca car ce ceci cela celle celles celui ces cet cette ceux chaque chez comme comment d dans de des du elle elles en encore entre es est et eu eux fait faites fais font il ils j je l la le les leur leurs lui m ma mais me mes moi mon n ne ni nos notre nous on ont ou par pas pendant peu peut peuvent pour qu que quel quelle quelles quelque quelques quels qui quoi s sa sans se sera ses si soi soit son sont sous suis sur t ta te tes toi ton toujours tous tout toute toutes tu un une vos votre vous y'.split(' '));
+
+// ── Linguee dictionary lookup for common words ──
 async function lingueeSearch(words, direction) {
   var src = direction === 'fr-en' ? 'fr' : 'en';
   var dst = direction === 'fr-en' ? 'en' : 'fr';
@@ -1167,10 +1174,16 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
     var knownTerms = new Set(glossaryMatches.map(g => g.source.toLowerCase()));
 
     // Step 1: Extract key words and look them up in Linguee (real dictionary, no hallucination)
-    var plainWords = plainText.replace(/<[^>]*>/g, ' ').replace(/[^\w\s\u00C0-\u024F'-]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2 && !knownTerms.has(w.toLowerCase()); });
+    var _stopList = direction === 'fr-en' ? _stopFR : _stopEN;
+    var _commonList = direction === 'fr-en' ? _commonFR : _commonEN;
+    var plainWords = plainText.replace(/<[^>]*>/g, ' ').replace(/[^\w\s\u00C0-\u024F'-]/g, ' ').split(/\s+/).filter(function(w) {
+      var lw = w.toLowerCase();
+      return w.length > 2 && !knownTerms.has(lw) && !_stopList.has(lw) && !_commonList.has(lw);
+    });
     // Deduplicate and take unique words
     var seenWords = {};
     var uniqueWords = plainWords.filter(function(w) { var lw = w.toLowerCase(); if (seenWords[lw]) return false; seenWords[lw] = true; return true; });
+    console.log('Terminology extraction: ' + uniqueWords.length + ' content words after stop word filter');
     var lingueeResults = [];
     try {
       lingueeResults = await lingueeSearch(uniqueWords, direction);
@@ -1201,42 +1214,62 @@ async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
       return lingueeResults;
     }
     var _isFrToEn = (direction === "fr-en");
-    var prompt = _isFrToEn ? `You are a Canadian bilingual terminology specialist. Analyze the following French text and identify 3-8 key technical terms, proper nouns, or specialized vocabulary that require verified English translations.
+    var prompt = _isFrToEn ? `You are a Canadian bilingual terminology specialist. Your task is STRICTLY limited to identifying DOMAIN-SPECIFIC TERMINOLOGY in the following French text.
+
+ONLY include terms that belong to one of these categories:
+- Technical or scientific terms (e.g., "photovoltaïque", "biodiversité", "jurisprudence")
+- Institutional names, titles, or proper nouns (e.g., "Chambre des communes", "Loi sur les espèces en péril")
+- Industry jargon or specialized vocabulary unlikely to appear in a standard dictionary (e.g., "gouvernance", "sous-traitance", "amortissement")
+- Multi-word expressions with a fixed translation (e.g., "mise en œuvre", "parties prenantes")
+
+DO NOT include:
+- Everyday words that any bilingual person knows (chat, maison, manger, travailler, carrière, détermination, etc.)
+- Common verbs, adjectives, adverbs, or abstract nouns (poursuivre, important, rapidement, etc.)
+- Words found in any basic French-English dictionary
+
+Apply common sense: if a word would NOT require a terminology database to translate, leave it out.
 
 EXCLUDE these terms (already in glossary): ${Array.from(knownTerms).join(", ") || "(none)"}
 
-For each term, search these authoritative Canadian sources IN THIS ORDER OF PRIORITY:
-1. TERMIUM Plus (Government of Canada terminology database - termiumplus.gc.ca)
-2. Grand dictionnaire terminologique (GDT - Office québécois de la langue française - gdt.oqlf.gouv.qc.ca)
-3. Official bilingual Canadian government publications (canada.ca, laws-lois.justice.gc.ca)
+For terms that DO qualify, search these Canadian sources:
+1. TERMIUM Plus (termiumplus.gc.ca)
+2. Grand dictionnaire terminologique (GDT - gdt.oqlf.gouv.qc.ca)
+3. Official Canadian government publications (canada.ca, laws-lois.justice.gc.ca)
 4. IATE (EU terminology database) as fallback
-5. Bilingual Canadian institutional sites (universities, professional associations)
 
-IMPORTANT: Always cite which source you found the term in. Prefer Canadian English usage where applicable.
+Return ONLY a JSON array, no other text:
+[{"fr": "French term", "en": "English translation", "source": "TERMIUM Plus / GDT / etc."}]
 
-Return ONLY a JSON array of objects, no other text:
-[{"fr": "French term", "en": "English translation", "source": "TERMIUM Plus / GDT / canada.ca / etc."}]
-
-If you cannot find a reliable translation from these sources, omit the term. Return at most 8 terms. Return [] if no terms need lookup.
+Return [] if the text contains no specialized terminology. Most everyday texts will return [].
 
 Text to analyze:
-${plainText.substring(0, 2000)}` : `You are a Canadian bilingual terminology specialist. Analyze the following English text and identify 3-8 key technical terms, proper nouns, or specialized vocabulary that require verified Canadian French (fr-CA) translations.
+${plainText.substring(0, 2000)}` : `You are a Canadian bilingual terminology specialist. Your task is STRICTLY limited to identifying DOMAIN-SPECIFIC TERMINOLOGY in the following English text.
+
+ONLY include terms that belong to one of these categories:
+- Technical or scientific terms (e.g., "photovoltaic", "biodiversity", "jurisprudence")
+- Institutional names, titles, or proper nouns (e.g., "House of Commons", "Species at Risk Act")
+- Industry jargon or specialized vocabulary unlikely to appear in a standard dictionary (e.g., "governance", "outsourcing", "amortization")
+- Multi-word expressions with a fixed translation (e.g., "stakeholders", "due diligence", "terms of reference")
+
+DO NOT include:
+- Everyday words that any bilingual person knows (cat, house, eat, work, career, determination, etc.)
+- Common verbs, adjectives, adverbs, or abstract nouns (pursue, important, quickly, etc.)
+- Words found in any basic English-French dictionary
+
+Apply common sense: if a word would NOT require a terminology database to translate, leave it out.
 
 EXCLUDE these terms (already in glossary): ${Array.from(knownTerms).join(", ") || "(none)"}
 
-For each term, search these authoritative Canadian sources IN THIS ORDER OF PRIORITY:
-1. TERMIUM Plus (Government of Canada terminology database - termiumplus.gc.ca)
-2. Grand dictionnaire terminologique (GDT - Office québécois de la langue française - gdt.oqlf.gouv.qc.ca)
-3. Official bilingual Canadian government publications (canada.ca, laws-lois.justice.gc.ca)
+For terms that DO qualify, search these Canadian sources:
+1. TERMIUM Plus (termiumplus.gc.ca)
+2. Grand dictionnaire terminologique (GDT - gdt.oqlf.gouv.qc.ca)
+3. Official Canadian government publications (canada.ca, laws-lois.justice.gc.ca)
 4. IATE (EU terminology database) as fallback
-5. Bilingual Canadian institutional sites (universities, professional associations)
 
-IMPORTANT: Always cite which source you found the term in. Prefer Canadian French usage over European French.
+Return ONLY a JSON array, no other text:
+[{"en": "English term", "fr": "Canadian French translation", "source": "TERMIUM Plus / GDT / etc."}]
 
-Return ONLY a JSON array of objects, no other text:
-[{"en": "English term", "fr": "Canadian French translation", "source": "TERMIUM Plus / GDT / canada.ca / etc."}]
-
-If you cannot find a reliable translation from these sources, omit the term. Return at most 8 terms. Return [] if no terms need lookup.
+Return [] if the text contains no specialized terminology. Most everyday texts will return [].
 
 Text to analyze:
 ${plainText.substring(0, 2000)}`;
