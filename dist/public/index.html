@@ -22,6 +22,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Text Appeal" />
     <title>Text Appeal™ - EN→FR-CA Translator</title>
     <meta name="description" content="Professional English to Canadian French translator with TM, glossary, and 25 Text Appeal style principles by François COUTURE." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -138,6 +143,22 @@
         flex-shrink: 0;
         max-height: 120px;
         overflow-y: auto;
+      }
+      .ta-m-style-btn {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 16px;
+        border: 1px solid hsl(var(--border, 0 0% 89.8%));
+        background: hsl(var(--background, 0 0% 100%));
+        color: hsl(var(--foreground, 0 0% 3.9%));
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+      .ta-m-style-btn.ta-m-style-active {
+        background: hsl(var(--primary, 0 0% 9%));
+        color: hsl(var(--primary-foreground, 0 0% 98%));
+        border-color: transparent;
       }
       .ta-m-footer {
         padding: 8px 14px;
@@ -400,6 +421,13 @@
         margin-left: 6px;
       }
     </style>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function() {});
+      });
+    }
+  </script>
   </head>
   <body>
     <div id="root"></div>
@@ -3256,11 +3284,17 @@ function updateTMPaneVisibility() {
     <div class="ta-m-controls">
       <button id="ta-m-dir-enfr" class="ta-m-dir-active">EN → FR</button>
       <button id="ta-m-dir-fren">FR → EN</button>
-      <select id="ta-m-style">
-        <option value="textAppeal">Text Appeal™</option>
-        <option value="clearSimpleInclusive" id="ta-m-style-csi">Clear &amp; Inclusive</option>
-        <option value="classicalFrench" id="ta-m-style-cf">Classical French</option>
-      </select>
+    </div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+      <button class="ta-m-style-btn ta-m-style-active" data-style="textAppeal">Text Appeal™</button>
+      <button class="ta-m-style-btn" data-style="clearSimpleInclusive" id="ta-m-style-csi">Clair et inclusif</button>
+      <button class="ta-m-style-btn" data-style="classicalFrench" id="ta-m-style-cf">Français classique</button>
+      <button class="ta-m-style-btn ta-m-style-other" data-style="other" id="ta-m-style-other-btn">Other:</button>
+    </div>
+    <div id="ta-m-other-row" style="display:none;margin-top:4px">
+      <input id="ta-m-other-input" type="text" placeholder="Your style instructions..." style="width:100%;padding:6px 8px;font-size:12px;border:1px solid hsl(var(--border,0 0% 89.8%));border-radius:6px;background:hsl(var(--background));color:hsl(var(--foreground))">
+    </div>
+    <div style="display:none"><!-- keep controls wrapper open -->
     </div>
   </div>
   <div class="ta-m-pane">
@@ -3268,13 +3302,32 @@ function updateTMPaneVisibility() {
     <textarea class="ta-m-input" id="ta-m-input" placeholder="Paste your text here (ideally a single paragraph)"></textarea>
   </div>
   <div style="padding:0 14px;flex-shrink:0">
-    <button class="ta-m-btn-translate" id="ta-m-translate">Translate &amp; Rewrite</button>
+    <button class="ta-m-btn-translate" id="ta-m-translate">Translate and Rewrite</button>
   </div>
   <div class="ta-m-pane">
     <label id="ta-m-output-label">Rewritten result</label>
     <div class="ta-m-output" id="ta-m-output"></div>
   </div>
-  <div class="ta-m-principles" id="ta-m-principles"></div>
+  <div id="ta-m-share" style="display:none;padding:0 14px 6px;flex-shrink:0;display:none">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button id="ta-m-copy" style="flex:1;padding:7px 10px;font-size:12px;border-radius:6px;border:1px solid hsl(var(--border,0 0% 89.8%));background:hsl(var(--background));color:hsl(var(--foreground));cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy
+      </button>
+      <button id="ta-m-email" style="flex:1;padding:7px 10px;font-size:12px;border-radius:6px;border:1px solid hsl(var(--border,0 0% 89.8%));background:hsl(var(--background));color:hsl(var(--foreground));cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Email
+      </button>
+      <button id="ta-m-sms" style="flex:1;padding:7px 10px;font-size:12px;border-radius:6px;border:1px solid hsl(var(--border,0 0% 89.8%));background:hsl(var(--background));color:hsl(var(--foreground));cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Text
+      </button>
+      <button id="ta-m-whatsapp" style="flex:1;padding:7px 10px;font-size:12px;border-radius:6px;border:1px solid hsl(var(--border,0 0% 89.8%));background:#25d366;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;border-color:#25d366">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.468A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-2.115 0-4.107-.614-5.803-1.672l-.416-.248-3.188 1.012.953-3.14-.266-.422A9.713 9.713 0 0 1 2.25 12c0-5.385 4.365-9.75 9.75-9.75S21.75 6.615 21.75 12s-4.365 9.75-9.75 9.75z"/></svg>
+        WhatsApp
+      </button>
+    </div>
+  </div>
   <div class="ta-m-footer">
     AI is not infallible. This tool assists but does not replace professional judgment.<br>
     <a href="https://www.textappeal.pro" style="color:inherit">www.textappeal.pro</a> · © François Couture
@@ -3292,38 +3345,62 @@ function updateTMPaneVisibility() {
 
   var btnEnFr = document.getElementById('ta-m-dir-enfr');
   var btnFrEn = document.getElementById('ta-m-dir-fren');
-  var styleSel = document.getElementById('ta-m-style');
   var inputLabel = document.getElementById('ta-m-input-label');
   var outputLabel = document.getElementById('ta-m-output-label');
   var input = document.getElementById('ta-m-input');
   var output = document.getElementById('ta-m-output');
   var translateBtn = document.getElementById('ta-m-translate');
-  var principlesDiv = document.getElementById('ta-m-principles');
+  var styleBtns = document.querySelectorAll('.ta-m-style-btn');
+  var otherRow = document.getElementById('ta-m-other-row');
+  var otherInput = document.getElementById('ta-m-other-input');
+  var customText = localStorage.getItem('ta_style_other') || '';
+  if (otherInput) otherInput.value = customText;
 
   function updateLabels() {
     var isFr = (dir === 'fr-en');
     inputLabel.textContent = isFr ? 'Texte source (fran\u00e7ais)' : 'Source text (English)';
     outputLabel.textContent = isFr ? 'R\u00e9sultat r\u00e9\u00e9crit' : 'Rewritten result';
-    translateBtn.innerHTML = isFr ? 'Traduire et r\u00e9\u00e9crire' : 'Translate &amp; Rewrite';
+    translateBtn.innerHTML = dir === 'en-fr' ? 'Translate and Rewrite' : 'Traduire et r\u00e9\u00e9crire';
     input.placeholder = isFr ? 'Collez votre texte ici (id\u00e9alement un seul paragraphe)' : 'Paste your text here (ideally a single paragraph)';
-    // Update style labels based on direction
+    // Update style labels based on target language (direction)
     var csi = document.getElementById('ta-m-style-csi');
     var cf = document.getElementById('ta-m-style-cf');
+    var otherBtn = document.getElementById('ta-m-style-other-btn');
     if (isFr) {
       csi.textContent = 'Clear & Inclusive';
       cf.textContent = 'Classical English';
+      if (otherBtn) otherBtn.textContent = 'Other:';
     } else {
       csi.textContent = 'Clair et inclusif';
       cf.textContent = 'Fran\u00e7ais classique';
+      if (otherBtn) otherBtn.textContent = 'Autre :';
     }
     btnEnFr.className = dir === 'en-fr' ? 'ta-m-dir-active' : '';
     btnFrEn.className = dir === 'fr-en' ? 'ta-m-dir-active' : '';
-    styleSel.value = style;
+    // Update active style button
+    styleBtns.forEach(function(b) {
+      var s = b.getAttribute('data-style');
+      b.className = 'ta-m-style-btn' + (s === style ? ' ta-m-style-active' : '') + (s === 'other' ? ' ta-m-style-other' : '');
+    });
+    // Show/hide other input
+    if (otherRow) otherRow.style.display = style === 'other' ? '' : 'none';
   }
 
   btnEnFr.addEventListener('click', function() { dir = 'en-fr'; localStorage.setItem('ta_direction', dir); updateLabels(); });
   btnFrEn.addEventListener('click', function() { dir = 'fr-en'; localStorage.setItem('ta_direction', dir); updateLabels(); });
-  styleSel.addEventListener('change', function() { style = this.value; localStorage.setItem('ta_style', style); });
+  styleBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      style = this.getAttribute('data-style');
+      localStorage.setItem('ta_style', style);
+      updateLabels();
+    });
+  });
+  if (otherInput) {
+    otherInput.addEventListener('input', function() {
+      customText = this.value;
+      localStorage.setItem('ta_style_other', customText);
+    });
+  }
   updateLabels();
 
   // Translate + Rewrite in one tap
@@ -3333,9 +3410,10 @@ function updateTMPaneVisibility() {
 
     translateBtn.disabled = true;
     translateBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:ta-spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ' +
-      (dir === 'fr-en' ? 'Translating...' : 'Traduction...');
+      (dir === 'en-fr' ? 'Translating...' : 'Traduction...');
     output.innerHTML = '';
-    principlesDiv.innerHTML = '';
+    var shareDiv0 = document.getElementById('ta-m-share');
+    if (shareDiv0) shareDiv0.style.display = 'none';
 
     try {
       // Get user token if logged in
@@ -3358,13 +3436,13 @@ function updateTMPaneVisibility() {
 
       // Update spinner for rewrite phase
       translateBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:ta-spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ' +
-        (dir === 'fr-en' ? 'Rewriting...' : 'R\u00e9\u00e9criture...');
+        (dir === 'en-fr' ? 'Rewriting...' : 'R\u00e9\u00e9criture...');
 
       // Step 2: Rewrite
       var rwResp = await fetch('/api/rewrite', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ text: translation, style: style, direction: dir })
+        body: JSON.stringify({ text: translation, style: style, direction: dir, customStyleText: style === 'other' ? customText : undefined })
       });
       if (!rwResp.ok) {
         var err2 = await rwResp.json().catch(function() { return { error: 'Rewrite failed' }; });
@@ -3377,36 +3455,56 @@ function updateTMPaneVisibility() {
       // Show result
       output.innerHTML = '<div class="rich-text-output">' + rewritten + '</div>';
 
-      // Show applied principles (deduplicated)
-      if (applied.length > 0) {
-        var seen = {};
-        var unique = applied.filter(function(id) { if (seen[id]) return false; seen[id] = true; return true; });
-        // Fetch principle names
-        try {
-          var prResp = await fetch('/api/principles?direction=' + dir + '&style=' + style);
-          if (prResp.ok) {
-            var allPr = await prResp.json();
-            var idMap = {};
-            allPr.forEach(function(p) { idMap[p.id] = p; });
-            var html = '<div style="font-size:12px;font-weight:600;color:hsl(var(--muted-foreground));margin-bottom:4px">' +
-              unique.length + (dir === 'fr-en' ? ' principles applied' : ' principes appliqu\u00e9s') + '</div>';
-            unique.forEach(function(id) {
-              var p = idMap[id];
-              if (p) {
-                html += '<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;background:rgba(217,181,60,0.12);color:#b88f0a;border:1px solid rgba(217,181,60,0.25);margin:2px 3px 2px 0">#' + p.id + ' ' + p.name + '</span>';
-              }
-            });
-            principlesDiv.innerHTML = html;
-          }
-        } catch(e) {}
-      }
+      // Show share buttons
+      var shareDiv = document.getElementById('ta-m-share');
+      if (shareDiv) shareDiv.style.display = '';
 
     } catch(e) {
       output.innerHTML = '<div style="color:#ef4444;padding:8px">' + (e.message || 'An error occurred') + '</div>';
     } finally {
       translateBtn.disabled = false;
-      translateBtn.innerHTML = dir === 'fr-en' ? 'Translate &amp; Rewrite' : 'Traduire et r\u00e9\u00e9crire';
+      translateBtn.innerHTML = dir === 'en-fr' ? 'Translate and Rewrite' : 'Traduire et r\u00e9\u00e9crire';
     }
+  });
+
+  // ── Share / Copy handlers ──
+  function getResultText() {
+    var el = document.getElementById('ta-m-output');
+    return el ? (el.innerText || el.textContent || '').trim() : '';
+  }
+
+  document.getElementById('ta-m-copy').addEventListener('click', function() {
+    var text = getResultText();
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.getElementById('ta-m-copy');
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied';
+      setTimeout(function() { btn.innerHTML = orig; }, 1500);
+    });
+  });
+
+  document.getElementById('ta-m-email').addEventListener('click', function() {
+    var text = getResultText();
+    if (!text) return;
+    var subject = encodeURIComponent('Translation via Text Appeal');
+    var body = encodeURIComponent(text);
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  });
+
+  document.getElementById('ta-m-sms').addEventListener('click', function() {
+    var text = getResultText();
+    if (!text) return;
+    var body = encodeURIComponent(text);
+    // iOS uses &body=, Android uses ?body=
+    var sep = /iP(hone|od|ad)/.test(navigator.userAgent) ? '&' : '?';
+    window.location.href = 'sms:' + sep + 'body=' + body;
+  });
+
+  document.getElementById('ta-m-whatsapp').addEventListener('click', function() {
+    var text = getResultText();
+    if (!text) return;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   });
 })();
 </script>
