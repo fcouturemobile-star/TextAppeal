@@ -1130,11 +1130,55 @@ OTHER RULES:
 6. NEVER use em-dashes (\u2014). Use colons, semicolons, parentheses, or rephrase instead.
 7. You may reason internally as needed, but only output the final answer. Do not print your step-by-step thinking or analysis. Output ONLY the translated text with no preamble, explanation, or commentary.
 8. When the glossary provides multiple translations for the same headword, choose the one most appropriate to the context.`;var qi=se(require("fs"),1),Es=se(require("path"),1),Kh=se(require("crypto"),1),Xh=function(){var _hd=Es.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");var _ld=Es.default.join(process.cwd(),"server","data");try{qi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}try{var _lf=Es.default.join(_ld,"admin-config.json");if(qi.default.existsSync(_lf)&&!qi.default.existsSync(Es.default.join(_hd,"admin-config.json"))){qi.default.copyFileSync(_lf,Es.default.join(_hd,"admin-config.json"));console.log("Migrated admin-config.json to persistent storage")}}catch(e){}return _hd}(),ws=Es.default.join(Xh,"admin-config.json");function _s(a){return Kh.default.createHash("sha256").update(a).digest("hex")}var Yh={adminUsername:"admin",adminPasswordHash:_s("TextAppeal2026!"),llm:{providerType:"anthropic",endpoint:"https://api.anthropic.com/v1/messages",apiKey:"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",model:"claude-sonnet-4-6-20260205",temperature:0.3},customStylePrinciples:""},he=null;function ks(){if(he)return he;try{if(qi.default.existsSync(ws)){let a=qi.default.readFileSync(ws,"utf-8");he=JSON.parse(a),console.log("Admin config loaded from disk")}else he={...Yh},pt(),console.log("Admin config created with defaults")}catch(a){console.error("Error loading admin config, using defaults:",a),he={...Yh}}return he}function pt(){if(he)try{qi.default.mkdirSync(Xh,{recursive:!0}),qi.default.writeFileSync(ws,JSON.stringify(he,null,2),"utf-8");try{var _ld2=Es.default.join(process.cwd(),"server","data");qi.default.mkdirSync(_ld2,{recursive:!0});qi.default.writeFileSync(Es.default.join(_ld2,"admin-config.json"),JSON.stringify(he,null,2),"utf-8")}catch(e2){}}catch(a){console.error("Error saving admin config:",a)}}function Ga(){return he||ks()}function Zh(a){let e=Ga();e.llm=a,he=e,pt()}function Jh(a,e){let i=Ga();i.adminUsername=a,i.adminPasswordHash=_s(e),he=i,pt()}function Qh(a){let e=Ga();e.customStylePrinciples=a,he=e,pt()}function ex(a,e){let i=Ga();return i.adminUsername===a&&i.adminPasswordHash===_s(e)}function Pi(){return Ga().llm}function ax(){return Ga().customStylePrinciples}
-var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");try{Oi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}return _hd}(),tx=(0,ox.default)({dest:Ri.default.join(Ss,"uploads"),limits:{fileSize:50*1024*1024}}),lt=new Map;function J_(){let a=new Uint8Array(32);return crypto.getRandomValues(a),Array.from(a,e=>e.toString(16).padStart(2,"0")).join("")}function Fe(a,e,i){let n=a.headers["x-admin-token"];if(!n)return e.status(401).json({error:"Unauthorized"});let t=lt.get(n);if(!t||t.expiresAt<Date.now())return lt.delete(n),e.status(401).json({error:"Session expired"});i()}function Q_(a,e){if(e.length===0)return a;let i=a,n=[...e].sort((t,r)=>r.source.length-t.source.length);for(let t of n){let r=t.source.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(`(${r})(?![^<]*>)(?![^\\[]*\\]\\])`,"gi"),s=!1,tgts=t.targets&&t.targets.length>1?t.targets.join(" | "):t.target;i=i.replace(o,p=>s?p:(s=!0,`${p} [[GLOSSARY: "${t.source}" \u2192 "${tgts}"]]`))}return i}async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
+var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROFILE||"/tmp",".textappeal");try{Oi.default.mkdirSync(_hd,{recursive:!0})}catch(e){}return _hd}(),tx=(0,ox.default)({dest:Ri.default.join(Ss,"uploads"),limits:{fileSize:50*1024*1024}}),lt=new Map;function J_(){let a=new Uint8Array(32);return crypto.getRandomValues(a),Array.from(a,e=>e.toString(16).padStart(2,"0")).join("")}function Fe(a,e,i){let n=a.headers["x-admin-token"];if(!n)return e.status(401).json({error:"Unauthorized"});let t=lt.get(n);if(!t||t.expiresAt<Date.now())return lt.delete(n),e.status(401).json({error:"Session expired"});i()}function Q_(a,e){if(e.length===0)return a;let i=a,n=[...e].sort((t,r)=>r.source.length-t.source.length);for(let t of n){let r=t.source.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(`(${r})(?![^<]*>)(?![^\\[]*\\]\\])`,"gi"),s=!1,tgts=t.targets&&t.targets.length>1?t.targets.join(" | "):t.target;i=i.replace(o,p=>s?p:(s=!0,`${p} [[GLOSSARY: "${t.source}" \u2192 "${tgts}"]]`))}return i}// ── Linguee dictionary lookup for common words ──
+async function lingueeSearch(words, direction) {
+  var src = direction === 'fr-en' ? 'fr' : 'en';
+  var dst = direction === 'fr-en' ? 'en' : 'fr';
+  var results = [];
+  for (var w of words.slice(0, 6)) {
+    try {
+      var resp = await fetch('https://linguee-api.fly.dev/api/v2/translations?query=' + encodeURIComponent(w) + '&src=' + src + '&dst=' + dst);
+      if (!resp.ok) continue;
+      var data = await resp.json();
+      if (!Array.isArray(data) || data.length === 0) continue;
+      // Get top 2 translations for this word
+      var translations = [];
+      for (var lemma of data) {
+        for (var t of (lemma.translations || [])) {
+          if (t.text && translations.length < 2) translations.push(t.text + (t.pos ? ' (' + t.pos + ')' : ''));
+        }
+      }
+      if (translations.length > 0) {
+        var entry = { source: 'Linguee' };
+        entry[src] = w;
+        entry[dst] = translations.join('; ');
+        results.push(entry);
+      }
+    } catch(e) { /* skip failed lookups */ }
+  }
+  return results;
+}
+
+async function webTermSearch(plainText, glossaryMatches, cfg, direction) {
   try {
     console.log("webTermSearch called: providerType=" + cfg.providerType + " model=" + cfg.model);
+
+    // Build list of terms already in glossary to exclude
+    var knownTerms = new Set(glossaryMatches.map(g => g.source.toLowerCase()));
+
+    // Step 1: Extract key words and look them up in Linguee (real dictionary, no hallucination)
+    var plainWords = plainText.replace(/<[^>]*>/g, ' ').replace(/[^\w\s\u00C0-\u024F'-]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2 && !knownTerms.has(w.toLowerCase()); });
+    // Deduplicate and take unique words
+    var seenWords = {};
+    var uniqueWords = plainWords.filter(function(w) { var lw = w.toLowerCase(); if (seenWords[lw]) return false; seenWords[lw] = true; return true; });
+    var lingueeResults = [];
+    try {
+      lingueeResults = await lingueeSearch(uniqueWords, direction);
+      console.log('Linguee dictionary found ' + lingueeResults.length + ' translations');
+    } catch(le) { console.warn('Linguee lookup error:', le.message); }
+
+    // Step 2: For specialized/technical terms, try OpenRouter web search (if key available)
     // Only works with OpenRouter (needs web plugin)
-    // If using Anthropic direct, use OpenRouter endpoint with same model name
     var orEndpoint = "https://openrouter.ai/api/v1/chat/completions";
     var orKey = cfg.apiKey;
     var orModel = cfg.model;
@@ -1153,11 +1197,9 @@ var Ss=function(){var _hd=Ri.default.join(process.env.HOME||process.env.USERPROF
       orKey = cfg.openrouterKey;
       orModel = "anthropic/claude-sonnet-4-6-20260205";
     } else {
-      console.log("Web term search skipped: providerType=" + cfg.providerType + ", hasOpenrouterKey=" + !!cfg.openrouterKey + ", endpoint=" + (cfg.endpoint||"") + ". Set provider to OpenRouter or add an openrouterKey.");
-      return [];
+      console.log("OpenRouter web search skipped (no key). Returning Linguee results only.");
+      return lingueeResults;
     }
-    // Build list of terms already in glossary to exclude
-    var knownTerms = new Set(glossaryMatches.map(g => g.source.toLowerCase()));
     var _isFrToEn = (direction === "fr-en");
     var prompt = _isFrToEn ? `You are a Canadian bilingual terminology specialist. Analyze the following French text and identify 3-8 key technical terms, proper nouns, or specialized vocabulary that require verified English translations.
 
@@ -1236,11 +1278,15 @@ ${plainText.substring(0, 2000)}`;
     var terms = JSON.parse(jsonMatch[0]);
     // Filter out terms already in glossary
     terms = terms.filter(t => t.en && t.fr && !knownTerms.has(_isFrToEn ? t.fr.toLowerCase() : t.en.toLowerCase()));
-    console.log("Web term search found " + terms.length + " suggestions");
-    return terms.slice(0, 8);
+    // Merge: Linguee (real dictionary) first, then OpenRouter web results (for terms not already found)
+    var lingueeKeys = new Set(lingueeResults.map(r => (r.en || r.fr || '').toLowerCase()));
+    var orFiltered = terms.filter(t => !lingueeKeys.has((_isFrToEn ? t.fr : t.en || '').toLowerCase()));
+    var merged = lingueeResults.concat(orFiltered);
+    console.log("Web term search: " + lingueeResults.length + " from Linguee + " + orFiltered.length + " from OpenRouter = " + merged.length + " total");
+    return merged.slice(0, 8);
   } catch (err) {
     console.warn("Web term search error:", err.message);
-    return [];
+    return lingueeResults || [];
   }
 }
 
